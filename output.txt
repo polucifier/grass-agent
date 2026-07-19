@@ -1,0 +1,72 @@
+ (.venv) rhea@o1qrpa16:~/Downloads/grass-ai-agent> python3 agent.py
+
+1. Starting and connecting to local GRASS MCP Server...
+
+
+
+                                ╭──────────────────────────────────────────────────────────────────────────────╮
+
+                                │                                                                              │
+
+                                │                                                                              │
+
+                                │                         ▄▀▀ ▄▀█ █▀▀ ▀█▀ █▀▄▀█ █▀▀ █▀█                        │
+
+                                │                         █▀  █▀█ ▄▄█  █  █ ▀ █ █▄▄ █▀▀                        │
+
+                                │                                                                              │
+
+                                │                                                                              │
+
+                                │                                                                              │
+
+                                │                                FastMCP 3.4.4                                 │
+
+                                │                            https://gofastmcp.com                             │
+
+                                │                                                                              │
+
+                                │                  🖥  Server:      GRASS-Server, 3.4.4                         │
+
+                                │                  🚀 Deploy free: https://horizon.prefect.io                  │
+
+                                │                                                                              │
+
+                                ╰──────────────────────────────────────────────────────────────────────────────╯
+
+
+
+[07/16/26 16:40:01] INFO     Starting MCP server 'GRASS-Server' with transport 'stdio'                                            transport.py:241
+
+
+👤 User: "Hey, please generate a 250 meters buffer zone around the main_roads layer."
+
+🔍 RAG: Analyzing user query: 'Hey, please generate a 250 meters buffer zone around the main_roads layer.'...
+
+🎯 RAG: Most relevant tool identified: 'create_vector_buffer' (similarity: 0.7265)
+
+📦 Active tools exposed to LLM: ['create_vector_buffer']
+
+🤖 Sending request to qwen2.5-coder:3b...
+
+⚠ Fallback Parser activated: Extracted JSON from text.
+
+
+🎯 AI decided to call: create_vector_buffer
+
+  With arguments: {'vector_name': 'main_roads', 'distance': 250}
+
+⚙ Running command on GRASS MCP server...
+
+📥 GRASS Response: Success: A buffer zone of 250.0 meters was created around vector layer 'main_roads'.
+
+✍ Generating final response...
+
+
+🤖 Agent final answer:
+
+Great! The 250-meter buffer zone has been successfully created around the "main_roads" layer. If you need to visualize or analyze this buffer, fee
+
+l free to let me know how I can assist further.
+
+(.venv) rhea@o1qrpa16:~/Downloads/grass-ai-agent>
