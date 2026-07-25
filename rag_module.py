@@ -1,7 +1,11 @@
 import math
-import ollama
+from typing import TYPE_CHECKING
 
-# Naše lokální znalostní báze nástrojů a jejich popisů pro vyhledávání
+if TYPE_CHECKING:
+    from llm_provider import LLMProvider
+
+SIMILARITY_THRESHOLD = 0.4
+
 GRASS_KNOWLEDGE_BASE = [
     {
         "name": "change_raster_palette",
@@ -20,13 +24,8 @@ GRASS_KNOWLEDGE_BASE = [
     }
 ]
 
-def get_embedding(text: str) -> list:
-    """Vygeneruje lokální vektor (embedding) pro zadaný text pomocí Ollamy."""
-    response = ollama.embeddings(model="nomic-embed-text", prompt=text)
-    return response["embedding"]
 
 def cosine_similarity(v1: list, v2: list) -> float:
-    """Spočítá kosinovou podobnost mezi dvěma vektory (čistý Python)."""
     dot_product = sum(x * y for x, y in zip(v1, v2))
     magnitude1 = math.sqrt(sum(x * x for x in v1))
     magnitude2 = math.sqrt(sum(y * y for y in v2))
@@ -34,27 +33,36 @@ def cosine_similarity(v1: list, v2: list) -> float:
         return 0.0
     return dot_product / (magnitude1 * magnitude2)
 
-def retrieve_best_tool(user_query: str):
-    """
-    Porovná dotaz uživatele se znalostní bází a vrátí nejrelevantnější nástroj.
-    """
-    print(f"🔍 RAG: Analyzing user query: '{user_query}'...")
-    query_vector = get_embedding(user_query)
+
+def retrieve_best_tool(user_query: str, provider: "LLMProvider", threshold: float = SIMILARITY_THRESHOLD):
+    print(f"RAG: Analyzing user query: '{user_query}'...")
+
+    try:
+        query_vector = provider.generate_embeddings(user_query)
+    except NotImplementedError:
+        print("RAG: Embeddings not available for this provider. Cannot perform semantic search.")
+        return None
 
     best_similarity = -1.0
     best_tool_name = None
 
     for tool in GRASS_KNOWLEDGE_BASE:
-        # Porovnáváme dotaz s popisem a klíčovými slovy nástroje
         tool_text = f"{tool['description']} {tool['keywords']}"
-        tool_vector = get_embedding(tool_text)
+        try:
+            tool_vector = provider.generate_embeddings(tool_text)
+        except NotImplementedError:
+            print("RAG: Embeddings not available for this provider. Cannot perform semantic search.")
+            return None
 
         similarity = cosine_similarity(query_vector, tool_vector)
-        # print(f"   -> Tool '{tool['name']}' similarity: {similarity:.4f}")
 
         if similarity > best_similarity:
             best_similarity = similarity
             best_tool_name = tool["name"]
 
-    print(f"🎯 RAG: Most relevant tool identified: '{best_tool_name}' (similarity: {best_similarity:.4f})")
+    if best_similarity < threshold:
+        print(f"RAG: No relevant tool found (best: '{best_tool_name}' at {best_similarity:.4f}, threshold: {threshold})")
+        return None
+
+    print(f"RAG: Most relevant tool identified: '{best_tool_name}' (similarity: {best_similarity:.4f})")
     return best_tool_name

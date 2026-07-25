@@ -1,117 +1,219 @@
 import asyncio
-import ollama
+import json
+import sys
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
-from rag_module import retrieve_best_tool  # Importujeme náš RAG
 
-MODEL_NAME = "qwen2.5-coder:3b"
+from config import AgentConfig
+from grass_context import GRASSContext
+from llm_provider import LLMProvider, OllamaProvider, create_provider
+from tool_selector import ToolSelector, ToolDef
 
-async def run_agent():
+GRASS_MCP_SERVER = "grass_mcp_server.py"
+
+BASE_SYSTEM_PROMPT = (
+    "You are a professional GIS assistant specializing in GRASS GIS. "
+    "You must communicate strictly in English. "
+    "IMPORTANT: When a tool is available that matches the user's request, you MUST call it. "
+    "Do not just describe the command — execute the tool and report the actual result. "
+    "If a tool fails, explain what went wrong and suggest an alternative. "
+    "If the user asks a question that does not require a tool, respond conversationally."
+)
+
+
+def build_system_prompt(grass_ctx: GRASSContext) -> str:
+    return BASE_SYSTEM_PROMPT + grass_ctx.to_system_prompt_suffix()
+
+
+def _format_tool(tool_def: ToolDef) -> dict:
+    return {
+        "type": "function",
+        "function": {
+            "name": tool_def.name,
+            "description": tool_def.description,
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    k: {"type": v["type"], "description": v["description"]}
+                    for k, v in tool_def.parameters.items()
+                },
+                "required": [k for k, v in tool_def.parameters.items() if v.get("required")],
+            },
+        },
+    }
+
+
+def _make_ollama_tool_call_msg(tool_call, call_id):
+    return {
+        "role": "assistant",
+        "tool_calls": [{"function": {"name": tool_call.name, "arguments": tool_call.arguments}}],
+    }
+
+
+def _make_api_tool_call_msg(tool_call, call_id):
+    return {
+        "role": "assistant",
+        "tool_calls": [{"id": call_id, "type": "function", "function": {"name": tool_call.name, "arguments": json.dumps(tool_call.arguments)}}],
+    }
+
+
+def _make_tool_result_msg(tool_call, output_text, call_id):
+    return {"role": "tool", "content": output_text, "tool_call_id": call_id}
+
+
+def _is_ollama(provider: LLMProvider) -> bool:
+    return isinstance(provider, OllamaProvider)
+
+
+def _format_server_tool(name: str, server_tool) -> dict:
+    return {
+        "type": "function",
+        "function": {
+            "name": name,
+            "description": server_tool.description or "",
+            "parameters": server_tool.inputSchema,
+        },
+    }
+
+
+async def run_agent(config: AgentConfig):
+    provider = create_provider(config)
+    grass_ctx = GRASSContext()
+    selector = ToolSelector(provider, threshold=config.similarity_threshold)
+
     server_params = StdioServerParameters(
-        command="python",
-        args=["grass_server.py"]
+        command=sys.executable,
+        args=[GRASS_MCP_SERVER],
     )
 
-    print("1. Starting and connecting to local GRASS MCP Server...")
+    print(f"Provider: {type(provider).__name__} | Model: ", end="")
+    print(provider.model if hasattr(provider, "model") else "unknown")
+    print(f"Location: {grass_ctx.location} | CRS: {grass_ctx.crs}")
+    print(f"Tool registry: {len(selector.registry)} tools")
+
+    print("Starting MCP server...")
     async with stdio_client(server_params) as (read_stream, write_stream):
         async with ClientSession(read_stream, write_stream) as session:
             await session.initialize()
 
-            # 1. Uživatel zadá dotaz v angličtině
-            user_prompt = "Hey, please generate a 250 meters buffer zone around the main_roads layer."
-            print(f"\n👤 User: \"{user_prompt}\"")
+            # Build MCP tool schemas from server
+            server_tools = {t.name: t for t in (await session.list_tools()).tools}
 
-            # 2. RAG fáze - Vyhledáme nejlepší nástroj z naší znalostní báze
-            target_tool_name = retrieve_best_tool(user_prompt)
-
-            # 3. Načteme nástroje z MCP serveru a profiltrujeme je
-            tools_response = await session.list_tools()
-            ollama_tools = []
-
-            for tool in tools_response.tools:
-                # LLM zpřístupníme POUZE ten nástroj, který vybral RAG!
-                if tool.name == target_tool_name:
-                    ollama_tools.append({
-                        'type': 'function',
-                        'function': {
-                            'name': tool.name,
-                            'description': tool.description,
-                            'parameters': tool.inputSchema
-                        }
-                    })
-
-            print(f"📦 Active tools exposed to LLM: {[t['function']['name'] for t in ollama_tools]}")
-
-            # 4. Volání lokálního LLM
-            print(f"🤖 Sending request to {MODEL_NAME}...")
-
-            messages = [
-                {
-                    'role': 'system',
-                    'content': 'You are a professional GIS assistant. You must communicate strictly in English.'
-                },
-                {
-                    'role': 'user',
-                    'content': user_prompt
-                }
+            conversation_history: list[dict] = [
+                {"role": "system", "content": build_system_prompt(grass_ctx)},
             ]
 
-            response = ollama.chat(
-                model=MODEL_NAME,
-                messages=messages,
-                tools=ollama_tools
-            )
+            print("Agent ready. Commands: 'quit', 'clear' (reset history), or type a request.\n")
 
-            # 5. Zpracování volání nástroje s naším fallbackem
-            tool_calls = response.message.tool_calls
-            if not tool_calls and response.message.content:
-                # Fallback pro textový JSON z malých modelů
-                import json
-                text_content = response.message.content.strip()
-                if text_content.startswith("```"):
-                    text_content = "\n".join(text_content.split("\n")[1:-1]).strip()
+            while True:
                 try:
-                    parsed_json = json.loads(text_content)
-                    if isinstance(parsed_json, dict) and "name" in parsed_json:
-                        class MockFunction:
-                            def __init__(self, name, arguments):
-                                self.name = name
-                                self.arguments = arguments
-                        class MockToolCall:
-                            def __init__(self, function):
-                                self.function = function
-                        tool_calls = [MockToolCall(MockFunction(parsed_json["name"], parsed_json.get("arguments", {})))]
-                        print("⚠️ Fallback Parser activated: Extracted JSON from text.")
-                except json.JSONDecodeError:
-                    pass
+                    user_prompt = input("> ").strip()
+                except (EOFError, KeyboardInterrupt):
+                    print("\nExiting.")
+                    break
 
-            # Spuštění nástroje
-            if tool_calls:
-                for tool_call in tool_calls:
-                    tool_name = tool_call.function.name
-                    tool_args = tool_call.function.arguments
+                if not user_prompt:
+                    continue
+                if user_prompt.lower() in ("quit", "exit", "q"):
+                    print("Exiting.")
+                    break
+                if user_prompt.lower() == "clear":
+                    conversation_history = [{"role": "system", "content": build_system_prompt(grass_ctx)}]
+                    print("Conversation history cleared.\n")
+                    continue
 
-                    print(f"\n🎯 AI decided to call: {tool_name}")
-                    print(f"   With arguments: {tool_args}")
+                try:
+                    await process_message(
+                        session, provider, config, selector,
+                        server_tools, conversation_history, user_prompt,
+                    )
+                except Exception as e:
+                    print(f"Error: {e}\n")
 
-                    print(f"⚙️ Running command on GRASS MCP server...")
-                    result = await session.call_tool(tool_name, arguments=tool_args)
+
+async def process_message(
+    session,
+    provider: LLMProvider,
+    config: AgentConfig,
+    selector: ToolSelector,
+    server_tools: dict,
+    messages: list[dict],
+    user_prompt: str,
+):
+    messages.append({"role": "user", "content": user_prompt})
+
+    # Stage 1+2: Select relevant tools
+    selected_defs = selector.select_tools(user_prompt)
+
+    # Filter to tools that exist on the MCP server
+    mcp_tools = []
+    for tool_def in selected_defs:
+        if tool_def.name in server_tools:
+            mcp_tools.append(_format_tool(tool_def))
+
+    # Fallback: if no selector tools matched, pass top server tools
+    # so the LLM can still decide whether to use one or respond conversationally
+    if not mcp_tools:
+        mcp_tools = [_format_server_tool(name, server_tools[name]) for name in list(server_tools)[:10]]
+
+    print(f"Tools available to LLM: {[t['function']['name'] for t in mcp_tools]}")
+
+    try:
+        response = provider.chat(list(messages), tools=mcp_tools)
+    except Exception as e:
+        print(f"LLM error: {e}\n")
+        return
+
+    # Conversational response — no tool call
+    if not response.tool_calls:
+        assistant_content = response.content or ""
+        messages.append({"role": "assistant", "content": assistant_content})
+        print(f"\n{assistant_content}\n")
+        return
+
+    # Tool call chain
+    for chain_step in range(config.max_tool_calls_per_turn):
+        if not response.tool_calls:
+            break
+
+        for i, tool_call in enumerate(response.tool_calls):
+            print(f"Calling: {tool_call.name}({tool_call.arguments})")
+
+            try:
+                result = await session.call_tool(tool_call.name, arguments=tool_call.arguments)
+
+                if result.isError:
+                    output_text = f"Error: {result.content}"
+                elif result.content:
                     output_text = result.content[0].text
-                    print(f"📥 GRASS Response: {output_text}")
+                else:
+                    output_text = "Tool returned no output."
 
-                    # Finální odpověď v angličtině
-                    messages.append(response.message)
-                    messages.append({
-                        'role': 'tool',
-                        'content': output_text,
-                        'name': tool_name
-                    })
+                print(f"Result: {output_text}")
+            except Exception as e:
+                output_text = f"Error executing tool '{tool_call.name}': {e}"
+                print(output_text)
 
-                    print("✍️ Generating final response...")
-                    final_response = ollama.chat(model=MODEL_NAME, messages=messages)
-                    print(f"\n🤖 Agent final answer:\n{final_response.message.content}")
+            call_id = f"call_{chain_step}_{i}"
+
+            if _is_ollama(provider):
+                messages.append(_make_ollama_tool_call_msg(tool_call, call_id))
             else:
-                print(f"\n🤖 Agent responded without tools:\n{response.message.content}")
+                messages.append(_make_api_tool_call_msg(tool_call, call_id))
+
+            messages.append(_make_tool_result_msg(tool_call, output_text, call_id))
+
+        try:
+            response = provider.chat(list(messages), tools=mcp_tools)
+        except Exception as e:
+            print(f"LLM error: {e}\n")
+            return
+
+    assistant_content = response.content or ""
+    messages.append({"role": "assistant", "content": assistant_content})
+    print(f"\n{assistant_content}\n")
+
 
 if __name__ == "__main__":
-    asyncio.run(run_agent())
+    config = AgentConfig.from_env()
+    asyncio.run(run_agent(config))
