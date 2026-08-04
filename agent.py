@@ -6,7 +6,7 @@ from mcp.client.stdio import stdio_client
 
 from config import AgentConfig
 from grass_context import GRASSContext
-from llm_provider import LLMProvider, OllamaProvider, create_provider
+from llm_provider import LLMProvider, OllamaProvider, GeminiProvider, create_provider, _format_tool, _format_server_tool
 from tool_selector import ToolSelector, ToolDef
 
 GRASS_MCP_SERVER = "grass_mcp_server.py"
@@ -23,24 +23,6 @@ BASE_SYSTEM_PROMPT = (
 
 def build_system_prompt(grass_ctx: GRASSContext) -> str:
     return BASE_SYSTEM_PROMPT + grass_ctx.to_system_prompt_suffix()
-
-
-def _format_tool(tool_def: ToolDef) -> dict:
-    return {
-        "type": "function",
-        "function": {
-            "name": tool_def.name,
-            "description": tool_def.description,
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    k: {"type": v["type"], "description": v["description"]}
-                    for k, v in tool_def.parameters.items()
-                },
-                "required": [k for k, v in tool_def.parameters.items() if v.get("required")],
-            },
-        },
-    }
 
 
 def _make_ollama_tool_call_msg(tool_call, call_id):
@@ -63,17 +45,6 @@ def _make_tool_result_msg(tool_call, output_text, call_id):
 
 def _is_ollama(provider: LLMProvider) -> bool:
     return isinstance(provider, OllamaProvider)
-
-
-def _format_server_tool(name: str, server_tool) -> dict:
-    return {
-        "type": "function",
-        "function": {
-            "name": name,
-            "description": server_tool.description or "",
-            "parameters": server_tool.inputSchema,
-        },
-    }
 
 
 async def run_agent(config: AgentConfig):

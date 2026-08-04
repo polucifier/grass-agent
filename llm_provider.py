@@ -11,6 +11,13 @@ from config import AgentConfig, OllamaConfig, APIConfig
 
 logger = logging.getLogger(__name__)
 
+JSON_SCHEMA_TYPE_MAP = {
+    "float": "number",
+    "int": "integer",
+    "str": "string",
+    "bool": "boolean",
+}
+
 
 @dataclass
 class ToolCall:
@@ -44,13 +51,10 @@ def _parse_tool_calls_from_text(text: str) -> list[ToolCall] | None:
     """Robust fallback parser: extract tool calls from raw LLM text output."""
     cleaned = text.strip()
 
-    # Strip markdown code fences (```json ... ``` or ``` ... ```)
     fence_match = re.search(r"```(?:json)?\s*\n?(.*?)\n?\s*```", cleaned, re.DOTALL)
     if fence_match:
         cleaned = fence_match.group(1).strip()
 
-    # Try to find JSON objects in the text
-    # First, try parsing the whole cleaned text as JSON
     candidates = []
 
     try:
@@ -60,7 +64,6 @@ def _parse_tool_calls_from_text(text: str) -> list[ToolCall] | None:
     except json.JSONDecodeError:
         pass
 
-    # If that failed, find all {...} blocks via regex
     if not candidates:
         for match in re.finditer(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", cleaned):
             try:
@@ -70,7 +73,6 @@ def _parse_tool_calls_from_text(text: str) -> list[ToolCall] | None:
             except json.JSONDecodeError:
                 continue
 
-    # Look for a candidate with "name" key (tool call pattern)
     for obj in candidates:
         if "name" in obj:
             args = obj.get("arguments", obj.get("args", obj.get("parameters", {})))
@@ -84,6 +86,47 @@ def _parse_tool_calls_from_text(text: str) -> list[ToolCall] | None:
             return [ToolCall(name=obj["name"], arguments=args)]
 
     return None
+
+
+def _convert_schema_type(python_type: str) -> str:
+    return JSON_SCHEMA_TYPE_MAP.get(python_type, python_type)
+
+
+def _format_tool(tool_def) -> dict:
+    properties = {}
+    required = []
+    for param_name, param_info in tool_def.parameters.items():
+        param_type = _convert_schema_type(param_info["type"])
+        properties[param_name] = {
+            "type": param_type,
+            "description": param_info["description"],
+        }
+        if param_info.get("required"):
+            required.append(param_name)
+
+    schema = {"type": "object", "properties": properties}
+    if required:
+        schema["required"] = required
+
+    return {
+        "type": "function",
+        "function": {
+            "name": tool_def.name,
+            "description": tool_def.description,
+            "parameters": schema,
+        },
+    }
+
+
+def _format_server_tool(name: str, server_tool) -> dict:
+    return {
+        "type": "function",
+        "function": {
+            "name": name,
+            "description": server_tool.description or "",
+            "parameters": server_tool.inputSchema,
+        },
+    }
 
 
 class OllamaProvider(LLMProvider):
@@ -107,7 +150,6 @@ class OllamaProvider(LLMProvider):
                 for tc in response.message.tool_calls
             ]
         elif response.message.content:
-            # Fallback: try to extract tool calls from text output
             parsed = _parse_tool_calls_from_text(response.message.content)
             if parsed:
                 logger.info("Fallback parser activated: extracted tool call from text")
@@ -192,7 +234,104 @@ class APIProvider(LLMProvider):
         )
 
 
+class GeminiProvider(LLMProvider):
+
+    def __init__(self, config: APIConfig):
+        self.model = config.model
+        self.api_key = config.api_key
+
+        try:
+            import google.generativeai as genai
+        except ImportError:
+            raise ImportError(
+                "The 'google-generativeai' package is required for Gemini provider. "
+                "Install it with: pip install google-generativeai"
+            )
+
+        genai.configure(api_key=self.api_key)
+        self._genai = genai
+
+    def chat(self, messages: list[dict], tools: list[dict] | None = None) -> LLMResponse:
+        genai = self._genai
+        model = genai.GenerativeModel(
+            model_name=self.model,
+            tools=tools if tools else [],
+        )
+
+        gemini_messages = self._convert_messages(messages)
+
+        response = model.generate_content(gemini_messages)
+
+        tool_calls = None
+        if response.function_calls:
+            tool_calls = [
+                ToolCall(name=fc.name, arguments=dict(fc.args))
+                for fc in response.function_calls
+            ]
+        elif response.text:
+            parsed = _parse_tool_calls_from_text(response.text)
+            if parsed:
+                logger.info("Fallback parser activated: extracted tool call from text")
+                tool_calls = parsed
+
+        return LLMResponse(
+            content=response.text,
+            tool_calls=tool_calls,
+            raw=response,
+        )
+
+    def _convert_messages(self, messages: list[dict]) -> list:
+        gemini_messages = []
+        for msg in messages:
+            role = msg["role"]
+            if role == "system":
+                gemini_messages.append(self._genai.types.Content(
+                    role="user",
+                    parts=[self._genai.types.Part.from_text(msg["content"])],
+                ))
+            elif role == "user":
+                gemini_messages.append(self._genai.types.Content(
+                    role="user",
+                    parts=[self._genai.types.Part.from_text(msg["content"])],
+                ))
+            elif role == "assistant":
+                if msg.get("tool_calls"):
+                    parts = []
+                    for tc in msg["tool_calls"]:
+                        args_str = json.dumps(tc["arguments"]) if isinstance(tc["arguments"], dict) else tc["arguments"]
+                        parts.append(self._genai.types.Part.from_function_call(
+                            name=tc["function"]["name"],
+                            args=json.loads(args_str) if isinstance(args_str, str) else args_str,
+                        ))
+                    gemini_messages.append(self._genai.types.Content(
+                        role="model",
+                        parts=parts,
+                    ))
+                elif msg.get("content"):
+                    gemini_messages.append(self._genai.types.Content(
+                        role="model",
+                        parts=[self._genai.types.Part.from_text(msg["content"])],
+                    ))
+            elif role == "tool":
+                gemini_messages.append(self._genai.types.Content(
+                    role="tool",
+                    parts=[self._genai.types.Part.from_text(msg["content"])],
+                ))
+        return gemini_messages
+
+    def supports_tool_calling(self) -> bool:
+        return True
+
+    def generate_embeddings(self, text: str) -> list[float]:
+        raise NotImplementedError(
+            "Embeddings via Gemini API not yet supported. "
+            "Use OllamaProvider for RAG embedding needs."
+        )
+
+
 def create_provider(config: AgentConfig) -> LLMProvider:
     if config.use_api:
+        if config.api.provider == "gemini":
+            return GeminiProvider(config.api)
         return APIProvider(config.api)
     return OllamaProvider(config.ollama)
