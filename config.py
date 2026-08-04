@@ -16,6 +16,14 @@ class APIConfig:
     api_key: str = ""
     base_url: str = ""
 
+    def get_base_url(self) -> str:
+        if self.base_url:
+            return self.base_url
+        return {
+            "anthropic": "https://api.anthropic.com/v1",
+            "gemini": "https://generativelanguage.googleapis.com/v1beta/openai/",
+        }.get(self.provider, "")
+
 
 @dataclass
 class AgentConfig:

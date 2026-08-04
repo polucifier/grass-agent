@@ -111,7 +111,7 @@ All configuration is via environment variables:
 | `GRASS_OLLAMA_MODEL` | `qwen2.5-coder:3b` | Ollama model for chat |
 | `GRASS_OLLAMA_EMBED_MODEL` | `nomic-embed-text` | Ollama model for embeddings |
 | `GRASS_OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server URL |
-| `GRASS_API_PROVIDER` | `openai` | API provider: `openai` or `anthropic` |
+| `GRASS_API_PROVIDER` | `openai` | API provider: `openai`, `anthropic`, or `gemini` |
 | `GRASS_API_MODEL` | `gpt-4o` | API model name |
 | `GRASS_API_KEY` | — | API key (required when using API) |
 | `GRASS_API_BASE_URL` | — | Custom API endpoint (optional) |
@@ -136,6 +136,18 @@ export GRASS_API_KEY=sk-ant-your-key-here
 export GRASS_API_MODEL=claude-sonnet-4-20250514
 python3 agent.py
 ```
+
+### Using with Gemini
+
+```bash
+export GRASS_AGENT_USE_API=true
+export GRASS_API_PROVIDER=gemini
+export GRASS_API_KEY=your-gemini-api-key
+export GRASS_API_MODEL=gemini-2.5-pro
+python3 agent.py
+```
+
+Gemini uses Google's OpenAI-compatible endpoint. No custom `base_url` is needed — it's configured automatically.
 
 ## Available Tools
 

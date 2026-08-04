@@ -145,8 +145,10 @@ class APIProvider(LLMProvider):
         kwargs: dict[str, Any] = {"api_key": self.api_key}
         if config.base_url:
             kwargs["base_url"] = config.base_url
-        elif self.provider == "anthropic":
-            kwargs["base_url"] = "https://api.anthropic.com/v1"
+        else:
+            base_url = config.get_base_url()
+            if base_url:
+                kwargs["base_url"] = base_url
 
         self.client = OpenAI(**kwargs)
 
