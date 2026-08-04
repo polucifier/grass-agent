@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+data/cache/
+data/grass_knowledge.db
+generated/
