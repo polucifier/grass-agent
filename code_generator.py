@@ -133,15 +133,22 @@ def validate_api(code: str, retriever: GrassToolsRetriever) -> list[str]:
         if doc is None:
             issues.append(f"tools.{method}: unknown tool (no '{tool_name}' in knowledge base)")
             continue
+        if len(parts) > 2:
+            issues.append(
+                f"tools.{method}: dotted method chain is invalid - use tools.{tool_name.replace('.', '_')}(...) "
+                f"instead of tools.{method}(...)"
+            )
 
         if node.args:
             issues.append(f"tools.{method}: positional argument(s) used; pass parameters as keyword arguments")
 
         positional_names = list(doc.params)
-        provided = set(positional_names[: len(node.args)]) | {a.arg for a in node.keywords}
-        unknown = [a for a in node.keywords if a.arg not in doc.params]
+        provided = set(positional_names[: len(node.args)]) | {a.arg for a in node.keywords if a.arg is not None}
+        unknown = [a.arg for a in node.keywords if a.arg is not None and a.arg not in doc.params]
         if unknown:
             issues.append(f"tools.{method}: unknown parameter(s): {', '.join(unknown)} (valid: {', '.join(doc.params)})")
+        if any(a.arg is None for a in node.keywords):
+            issues.append(f"tools.{method}: **kwargs expansion used; pass parameters as explicit keyword arguments")
         required = [p for p, info in doc.params.items() if info.get("required")]
         missing = [p for p in required if p not in provided]
         if missing:
