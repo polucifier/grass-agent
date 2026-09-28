@@ -143,19 +143,30 @@ Each case must pass **all** of:
 
 Artifacts are always written to `benchmarks/output/`, pass or fail, each prefixed with the debug header.
 
-**Latest results (same code, same suite):**
+**Measured results.** All rows are full 10-case runs of the same code, on an idle box, with the model unloaded beforehand:
 
-| Model | Hardware | Result | Wall time |
-|-------|----------|--------|-----------|
-| `qwen2.5-coder:7b` | Colab T4 (15 GB) | **10 / 10** | 191 s (~19 s/case) |
-| `qwen2.5-coder:7b` | Local CPU only | **10 / 10** | ~20 min |
-| `qwen2.5-coder:3b` | Local CPU only | **9 / 10** | ~8 min |
+| Model | Hardware | Result | Suite wall time | Warm latency/prompt |
+|-------|----------|--------|-----------------|----------------------|
+| `qwen2.5-coder:7b` | Colab T4 (15 GB) | **10 / 10** | 191 s | — |
+| `qwen2.5-coder:7b` | Local CPU (no GPU) | **10 / 10** | 465 s | 10–11 s |
+| `qwen2.5-coder:3b` | Local CPU (no GPU) | **9 / 10**, **8 / 10** | 173 s | 15–16 s |
 
-To reproduce the GPU run, `benchmarks/run_remote.sh` installs Ollama, pulls the models, and runs the suite. Note that it installs `zstd` first — the Ollama installer refuses to extract without it, and stock Colab images do not ship it.
+```bash
+# ~465 s
+.venv/bin/python benchmarks/run_eval.py --model qwen2.5-coder:7b
+# ~173 s
+.venv/bin/python benchmarks/run_eval.py --model qwen2.5-coder:3b
+```
 
-**The single 3B failure** (`tc_02`, slope/aspect) is worth reading: the model called the correct `r_slope_aspect` with correct arguments, then *appended* two extra calls to `tools.v_render.rast` — a tool that does not exist. The failure is a hallucinated addition after a correct call, not a wrong tool choice, and `validate_api()` is what caught it.
+Cold start costs roughly 45 s for the first prompt, which is the model being loaded. Embeddings add ~0.2 s. Everything after that is token generation.
 
-**These are snapshots, not pass rates.** Running the suite twice on the same code produces different scripts: 8 of the 10 saved artifacts were byte-different between the local and Colab runs of the identical 7B model. The generated code was correct in both, but a case can move either way between runs, so treat a single green run as weak evidence and judge changes on the whole suite.
+**The smaller model is slower per prompt, which is counter-intuitive.** 3B decodes at 4.8 tok/s versus 7B's 3.4 tok/s, but it emits roughly twice as many tokens for the same prompt (97 vs 44 on `tc_01`) because it pads with more commentary. Total latency follows output length, not raw decode speed — so 3B is ~50% slower per prompt here despite being a third of the size.
+
+**This does not meet the plan's stated performance goal.** `specs/001-pure-script-generation/plan.md` targets <5 s per prompt; a warm local request is 10–16 s. A T4 GPU closes the gap for the full suite, but single-prompt latency was not re-measured there, and the target is not met on CPU-only hardware.
+
+**3B failures are hallucinations, not wrong tool choices.** Across two runs the failing cases were `tc_02` and `tc_10`. In both, the model produced the correct tool call and then appended an extra one — `tools.v_render.rast` (a tool that does not exist) in `tc_02`, and a `g.remove("...", gtype="file", flags="f")` positional-argument call in `tc_10`. `validate_api()` caught both.
+
+**These are snapshots, not pass rates.** Re-running produces different scripts: 8 of the 10 artifacts were byte-different between the local and Colab runs of the identical 7B model, and 3B scored 9/10 then 8/10 on consecutive runs. The generated code was correct in every case that passed, but a case can move either way — judge a change on the whole suite, not one case.
 
 > The benchmark prompts are treated as **immutable**: they represent realistic user input. Behaviour changes are made in `code_generator.py`, `SYSTEM_PROMPT`, or the retrieval configuration — never by editing the prompts.
 
@@ -195,7 +206,7 @@ options:
 
 ## Notes & Known Limitations
 
-- **Model choice:** 7B is the default and passes the full suite. 3B scores 9/10 and is a faster smoke test. On a machine without a suitable GPU, 7B falls back to CPU inference and is noticeably slower.
+- **Model choice:** 7B is the default and passes the full suite every time measured. 3B scores 8–9/10 and is *not* faster per prompt despite being smaller — see the timing note above. On a CPU-only box 7B takes about 10 s per warm prompt.
 - **Two distinct failure modes.** Retrieval failures (the right tool never reached the prompt) and model failures (the tool was in the prompt but the model misused it, or invented a tool that does not exist) look different in the saved artifacts. `validate_api()` catches the second kind — a hallucinated tool name, a bad parameter, or a missing required argument becomes a hard validation failure. But it can only catch what it can parse: nothing here checks whether the *chosen* tool is semantically right for the request, or whether the arguments make sense.
 - **The suite is 10 cases and the output is not deterministic.** Re-running may change the generated scripts and may move a case either way; a model or retrieval change should be judged on the whole suite, not a single case.
 - **No execution.** This engine only generates scripts. It does not run GRASS, resolve input data, or verify results — it validates syntax and API signatures, nothing more. A script that passes every check can still fail when executed against real data.
