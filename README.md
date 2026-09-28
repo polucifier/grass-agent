@@ -2,7 +2,7 @@
 
 A fully offline AI agent that turns a natural-language GIS request into a **self-contained, runnable `grass.tools` Python script**. Generated scripts are pure code — no chat, no markdown fences, no explanation — so they can be dropped straight into a GRASS Python console or a `.py` file and run.
 
-> **Status:** Gate 1 — pure script contract. Grounded in the official GRASS 8.6 documentation via RAG, validated for syntax and API signatures, and benchmarked at **10/10 on `qwen2.5-coder:7b`**.
+> **Status:** Gate 1 — pure script contract. Grounded in the official GRASS 8.6 documentation via RAG, validated for syntax and API signatures, and benchmarked at **10/10 on `qwen2.5-coder:7b`** and **9/10 on `qwen2.5-coder:3b`**.
 
 Everything runs locally. No cloud APIs, no outbound network calls at generation time.
 
@@ -143,7 +143,14 @@ Each case must pass **all** of:
 
 Artifacts are always written to `benchmarks/output/`, pass or fail, each prefixed with the debug header.
 
-**Latest result — 10/10 on `qwen2.5-coder:7b`.** The 3B model is usable as a fast smoke test but fails several tool-selection cases, which is why 7B is the default.
+**Latest results (same code, same suite):**
+
+| Model | Result | Notes |
+|-------|--------|-------|
+| `qwen2.5-coder:7b` | **10 / 10** | The default |
+| `qwen2.5-coder:3b` | **9 / 10** | ~5× smaller and faster; useful as a smoke test |
+
+The single 3B failure (`tc_02`, slope/aspect) is worth reading: the model called the correct `r_slope_aspect` with correct arguments, then *appended* two extra calls to `tools.v_render_rast` — a tool that does not exist. The failure is a hallucinated addition after a correct call, not a wrong tool choice, and `validate_api()` is what caught it. Treat the table as measured on this machine, not a guarantee: the suite is 10 cases, and LLM output is not deterministic between runs.
 
 > The benchmark prompts are treated as **immutable**: they represent realistic user input. Behaviour changes are made in `code_generator.py`, `SYSTEM_PROMPT`, or the retrieval configuration — never by editing the prompts.
 
@@ -183,11 +190,12 @@ options:
 
 ## Notes & Known Limitations
 
-- **Model choice:** 7B is the default and passes the full suite. 3B is a faster smoke test but picks the wrong tool on several cases. On a machine without a suitable GPU, 7B runs on CPU and is noticeably slower.
-- **Tool recall depends on retrieval.** Failures are usually recall failures (the right tool never reached the prompt) rather than model failures; the debug header makes this visible.
-- **No execution.** This engine only generates scripts. It does not run GRASS, resolve input data, or verify results — it validates syntax and API signatures, nothing more.
-- Generated scripts assume an already-initialized GRASS session with the relevant input maps present.
-- Parameter *names* are checked against the knowledge base; parameter *values* are not checked for real-world validity.
+- **Model choice:** 7B is the default and passes the full suite. 3B scores 9/10 and is a faster smoke test. On a machine without a suitable GPU, 7B falls back to CPU inference and is noticeably slower.
+- **Two distinct failure modes.** Retrieval failures (the right tool never reached the prompt) and model failures (the tool was in the prompt but the model misused it, or invented a tool that does not exist) look different in the saved artifacts. `validate_api()` catches the second kind — a hallucinated tool name, a bad parameter, or a missing required argument becomes a hard validation failure. But it can only catch what it can parse: nothing here checks whether the *chosen* tool is semantically right for the request, or whether the arguments make sense.
+- **The suite is 10 cases and the output is not deterministic.** Results are a snapshot from one run, not a pass rate with error bars. Re-running may shift a case either way; a model or retrieval change should be judged on the whole suite, not a single case.
+- **No execution.** This engine only generates scripts. It does not run GRASS, resolve input data, or verify results — it validates syntax and API signatures, nothing more. A script that passes every check can still fail when executed against real data.
+- Generated scripts assume an already-initialized GRASS session with the relevant input maps present, and they use placeholder map names.
+- **Parameter *names* are checked; parameter *values* are not.** `validate_api()` confirms a parameter exists and that required ones are present, but not that `distance=200` is a sensible distance or that the units match the request.
 
 ## License
 
