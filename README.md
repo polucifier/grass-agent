@@ -112,18 +112,44 @@ To keep the context small and the model honest:
 
 ### Debug output
 
-Every saved file (from `generate.py` and from the benchmark runner) begins with a commented header recording the retrieved tool docs and the **exact** system and user prompts sent to the model — so any bad output can be traced back to the prompt that produced it:
+Every saved file — from `generate.py` and from the benchmark runner — is a runnable Python script prefixed with a commented record of the exchange that produced it: the prompt the model received, and the model's raw response. The RAG tool documentation is not listed separately because it is already embedded verbatim inside the user message. Everything after the header is real, executable code.
 
 ```python
 # ==============================================================================
-# DEBUG: RAG RETRIEVAL & LLM PROMPT
+# DEBUG: LLM PROMPT & RESPONSE
 # ==============================================================================
 # Task: create a 200-meter buffer around the stream network lines
-# Retrieved RAG Tools:
-#   - v.buffer: Creates a buffer around vector features of given type.
-#     Signature: grass.tools.Tools.v_buffer(input,
-#     ...
+# ------------------------------------------------------------------------------
+# System Prompt:
+# You are a GRASS expert. Generate a pure Python script that uses the
+# grass.tools API (GRASS 8.5+).
+# ...
+# ------------------------------------------------------------------------------
+# User Message Sent to LLM (includes the RAG tool documentation):
+# Relevant GRASS tools documentation:
+#
+# ### v.buffer
+# Category: v
+# Description: Creates a buffer around vector features of given type.
+# ...
+# Task: create a 200-meter buffer around the stream network lines
+#
+# Generate the Python script:
+# ------------------------------------------------------------------------------
+# Raw Model Response:
+# ```python
+# from grass.tools import Tools
+# tools = Tools()
+# tools.v_buffer(input="streams", output="streams_buffer", distance=200)
+# ```
+# ==============================================================================
+
+from grass.tools import Tools
+tools = Tools()
+tools.v_buffer(input="streams", output="streams_buffer", distance=200)
 ```
+
+Keeping the raw response is what makes this useful: you can see whether a bad script came from a bad prompt, a bad model response, or the extraction and normalization steps in between.
 
 ## Benchmark Suite
 
@@ -143,30 +169,26 @@ Each case must pass **all** of:
 
 Artifacts are always written to `benchmarks/output/`, pass or fail, each prefixed with the debug header.
 
-**Measured results.** All rows are full 10-case runs of the same code, on an idle box, with the model unloaded beforehand:
+**Measured results.** All figures measured directly, not estimated. Suite times are full 10-case runs; latencies are single prompts on `tc_01`, and "warm" means the model is already resident.
 
-| Model | Hardware | Result | Suite wall time | Warm latency/prompt |
-|-------|----------|--------|-----------------|----------------------|
-| `qwen2.5-coder:7b` | Colab T4 (15 GB) | **10 / 10** | 191 s | — |
-| `qwen2.5-coder:7b` | Local CPU (no GPU) | **10 / 10** | 465 s | 10–11 s |
-| `qwen2.5-coder:3b` | Local CPU (no GPU) | **9 / 10**, **8 / 10** | 173 s | 15–16 s |
+| Model | Hardware | Result | Suite (cold) | Suite (warm) | Warm latency/prompt |
+|-------|----------|--------|--------------|--------------|---------------------|
+| `qwen2.5-coder:7b` | Colab T4 15 GB | **10 / 10** | 191 s | 49 s | **0.9–1.8 s** |
+| `qwen2.5-coder:3b` | Colab T4 15 GB | — | — | — | 0.8–1.1 s |
+| `qwen2.5-coder:7b` | Ryzen 5 5500U, CPU only | **10 / 10** | 465 s | — | 10–11 s |
+| `qwen2.5-coder:3b` | Ryzen 5 5500U, CPU only | **9 / 10**, **8 / 10** | 173 s | — | 15–16 s |
 
-```bash
-# ~465 s
-.venv/bin/python benchmarks/run_eval.py --model qwen2.5-coder:7b
-# ~173 s
-.venv/bin/python benchmarks/run_eval.py --model qwen2.5-coder:3b
-```
+Local box: HP Laptop 15s-eq2xxx, AMD Ryzen 5 5500U (6C/12T @ 4.0 GHz), 15 GB RAM, integrated ATI Lucienne with no usable CUDA GPU, openSUSE Tumbleweed. Inference is pure CPU there.
 
-Cold start costs roughly 45 s for the first prompt, which is the model being loaded. Embeddings add ~0.2 s. Everything after that is token generation.
+The gap is almost entirely the model load, not the work: a cold first prompt costs 18 s on the T4 and 45 s on CPU, and a cold embedding call can add 40 s if `nomic-embed-text` is not yet resident. Everything after that is token generation.
 
-**The smaller model is slower per prompt, which is counter-intuitive.** 3B decodes at 4.8 tok/s versus 7B's 3.4 tok/s, but it emits roughly twice as many tokens for the same prompt (97 vs 44 on `tc_01`) because it pads with more commentary. Total latency follows output length, not raw decode speed — so 3B is ~50% slower per prompt here despite being a third of the size.
+**The plan's `<5 s per prompt` goal is met on a GPU and missed on CPU.** Warm single-prompt latency is under 2 s on a T4 but 10–16 s on this CPU-only laptop.
 
-**This does not meet the plan's stated performance goal.** `specs/001-pure-script-generation/plan.md` targets <5 s per prompt; a warm local request is 10–16 s. A T4 GPU closes the gap for the full suite, but single-prompt latency was not re-measured there, and the target is not met on CPU-only hardware.
+**The smaller model is slower per prompt on CPU, which is counter-intuitive.** 3B decodes at 4.8 tok/s versus 7B's 3.4 tok/s, but emits roughly twice the tokens for the same prompt (97 vs 44 on `tc_01`) because it pads with more commentary. Latency follows output length, not decode speed. On the T4 the gap disappears and 3B is marginally quicker.
 
-**3B failures are hallucinations, not wrong tool choices.** Across two runs the failing cases were `tc_02` and `tc_10`. In both, the model produced the correct tool call and then appended an extra one — `tools.v_render.rast` (a tool that does not exist) in `tc_02`, and a `g.remove("...", gtype="file", flags="f")` positional-argument call in `tc_10`. `validate_api()` caught both.
+**3B failures are hallucinations, not wrong tool choices.** Across two runs the failing cases were `tc_02` and `tc_10`. In both, the model produced the correct tool call and then appended an extra one — `tools.v_render.rast` (a tool that does not exist) in `tc_02`, and a positional-argument `g_remove("...", gtype="file", flags="f")` call in `tc_10`. `validate_api()` caught both.
 
-**These are snapshots, not pass rates.** Re-running produces different scripts: 8 of the 10 artifacts were byte-different between the local and Colab runs of the identical 7B model, and 3B scored 9/10 then 8/10 on consecutive runs. The generated code was correct in every case that passed, but a case can move either way — judge a change on the whole suite, not one case.
+**These are snapshots, not pass rates.** Re-running produces different scripts: 8 of the 10 artifacts were byte-different between two runs of the identical 7B model, and 3B scored 9/10 then 8/10 on consecutive runs. The generated code was correct in every case that passed, but a case can move either way — judge a change on the whole suite, not one case.
 
 > The benchmark prompts are treated as **immutable**: they represent realistic user input. Behaviour changes are made in `code_generator.py`, `SYSTEM_PROMPT`, or the retrieval configuration — never by editing the prompts.
 
@@ -206,7 +228,7 @@ options:
 
 ## Notes & Known Limitations
 
-- **Model choice:** 7B is the default and passes the full suite every time measured. 3B scores 8–9/10 and is *not* faster per prompt despite being smaller — see the timing note above. On a CPU-only box 7B takes about 10 s per warm prompt.
+- **Model choice:** 7B is the default and passed the full suite every time it was run. 3B scores 8–9/10. On CPU, 3B is *not* the faster option despite being smaller — it produces longer output, so it takes more time per prompt. With a GPU the two are close, and only 7B is reliable enough to default to.
 - **Two distinct failure modes.** Retrieval failures (the right tool never reached the prompt) and model failures (the tool was in the prompt but the model misused it, or invented a tool that does not exist) look different in the saved artifacts. `validate_api()` catches the second kind — a hallucinated tool name, a bad parameter, or a missing required argument becomes a hard validation failure. But it can only catch what it can parse: nothing here checks whether the *chosen* tool is semantically right for the request, or whether the arguments make sense.
 - **The suite is 10 cases and the output is not deterministic.** Re-running may change the generated scripts and may move a case either way; a model or retrieval change should be judged on the whole suite, not a single case.
 - **No execution.** This engine only generates scripts. It does not run GRASS, resolve input data, or verify results — it validates syntax and API signatures, nothing more. A script that passes every check can still fail when executed against real data.

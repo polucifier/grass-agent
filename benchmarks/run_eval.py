@@ -102,10 +102,10 @@ def main() -> int:
                 pass
 
             if code is not None:
-                output_path.write_text(header + "\n" + code if header else code)
+                output_path.write_text(f"{header}\n{code.rstrip()}\n" if header else f"{code.rstrip()}\n")
             else:
                 fail_msg = f"# Generation failed for {tc_id}: no code produced\n"
-                output_path.write_text(header + "\n" + fail_msg if header else fail_msg)
+                output_path.write_text(f"{header}\n{fail_msg}" if header else fail_msg)
             print(f"  -> saved: {output_path}", flush=True)
 
     retriever.close()

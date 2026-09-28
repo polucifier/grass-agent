@@ -81,6 +81,7 @@ class GrassCodeGenerator:
         self.last_retrieved_docs: list = []
         self.last_system_prompt: str = ""
         self.last_user_message: str = ""
+        self.last_response: str = ""
         self.last_request: str = ""
 
     def generate(self, request: str) -> str:
@@ -101,6 +102,7 @@ class GrassCodeGenerator:
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_message},
         ])
+        self.last_response = response
 
         code = extract_python_code(response)
         code = normalize_dotted_calls(code)
@@ -109,28 +111,28 @@ class GrassCodeGenerator:
         return code
 
     def format_debug_header(self) -> str:
-        doc_lines = []
-        for doc in self.last_retrieved_docs:
-            doc_lines.append(f"#   - {doc.name}: {doc.description}")
-            if doc.signature:
-                doc_lines.append(f"#     Signature: {doc.signature}")
-        docs_str = "\n".join(doc_lines) if doc_lines else "#   (None)"
+        """Commented record of the exchange with the model.
 
-        sys_lines = "\n".join(f"# {line}" for line in self.last_system_prompt.splitlines())
-        user_lines = "\n".join(f"# {line}" for line in self.last_user_message.splitlines())
+        The RAG context is already embedded in the user message, so it is not
+        repeated separately. Emits the prompt and the raw response as
+        comments; the caller appends the final script as real code.
+        """
+        def comment(text: str) -> str:
+            return "\n".join(f"# {line}" for line in text.splitlines())
 
         return f"""# ==============================================================================
-# DEBUG: RAG RETRIEVAL & LLM PROMPT
+# DEBUG: LLM PROMPT & RESPONSE
 # ==============================================================================
 # Task: {self.last_request}
-# Retrieved RAG Tools:
-{docs_str}
 # ------------------------------------------------------------------------------
 # System Prompt:
-{sys_lines}
+{comment(self.last_system_prompt)}
 # ------------------------------------------------------------------------------
-# User Message Sent to LLM:
-{user_lines}
+# User Message Sent to LLM (includes the RAG tool documentation):
+{comment(self.last_user_message)}
+# ------------------------------------------------------------------------------
+# Raw Model Response:
+{comment(self.last_response)}
 # ==============================================================================
 """
 

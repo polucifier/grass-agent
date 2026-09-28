@@ -49,7 +49,7 @@ def main() -> int:
     output = Path(args.output) if args.output else default_output_path(config, args.request)
     output.parent.mkdir(parents=True, exist_ok=True)
     debug_header = generator.format_debug_header()
-    output.write_text(debug_header + "\n" + code)
+    output.write_text(f"{debug_header}\n{code.rstrip()}\n")
     print(f"Generated: {output}")
     return 0
 
