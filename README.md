@@ -72,8 +72,9 @@ generate.py               CLI entry point
 ├── llm_provider.py       OllamaProvider (chat + embeddings)
 ├── config.py             Settings via environment variables
 ├── benchmarks/
-│   ├── run_eval.py       Evaluation runner (10 cases, asserts + saves artifacts)
-│   └── benchmark_prompts.json   Immutable benchmark suite
+│   ├── run_eval.py       Evaluation runner (-s/--suite, asserts + saves artifacts)
+│   ├── benchmark_prompts_tier1.json   10-case smoke suite (default)
+│   ├── benchmark_prompts_tier2.json   30-case expanded suite
 ├── data/grass_knowledge.db      543 tools + embeddings (committed)
 └── scripts/
     ├── build_knowledge_base.py  Ingest the GRASS tool pages → SQLite
@@ -108,7 +109,7 @@ Pure vector similarity is not enough on short prompts — general terrain module
 To keep the context small and the model honest:
 
 - Generic parameters (`flags`, `overwrite`, `verbose`, `quiet`, `superquiet`) are stripped from signatures and required-parameter summaries.
-- `CANONICAL_EXAMPLES` supplies a correct call pattern for outlier tools whose scraped docs lack one — currently `r.mapcalc` and `r.mapcalc.simple`. This is deliberately a small, targeted map, not 500+ hand-written examples.
+- `CANONICAL_EXAMPLES` overrides the scraped example for a handful of tools. It is deliberately small, not 500+ hand-written examples, and exists for two reasons: tools like `r.mapcalc` whose docs lack a usable call pattern, and tools whose scraped example **cannot execute**. Four are broken in the current knowledge base — `v.distance`, `r.smooth.edgepreserve` and `r3.gwflow` document a parameter named after a Python keyword (`from`, `lambda`, `yield`), which is a syntax error as a keyword argument, and `m.nviz.image` lost the quoting around its size pair. `validate_api()` resolves them for validation, and the model is shown a corrected call rather than the broken one.
 
 ### Debug output
 
@@ -153,14 +154,17 @@ Keeping the raw response is what makes this useful: you can see whether a bad sc
 
 ## Benchmark Suite
 
-`benchmarks/benchmark_prompts.json` holds 10 curated cases — 4 single-tool, 3 multi-step, 3 edge cases — covering buffers, slope/aspect, import, display, contours, rasterization, zonal statistics, viewshed, raster calculation, and overlay.
+The suites are tiered. **Tier 1** (`benchmarks/benchmark_prompts_tier1.json`, 10 cases) is the smoke test: 4 single-tool, 3 multi-step, 3 edge cases covering buffers, slope/aspect, import, display, contours, rasterization, zonal statistics, viewshed, raster calculation, and overlay. **Tier 2** (`benchmarks/benchmark_prompts_tier2.json`, 30 cases, `tc_11`–`tc_40`) is the expanded suite covering hydrology, imagery, raster algebra, vector topology, network analysis, surface interpolation, and attribute-table management.
 
 ```bash
+# Tier 1 is the default
 .venv/bin/python benchmarks/run_eval.py --model qwen2.5-coder:7b
-.venv/bin/python benchmarks/run_eval.py --model qwen2.5-coder:3b
+
+# Tier 2
+.venv/bin/python benchmarks/run_eval.py --suite benchmarks/benchmark_prompts_tier2.json --model qwen2.5-coder:7b
 ```
 
-Each case must pass **all** of:
+Use `-s/--suite` to point at any suite file. Each case must pass **all** of:
 
 1. `ast.parse()` syntax validity
 2. Zero-chat compliance (starts with the `Tools` import, no fences, no prose)
@@ -168,6 +172,49 @@ Each case must pass **all** of:
 4. Expected tools actually called — a case may list an alias group like `["v.in.ogr", "v.import"]` and passes if **any** member is used
 
 Artifacts are always written to `benchmarks/output/`, pass or fail, each prefixed with the debug header.
+
+### Results (Colab T4, `qwen2.5-coder:7b`)
+
+| Suite | Result | Suite time |
+|-------|--------|------------|
+| Tier 1 | **10 / 10** | 26–191 s |
+| Tier 2 | **22 / 30** | 131 s |
+
+**Tier 2 is where the system actually breaks down, and the failures are worth reading.** They fall into three groups:
+
+- **Hallucinated tools** (`tc_25`, `tc_38`): the model invents plausible-sounding modules that do not exist — `tools.v_export`, `tools.v.update`. `validate_api()` catches these.
+- **Junk appended after a correct call** (`tc_38`): a correct `v.distance` followed by invented cleanup steps. Same failure shape as the 3B cases below.
+- **Defensible-but-different decomposition** (`tc_27`, `tc_34`, `tc_35`): the model reaches the right *answer* by a different route — `r.fill.dir` + `r.drain` + `r.water.outlet` instead of `r.watershed`; `r.stats.zonal` instead of `v.rast.stats`; `v.vol.rst` instead of `v.surf.rst`. Whether these count as failures is a question about the suite, not the engine: it asserts one specific call, not correctness.
+- **One genuine retrieval gap** (`tc_33`): converting vector points to a raster is never stated in the prompt, and `v.to.rast` does not reach the top-5. Everything else in Tier 2 recalls correctly — measured recall is **39/40 across both suites**.
+
+Tier 2 was iterated three times (18 → 21 → 22) while fixing real bugs. **These numbers are noisier than Tier 1's** because 30 cases with non-deterministic sampling move around; treat 22/30 as a snapshot, not a ceiling or a floor.
+
+**Measured timings.** All figures measured directly, not estimated. "Warm" means the model is already resident.
+
+| Model | Hardware | Result | Suite (cold) | Suite (warm) | Warm latency/prompt |
+|-------|----------|--------|--------------|--------------|---------------------|
+| `qwen2.5-coder:7b` | Colab T4 15 GB | **10 / 10** | 191 s | 26–49 s | **0.9–1.8 s** |
+| `qwen2.5-coder:3b` | Colab T4 15 GB | — | — | — | 0.8–1.1 s |
+| `qwen2.5-coder:7b` | Local laptop, iGPU Vulkan | **10 / 10** | 465 s | — | 10–11 s |
+| `qwen2.5-coder:3b` | Local laptop, iGPU Vulkan | **9 / 10**, **8 / 10** | 173 s | — | 15–16 s |
+
+Local box: HP Laptop 15s-eq2xxx, AMD Ryzen 5 5500U (6C/12T @ 4.0 GHz), 15.67 GB RAM, integrated AMD Radeon (Lucienne, Vega 8) graphics, openSUSE Tumbleweed.
+
+**Inference on the local box runs on the integrated GPU via Vulkan, not the CPU.** `ollama ps` reports `100% GPU`, and that is correct — the machine's `/sys/class/drm/card1/device/gpu_busy_percent` sits at ~0% while idle and holds ~99% for the whole duration of a generation, dropping back afterwards. Ollama's startup log does print `dropping integrated GPU ... compute=0.0` and registers only a `cpu` compute device, which is misleading; the runner still brings up the Vulkan backend (`libggml-vulkan.so` mapped, `/dev/dri/renderD128` open, `vulkaninfo` lists both the RADV iGPU and a software `llvmpipe` device). If you are diagnosing this yourself, trust `gpu_busy_percent`, not the log line or `ollama ps` alone.
+
+Because the iGPU shares system memory rather than having dedicated VRAM, it is much slower than the T4 despite being real GPU compute.
+
+The gap is almost entirely the model load, not the work: a cold first prompt costs 18 s on the T4 and 45 s locally, and a cold embedding call can add 40 s if `nomic-embed-text` is not yet resident. Everything after that is token generation.
+
+**The plan's `<5 s per prompt` goal is met on a discrete GPU and missed on integrated graphics.** Warm single-prompt latency is under 2 s on a T4 but 10–16 s on this laptop's iGPU.
+
+**The smaller model is slower per prompt on integrated graphics, which is counter-intuitive.** 3B decodes at 4.8 tok/s versus 7B's 3.4 tok/s, but emits roughly twice the tokens for the same prompt (97 vs 44 on `tc_01`) because it pads with more commentary. Latency follows output length, not decode speed. On the T4 the gap disappears and 3B is marginally quicker.
+
+**3B failures are hallucinations, not wrong tool choices.** Across two runs the failing cases were `tc_02` and `tc_10`. In both, the model produced the correct tool call and then appended an extra one — `tools.v_render.rast` (a tool that does not exist) in `tc_02`, and a positional-argument `g_remove("...", gtype="file", flags="f")` call in `tc_10`. `validate_api()` caught both.
+
+**These are snapshots, not pass rates.** Re-running produces different scripts: 8 of the 10 Tier 1 artifacts were byte-different between two runs of the identical 7B model, and 3B scored 9/10 then 8/10 on consecutive runs. The generated code was correct in every case that passed, but a case can move either way — judge a change on the whole suite, not one case.
+
+> The benchmark prompts are treated as **immutable**: they represent realistic user input. Behaviour changes are made in `code_generator.py`, `SYSTEM_PROMPT`, or the retrieval configuration — never by editing the prompts.
 
 **Measured results.** All figures measured directly, not estimated. Suite times are full 10-case runs; latencies are single prompts on `tc_01`, and "warm" means the model is already resident.
 

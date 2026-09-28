@@ -33,22 +33,84 @@ LEXICAL_BOOST = 0.4
 
 # 1. Domain synonym / abbreviation expansion: natural language -> GRASS naming
 SYNONYMS = {
-    "statistics": ["stats"],
+    # analysis
+    "statistics": ["stats", "univar", "rast.stats"],
+    "statistic": ["stats", "univar"],
+    "univariate": ["univar"],
     "zonal": ["rast.stats", "v.rast.stats"],
     "calculate": ["calc", "mapcalc"],
-    "rasterize": ["to.rast", "to_rast"],
-    "import": ["import", "in.ogr", "in.gdal"],
-    "rasterize": ["to.rast", "to_rast"],
-    "convert": ["to.rast", "to_rast"],
-    "multiply": ["mapcalc", "calc"],
-    "buffer": ["buffer"],
-    "viewshed": ["viewshed"],
+    "relief": ["shaded", "r.relief"],
+    "shaded": ["r.relief"],
+    "slope": ["slope", "r.slope.aspect"],
+    "aspect": ["aspect"],
     "contours": ["contour"],
+    "contour": ["r.contour"],
+    "viewshed": ["viewshed", "visibility"],
+    "visibility": ["viewshed"],
+    "cost": ["r.cost", "costdistance"],
+    "drain": ["r.drain", "r.watershed"],
+    "drainage": ["r.watershed", "r.drain", "r.fill.dir"],
+    "watershed": ["r.watershed", "r.water.outlet"],
+    "flow": ["r.watershed", "accumulation"],
+    "stream": ["r.stream.extract"],
+    "watershed": ["r.watershed", "r.water.outlet"],
+    "basin": ["r.watershed", "r.water.outlet"],
+    "patch": ["r.patch", "mosaic"],
+    "mosaic": ["r.patch"],
+    "series": ["r.series"],
+    "monthly": ["r.series"],
+    "clump": ["r.clump", "r.to.vect"],
+    "contiguous": ["r.clump"],
+    "segments": ["r.clump"],
+    "mask": ["r.mask"],
+    "null": ["r.null", "nodata"],
+    "reclassify": ["r.reclass"],
+    "reclass": ["r.reclass"],
+    "reclassify": ["r.reclass"],
+    "grow": ["r.grow.distance", "distance"],
+    "ndvi": ["i.vi", "mapcalc"],
+    "vi": ["i.vi"],
+    "index": ["i.vi"],
+    "reflectance": ["i.vi", "mapcalc"],
+    "univariate": ["r.univar"],
+    "relief": ["r.relief"],
+
+    # vector
+    "rasterize": ["to.rast", "to_rast", "v.to.rast"],
+    "convert": ["to.rast", "to_rast", "r.to.vect", "v.to.vect"],
+    "polygons": ["r.to.vect", "v.to.rast"],
+    "clean": ["v.clean", "snap", "duplicate"],
+    "snapping": ["v.clean", "snap"],
+    "duplicate": ["v.clean"],
+    "dissolve": ["v.dissolve"],
+    "select": ["v.select", "extract"],
+    "extracting": ["v.extract"],
+    "extract": ["v.extract"],
+    "filter": ["v.extract", "where"],
+    "intersecting": ["v.select", "v.overlay"],
+    "nearest": ["v.distance", "r.grow.distance"],
+    "network": ["v.net", "path", "route"],
+    "shortest": ["v.net.path", "path"],
+    "route": ["v.net.path"],
+    "table": ["v.db", "v.to.db", "addcolumn"],
+    "attribute": ["v.db", "v.to.db", "v.db.addcolumn"],
+    "column": ["v.db.addcolumn", "v.to.db"],
+    "addcolumn": ["v.db.addcolumn"],
+    "area": ["v.to.db", "area"],
+    "topology": ["v.clean", "v.generalize"],
+
+    # io
+    "import": ["import", "in.ogr", "in.gdal"],
+    "export": ["out.ogr", "out.gdal", "r.out.gdal", "v.out.ogr"],
+    "rasterize": ["to.rast", "to_rast", "v.to.rast"],
+    "geotiff": ["r.out.gdal", "tif"],
+    "geopackage": ["v.out.ogr", "gpkg"],
+    "buffer": ["buffer"],
+    "overlay": ["overlay"],
     "monitor": ["rast"],
     "display": ["rast"],
-    "slope": ["slope"],
-    "aspect": ["aspect"],
-    "overlay": ["overlay"],
+    "shapefile": ["in.ogr", "v.in.ogr"],
+    "geojson": ["in.ogr", "v.in.ogr"],
 }
 
 # 2. Modern wrapper modules preferred over raw driver modules
@@ -111,11 +173,28 @@ DUPLICATE_STEP_PENALTY = 0.8
 MAX_PER_STEP = 1
 DISPLAY_OFF_TOPIC_PENALTY = 0.5
 
+# Module families whose members are all variants of one operation. Without this,
+# five slots fill with e.g. r.li.* and the actual answer never appears.
+FAMILY_STEPS = [
+    ("r.li.", "lidar_analysis"),
+    ("v.lidar.", "lidar_analysis"),
+    ("i.", "imagery_index"),
+    ("r.external", "external_output"),
+    ("g.gui.", "gui"),
+    ("r.semisimple", "semisimple"),
+    ("v.semisimple", "semisimple"),
+    ("d.survey", "display"),
+    ("m.", "misc"),
+]
+
 
 def _step_for(name: str) -> str:
-    """Map a tool to its functional step, collapsing whole display families."""
+    """Map a tool to its functional step, collapsing module families."""
     if name in STEP_SYNONYMS:
         return STEP_SYNONYMS[name]
+    for prefix, step in FAMILY_STEPS:
+        if name.startswith(prefix):
+            return step
     if name.startswith("d."):
         return "display"
     return name
@@ -261,8 +340,43 @@ KEYWORD_TOOL_OVERRIDES = {
     "viewshed": ["r.viewshed"],
     "overlay": ["v.overlay"],
     "stats": ["v.rast.stats"],
-    "statistics": ["v.rast.stats"],
+    "statistics": ["v.rast.stats", "r.univar"],
     "zonal": ["v.rast.stats"],
+    "univariate": ["r.univar"],
+    "relief": ["r.relief"],
+    "shaded": ["r.relief"],
+    "clean": ["v.clean"],
+    "duplicate": ["v.clean"],
+    "addcolumn": ["v.db.addcolumn"],
+    "column": ["v.db.addcolumn"],
+    "cost": ["r.cost"],
+    "ndvi": ["i.vi", "r.mapcalc"],
+    "dissolve": ["v.dissolve"],
+    "null": ["r.null"],
+    "reclass": ["r.reclass"],
+    "reclassify": ["r.reclass"],
+    "clump": ["r.clump"],
+    "mask": ["r.mask"],
+    "series": ["r.series"],
+    "drain": ["r.drain"],
+    "watershed": ["r.watershed"],
+    "patch": ["r.patch"],
+    "select": ["v.select"],
+    "extract": ["v.extract"],
+    "distance": ["v.distance"],
+    "export": ["r.out.gdal", "v.out.ogr"],
+    "geotiff": ["r.out.gdal"],
+    "geopackage": ["v.out.ogr"],
+    "shortest": ["v.net.path"],
+    "route": ["v.net.path"],
+    "interpolate": ["v.surf.rst"],
+    "surface": ["v.surf.rst"],
+    "area": ["v.to.db"],
+    "filter": ["v.extract"],
+    "euclidean": ["r.grow.distance"],
+    "grow": ["r.grow.distance"],
+    "polygon": ["r.to.vect"],
+    "vectorize": ["r.to.vect"],
 }
 
 

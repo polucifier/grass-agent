@@ -16,17 +16,18 @@ from code_generator import GrassCodeGenerator, validate_syntax, _dotted_parts
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run curated benchmark evaluation suite for GRASS script generation.")
     parser.add_argument("--model", default="qwen2.5-coder:3b", help="Ollama model to evaluate (e.g. qwen2.5-coder:3b or qwen2.5-coder:7b)")
-    parser.add_argument("--benchmarks", default="benchmarks/benchmark_prompts.json", help="Path to benchmark JSON file")
+    parser.add_argument("-s", "--suite", default="benchmarks/benchmark_prompts_tier1.json",
+                        help="Path to the benchmark JSON test suite file (default: benchmarks/benchmark_prompts_tier1.json)")
     args = parser.parse_args()
 
-    benchmarks_path = Path(args.benchmarks)
-    if not benchmarks_path.exists():
-        print(f"Error: Benchmark file not found at {benchmarks_path}", file=sys.stderr)
+    suite_path = Path(args.suite)
+    if not suite_path.exists():
+        print(f"Error: Benchmark suite not found at {suite_path}", file=sys.stderr)
         return 1
 
-    data = json.loads(benchmarks_path.read_text())
+    data = json.loads(suite_path.read_text())
     test_cases = data.get("test_cases", [])
-    print(f"Loaded {len(test_cases)} benchmark test cases. Evaluating model: {args.model}")
+    print(f"Loaded {len(test_cases)} benchmark test cases from {suite_path}. Evaluating model: {args.model}")
 
     config = GenerationConfig.from_env()
     config.model = args.model
@@ -101,8 +102,11 @@ def main() -> int:
             except Exception:
                 pass
 
-            if code is not None:
-                output_path.write_text(f"{header}\n{code.rstrip()}\n" if header else f"{code.rstrip()}\n")
+            # Fall back to the code the generator extracted before it raised,
+            # so a validation failure still saves the offending script.
+            saved = code if code is not None else generator.last_code
+            if saved:
+                output_path.write_text(f"{header}\n{saved.rstrip()}\n" if header else f"{saved.rstrip()}\n")
             else:
                 fail_msg = f"# Generation failed for {tc_id}: no code produced\n"
                 output_path.write_text(f"{header}\n{fail_msg}" if header else fail_msg)

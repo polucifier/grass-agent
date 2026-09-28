@@ -1,0 +1,187 @@
+{
+  "version": "2.0.0",
+  "tier": 2,
+  "description": "Expanded benchmark suite covering advanced hydrology, imagery, topology, surface interpolation, and complex multi-step pipelines.",
+  "test_cases": [
+    {
+      "id": "tc_11",
+      "category": "multi_step",
+      "prompt": "Import points.geojson vector features, extract the point where cat=1, and generate concentric circular buffer areas around it from 250 to 2000 meters in 250-meter increments.",
+      "expected_tools": [["v.import", "v.in.ogr"], "v.extract", "v.buffer"]
+    },
+    {
+      "id": "tc_12",
+      "category": "single_tool",
+      "prompt": "Compute shaded relief from the elevation raster with sun azimuth 315 and sun altitude 45.",
+      "expected_tools": ["r.relief"]
+    },
+    {
+      "id": "tc_13",
+      "category": "single_tool",
+      "prompt": "Calculate univariate statistics including mean and standard deviation for the elevation raster.",
+      "expected_tools": ["r.univar"]
+    },
+    {
+      "id": "tc_14",
+      "category": "single_tool",
+      "prompt": "Clean the road network vector by removing duplicate line segments and snapping nodes with a 1-meter threshold.",
+      "expected_tools": ["v.clean"]
+    },
+    {
+      "id": "tc_15",
+      "category": "single_tool",
+      "prompt": "Add a new double precision column named area_sqm to the parcels attribute table.",
+      "expected_tools": ["v.db.addcolumn"]
+    },
+    {
+      "id": "tc_16",
+      "category": "single_tool",
+      "prompt": "Compute travel cost surface from a starting point raster across a friction surface raster.",
+      "expected_tools": ["r.cost"]
+    },
+    {
+      "id": "tc_17",
+      "category": "single_tool",
+      "prompt": "Calculate NDVI vegetation index from red and near-infrared reflectance rasters.",
+      "expected_tools": [["i.vi", "r.mapcalc", "r.mapcalc.simple"]]
+    },
+    {
+      "id": "tc_18",
+      "category": "single_tool",
+      "prompt": "Dissolve adjacent parcel polygons that share the same zoning code attribute.",
+      "expected_tools": ["v.dissolve"]
+    },
+    {
+      "id": "tc_19",
+      "category": "single_tool",
+      "prompt": "Set raster cells with values below 0 to NULL in the bathymetry raster.",
+      "expected_tools": ["r.null"]
+    },
+    {
+      "id": "tc_20",
+      "category": "single_tool",
+      "prompt": "Reclassify landcover raster into broad categories using reclass rules.",
+      "expected_tools": ["r.reclass"]
+    },
+    {
+      "id": "tc_21",
+      "category": "single_tool",
+      "prompt": "Convert stream raster cells into vector line features.",
+      "expected_tools": ["r.to.vect"]
+    },
+    {
+      "id": "tc_22",
+      "category": "single_tool",
+      "prompt": "Find the shortest route along a vector road network between points in layer 2.",
+      "expected_tools": ["v.net.path"]
+    },
+    {
+      "id": "tc_23",
+      "category": "single_tool",
+      "prompt": "Trace the least-cost drainage path flowline from a starting point over a cumulative cost raster.",
+      "expected_tools": ["r.drain"]
+    },
+    {
+      "id": "tc_24",
+      "category": "single_tool",
+      "prompt": "Export the elevation raster map to an external GeoTIFF file elevation.tif.",
+      "expected_tools": ["r.out.gdal"]
+    },
+    {
+      "id": "tc_25",
+      "category": "single_tool",
+      "prompt": "Export the parcels vector map to a GeoPackage file parcels.gpkg.",
+      "expected_tools": ["v.out.ogr"]
+    },
+    {
+      "id": "tc_26",
+      "category": "multi_step",
+      "prompt": "Calculate flow accumulation and drainage direction from the elevation raster, then delineate stream network lines where accumulation exceeds 1000 cells.",
+      "expected_tools": ["r.watershed", "r.stream.extract"]
+    },
+    {
+      "id": "tc_27",
+      "category": "multi_step",
+      "prompt": "Compute drainage direction from the elevation raster and delineate the subwatershed basin draining to outlet coordinate 640000,220000.",
+      "expected_tools": ["r.watershed", "r.water.outlet"]
+    },
+    {
+      "id": "tc_28",
+      "category": "multi_step",
+      "prompt": "Populate the parcel vector polygons with their calculated area in square meters.",
+      "expected_tools": ["v.to.db"]
+    },
+    {
+      "id": "tc_29",
+      "category": "multi_step",
+      "prompt": "Import schools.shp, create a 500m buffer around schools, and select all residential buildings intersecting the buffer.",
+      "expected_tools": [["v.import", "v.in.ogr"], "v.buffer", "v.select"]
+    },
+    {
+      "id": "tc_30",
+      "category": "multi_step",
+      "prompt": "Filter forest polygons where canopy_density > 70 and export the result to dense_forest.geojson.",
+      "expected_tools": ["v.extract", "v.out.ogr"]
+    },
+    {
+      "id": "tc_31",
+      "category": "multi_step",
+      "prompt": "Patch northern_dem and southern_dem rasters together into a single elevation mosaic.",
+      "expected_tools": ["r.patch"]
+    },
+    {
+      "id": "tc_32",
+      "category": "multi_step",
+      "prompt": "Calculate slope from elevation raster, reclassify slopes greater than 15 degrees into steep areas, and convert steep areas to vector polygons.",
+      "expected_tools": ["r.slope.aspect", "r.reclass", "r.to.vect"]
+    },
+    {
+      "id": "tc_33",
+      "category": "multi_step",
+      "prompt": "Calculate the minimum Euclidean distance from each cell to the nearest hospital vector points.",
+      "expected_tools": ["v.to.rast", "r.grow.distance"]
+    },
+    {
+      "id": "tc_34",
+      "category": "multi_step",
+      "prompt": "Calculate the average temperature per county by computing zonal statistics of temperature raster over county vector polygons.",
+      "expected_tools": ["v.rast.stats"]
+    },
+    {
+      "id": "tc_35",
+      "category": "multi_step",
+      "prompt": "Interpolate a continuous elevation surface raster from spot elevation vector points using regularized spline with tension.",
+      "expected_tools": ["v.surf.rst"]
+    },
+    {
+      "id": "tc_36",
+      "category": "edge_case",
+      "prompt": "Create an integer raster mask from urban_zones where code equals 5 to constrain subsequent raster processing.",
+      "expected_tools": ["r.mask"]
+    },
+    {
+      "id": "tc_37",
+      "category": "edge_case",
+      "prompt": "Calculate the normalized difference water index using formula (green - nir) / (green + nir) via raster map calculation.",
+      "expected_tools": [["r.mapcalc", "r.mapcalc.simple"]]
+    },
+    {
+      "id": "tc_38",
+      "category": "edge_case",
+      "prompt": "Find the nearest fire station vector point for each building vector point and record the distance in the attribute table.",
+      "expected_tools": ["v.distance"]
+    },
+    {
+      "id": "tc_39",
+      "category": "edge_case",
+      "prompt": "Calculate the average of 12 monthly rainfall rasters rain_01 through rain_12 using raster series aggregation.",
+      "expected_tools": ["r.series"]
+    },
+    {
+      "id": "tc_40",
+      "category": "edge_case",
+      "prompt": "Segment adjacent clumps of contiguous cells in the classified forest raster into distinct unique polygon IDs.",
+      "expected_tools": ["r.clump", "r.to.vect"]
+    }
+  ]
+}

@@ -18,17 +18,33 @@ Rules:
    INCORRECT: tools.v.buffer(...), tools.r.slope.aspect(...)
    Never use dotted method chains. Every dot in a tool name (like v.buffer) MUST be replaced with an underscore (_).
 4. Pass all parameters as keyword arguments strictly using parameter names defined in the RAG documentation context below. Do NOT hallucinate parameter names (e.g., use correct parameters from signature).
-5. Include every numeric value from the task (distances, resolutions, thresholds) as an
+5. One GRASS parameter is named after a Python keyword: `from` in v.distance. It CANNOT be written as `from=value`. Pass it by unpacking a dict, and never invent a renamed variant such as `from_`.
+   CORRECT:   tools.v_distance(**{"from": "a_points", "to": "b_points", "upload": "cat"})
+   INCORRECT: tools.v_distance(from="a_points", to="b_points")
+   INCORRECT: tools.v_distance(from_="a_points", to="b_points", upload="cat")
+   If the task does not need such a parameter, simply omit it.
+6. r.mapcalc takes exactly one parameter, "expression". Reference every raster inside the expression string. Do NOT pass raster names as separate keyword arguments.
+   CORRECT:   tools.r_mapcalc(expression="ndvi = (nir - red) / (nir + red)")
+   INCORRECT: tools.r_mapcalc(expression="ndvi = (nir - red) / (nir + red)", nir="nir", red="red")
+7. Include every numeric value from the task (distances, resolutions, thresholds) as an
    actual parameter value, not a placeholder.
-6. Coordinate pairs (x,y) and bounding box extents (n,s,e,w) MUST be passed as comma-separated string literals (e.g. "635000,216500" or "0,10,0,10").
-7. For multi-step tasks, chain multiple tool calls sequentially, assigning intermediate raster or vector outputs to variables and passing them as input parameters to subsequent tools.
-8. Output ONLY executable Python code. No conversational text, no explanations, and no markdown fences.
+8. Coordinate pairs (x,y) and bounding box extents (n,s,e,w) MUST be passed as comma-separated string literals (e.g. "635000,216500" or "0,10,0,10").
+9. For multi-step tasks, chain multiple tool calls sequentially, assigning intermediate raster or vector outputs to variables and passing them as input parameters to subsequent tools.
+10. Output ONLY executable Python code. No conversational text, no explanations, and no markdown fences.
 """
 
 
 CANONICAL_EXAMPLES = {
     "r.mapcalc": 'tools.r_mapcalc(expression="elevation_double = elevation * 2")',
     "r.mapcalc.simple": 'tools.r_mapcalc_simple(expression="A * 2", a="elevation", output="elevation_double")',
+    # The four scraped examples below are not valid Python. `from`, `lambda`
+    # and `yield` are reserved keywords, and m.nviz.image lost the quoting
+    # around its size pair. Override them so the model is never shown a call
+    # that cannot execute.
+    "v.distance": 'tools.v_distance(**{"from": "buildings", "to": "fire_stations", "upload": "cat"})',
+    "r.smooth.edgepreserve": 'tools.r_smooth_edgepreserve(input="dem", output="dem_smoothed", threshold=5, steps=10, function="tukey")',
+    "r3.gwflow": 'tools.r3_gwflow(**{"phead": "head", "status": "status", "yield": "gw_yield", "output": "gwflow", "dtime": 86400})',
+    "m.nviz.image": 'tools.m_nviz_image(output="view", format="ppm", size=(640, 480))',
 }
 
 
@@ -82,6 +98,7 @@ class GrassCodeGenerator:
         self.last_system_prompt: str = ""
         self.last_user_message: str = ""
         self.last_response: str = ""
+        self.last_code: str = ""
         self.last_request: str = ""
 
     def generate(self, request: str) -> str:
@@ -106,6 +123,7 @@ class GrassCodeGenerator:
 
         code = extract_python_code(response)
         code = normalize_dotted_calls(code)
+        self.last_code = code
         validate_syntax(code)
         self.api_issues = validate_api(code, self.retriever)
         return code
@@ -206,6 +224,21 @@ def _resolve_tool_name(parts: tuple[str, ...]) -> str:
     return ".".join(tail)
 
 
+def _dict_literal_keys(node) -> set[str]:
+    """String keys of a dict literal, e.g. **{"from": "a"} -> {"from"}.
+
+    Used to credit **-unpacked parameters during validation; returns an empty
+    set for anything that is not a literal dict of string keys.
+    """
+    if not isinstance(node, ast.Dict):
+        return set()
+    keys = set()
+    for key in node.keys:
+        if isinstance(key, ast.Constant) and isinstance(key.value, str):
+            keys.add(key.value)
+    return keys
+
+
 def validate_api(code: str, retriever: GrassToolsRetriever) -> list[str]:
     """Check tools.<method>(...) calls against real knowledge-base signatures.
 
@@ -236,8 +269,18 @@ def validate_api(code: str, retriever: GrassToolsRetriever) -> list[str]:
             issues.append(f"tools.{method}: positional argument(s) used; pass parameters as keyword arguments")
 
         positional_names = list(doc.params)
-        provided = set(positional_names[: len(node.args)]) | {a.arg for a in node.keywords}
-        unknown = [a.arg for a in node.keywords if a.arg and a.arg not in doc.params]
+        provided = set(positional_names[: len(node.args)])
+        unknown = []
+        for keyword in node.keywords:
+            if keyword.arg is None:
+                # **kwargs / **mapping: the keys are only knowable from the
+                # literal. Needed because GRASS params like v.distance's
+                # `from` are Python keywords and must be passed this way.
+                provided |= _dict_literal_keys(keyword.value)
+            else:
+                provided.add(keyword.arg)
+                if keyword.arg not in doc.params:
+                    unknown.append(keyword.arg)
         if unknown:
             issues.append(f"tools.{method}: unknown parameter(s): {', '.join(unknown)} (valid: {', '.join(doc.params)})")
         required = [p for p, info in doc.params.items() if info.get("required")]
