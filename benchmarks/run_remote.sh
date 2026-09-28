@@ -1,17 +1,21 @@
 #!/usr/bin/env bash
 set -e
 
-# 1. Install Ollama and start daemon in the background
+# Install Ollama and start the daemon in the background.
+# zstd must be present first: the Ollama installer refuses to extract its
+# tarball without it, and stock Colab images do not ship it.
+apt-get update -qq
+apt-get install -y -qq zstd
 curl -fsSL https://ollama.com/install.sh | sh
-nohup ollama serve > /dev/null 2>&1 &
-sleep 3
+nohup ollama serve > /tmp/ollama.log 2>&1 &
+sleep 8
 
-# 2. Pull required models (Colab network downloads these in ~30 seconds)
+# Pull required models
 ollama pull qwen2.5-coder:7b
 ollama pull nomic-embed-text
 
-# 3. Install Python dependencies
-pip install -r requirements.txt
+# Install Python dependencies
+pip install -q -r requirements.txt
 
-# 4. Run the benchmark evaluation
+# Run the benchmark evaluation
 python3 benchmarks/run_eval.py --model qwen2.5-coder:7b

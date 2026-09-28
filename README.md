@@ -145,12 +145,17 @@ Artifacts are always written to `benchmarks/output/`, pass or fail, each prefixe
 
 **Latest results (same code, same suite):**
 
-| Model | Result | Notes |
-|-------|--------|-------|
-| `qwen2.5-coder:7b` | **10 / 10** | The default |
-| `qwen2.5-coder:3b` | **9 / 10** | ~5× smaller and faster; useful as a smoke test |
+| Model | Hardware | Result | Wall time |
+|-------|----------|--------|-----------|
+| `qwen2.5-coder:7b` | Colab T4 (15 GB) | **10 / 10** | 191 s (~19 s/case) |
+| `qwen2.5-coder:7b` | Local CPU only | **10 / 10** | ~20 min |
+| `qwen2.5-coder:3b` | Local CPU only | **9 / 10** | ~8 min |
 
-The single 3B failure (`tc_02`, slope/aspect) is worth reading: the model called the correct `r_slope_aspect` with correct arguments, then *appended* two extra calls to `tools.v_render_rast` — a tool that does not exist. The failure is a hallucinated addition after a correct call, not a wrong tool choice, and `validate_api()` is what caught it. Treat the table as measured on this machine, not a guarantee: the suite is 10 cases, and LLM output is not deterministic between runs.
+To reproduce the GPU run, `benchmarks/run_remote.sh` installs Ollama, pulls the models, and runs the suite. Note that it installs `zstd` first — the Ollama installer refuses to extract without it, and stock Colab images do not ship it.
+
+**The single 3B failure** (`tc_02`, slope/aspect) is worth reading: the model called the correct `r_slope_aspect` with correct arguments, then *appended* two extra calls to `tools.v_render.rast` — a tool that does not exist. The failure is a hallucinated addition after a correct call, not a wrong tool choice, and `validate_api()` is what caught it.
+
+**These are snapshots, not pass rates.** Running the suite twice on the same code produces different scripts: 8 of the 10 saved artifacts were byte-different between the local and Colab runs of the identical 7B model. The generated code was correct in both, but a case can move either way between runs, so treat a single green run as weak evidence and judge changes on the whole suite.
 
 > The benchmark prompts are treated as **immutable**: they represent realistic user input. Behaviour changes are made in `code_generator.py`, `SYSTEM_PROMPT`, or the retrieval configuration — never by editing the prompts.
 
@@ -192,7 +197,7 @@ options:
 
 - **Model choice:** 7B is the default and passes the full suite. 3B scores 9/10 and is a faster smoke test. On a machine without a suitable GPU, 7B falls back to CPU inference and is noticeably slower.
 - **Two distinct failure modes.** Retrieval failures (the right tool never reached the prompt) and model failures (the tool was in the prompt but the model misused it, or invented a tool that does not exist) look different in the saved artifacts. `validate_api()` catches the second kind — a hallucinated tool name, a bad parameter, or a missing required argument becomes a hard validation failure. But it can only catch what it can parse: nothing here checks whether the *chosen* tool is semantically right for the request, or whether the arguments make sense.
-- **The suite is 10 cases and the output is not deterministic.** Results are a snapshot from one run, not a pass rate with error bars. Re-running may shift a case either way; a model or retrieval change should be judged on the whole suite, not a single case.
+- **The suite is 10 cases and the output is not deterministic.** Re-running may change the generated scripts and may move a case either way; a model or retrieval change should be judged on the whole suite, not a single case.
 - **No execution.** This engine only generates scripts. It does not run GRASS, resolve input data, or verify results — it validates syntax and API signatures, nothing more. A script that passes every check can still fail when executed against real data.
 - Generated scripts assume an already-initialized GRASS session with the relevant input maps present, and they use placeholder map names.
 - **Parameter *names* are checked; parameter *values* are not.** `validate_api()` confirms a parameter exists and that required ones are present, but not that `distance=200` is a sensible distance or that the units match the request.
