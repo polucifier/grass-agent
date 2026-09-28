@@ -4,4 +4,3 @@ beautifulsoup4
 requests
 pydantic
 pytest
-odfpy
