@@ -22,32 +22,52 @@ CATEGORY_HEADER = re.compile(r"-tools-([a-z0-9.]+)$")
 PARAM_PATTERN = re.compile(r"<strong>([a-z_]+)</strong>\s*:\s*([^,]+),\s*<em>(required|optional)</em>")
 
 
+def split_args(body: str) -> list[str]:
+    parts: list[str] = []
+    cur = ""
+    depth = 0
+    quote: str | None = None
+    for ch in body + ",":
+        if quote:
+            cur += ch
+            if ch == quote:
+                quote = None
+            continue
+        if ch in "'\"":
+            quote = ch
+            cur += ch
+            continue
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        if ch == "," and depth == 0:
+            parts.append(cur.strip())
+            cur = ""
+        else:
+            cur += ch
+    return [p for p in parts if p]
+
+
 def parse_signature_params(signature: str) -> dict:
     """Derive the authoritative parameter set from the grass.tools signature.
 
     The signature lists the real API parameter names; the params tab below can
     carry legacy/CLI names (e.g. v.overlay documents 'and' but the API uses
     'output'). Required == no default value in the signature.
-
-    The docs format the signature one parameter per line, so a line is a single
-    param: the name runs to the first '=' and the default is everything after
-    it (defaults may contain commas, e.g. threshold=-1,0,0).
     """
     if not signature or "(" not in signature or ")" not in signature:
         return {}
     body = signature.split("(")[1].rsplit(")", 1)[0]
     params: dict = {}
-    for line in body.splitlines():
-        line = line.strip().rstrip(",").strip()
-        if not line or line in {")", ")", "*", "**"}:
-            continue
-        if "=" in line:
-            name, default = line.split("=", 1)
+    for part in split_args(body):
+        if "=" in part:
+            name, default = part.split("=", 1)
             name = name.strip()
             if name and name != "self":
                 params[name] = {"type": "", "required": False, "default": default.strip()}
         else:
-            name = line.strip()
+            name = part.strip()
             if name and name != "self":
                 params[name] = {"type": "", "required": True}
     return params

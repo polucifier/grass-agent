@@ -104,6 +104,15 @@ options:
   --print               Print code to stdout instead of writing a file
 ```
 
+## Running the Curated Benchmark Suite
+
+Execute the evaluation runner to verify `ast.parse()` syntax validity and zero-chat compliance across all 10 curated benchmark test cases (single-tool, multi-step, and edge cases):
+
+```bash
+.venv/bin/python benchmarks/run_eval.py --model qwen2.5-coder:3b
+.venv/bin/python benchmarks/run_eval.py --model qwen2.5-coder:7b
+```
+
 ## Notes & Known Limitations
 
 - **Model choice:** `qwen2.5-coder:3b` fits the integrated GPU. A larger model (7B+) is more reliable but requires CPU inference (`num_gpu=0`) or more VRAM.

@@ -48,7 +48,8 @@ def main() -> int:
 
     output = Path(args.output) if args.output else default_output_path(config, args.request)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(code)
+    debug_header = generator.format_debug_header()
+    output.write_text(debug_header + "\n" + code)
     print(f"Generated: {output}")
     return 0
 

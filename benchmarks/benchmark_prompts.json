@@ -1,0 +1,65 @@
+{
+  "version": "1.1.0",
+  "test_cases": [
+    {
+      "id": "tc_01",
+      "category": "single_tool",
+      "prompt": "Create a 200-meter buffer around the stream network lines.",
+      "expected_tools": ["v.buffer"]
+    },
+    {
+      "id": "tc_02",
+      "category": "single_tool",
+      "prompt": "Calculate slope and aspect maps from the elevation raster.",
+      "expected_tools": ["r.slope.aspect"]
+    },
+    {
+      "id": "tc_03",
+      "category": "single_tool",
+      "prompt": "Import road vector features from an external roads.shp shapefile.",
+      "expected_tools": [["v.in.ogr", "v.import"]]
+    },
+    {
+      "id": "tc_04",
+      "category": "single_tool",
+      "prompt": "Display the elevation raster map on the active monitor.",
+      "expected_tools": ["d.rast"]
+    },
+    {
+      "id": "tc_05",
+      "category": "multi_step",
+      "prompt": "Compute slope from the elevation raster and then generate 10m contour lines from the elevation.",
+      "expected_tools": ["r.slope.aspect", "r.contour"]
+    },
+    {
+      "id": "tc_06",
+      "category": "multi_step",
+      "prompt": "Buffer streams by 100 meters and convert the buffered vector areas into a raster map.",
+      "expected_tools": ["v.buffer", "v.to.rast"]
+    },
+    {
+      "id": "tc_07",
+      "category": "multi_step",
+      "prompt": "Import boundary.shp vector, create a 50m buffer around it, and calculate raster zonal statistics for elevation.",
+      "expected_tools": [["v.in.ogr", "v.import"], "v.buffer", "v.rast.stats"]
+    },
+    {
+      "id": "tc_08",
+      "category": "edge_case",
+      "prompt": "Calculate viewshed visibility from the elevation raster starting at viewpoint coordinate 635000,216500.",
+      "expected_tools": ["r.viewshed"]
+    },
+    {
+      "id": "tc_09",
+      "category": "edge_case",
+      "prompt": "Multiply the elevation raster by 2 using raster map calculation.",
+      "expected_tools": [["r.mapcalc", "r.mapcalc.simple"]]
+    },
+    {
+      "id": "tc_10",
+      "category": "edge_case",
+      "prompt": "Perform an intersection overlay between parcel polygons and zoning boundaries.",
+      "expected_tools": ["v.overlay"]
+    }
+  ]
+}
