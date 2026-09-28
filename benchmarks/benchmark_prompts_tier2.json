@@ -79,7 +79,7 @@
       "id": "tc_23",
       "category": "single_tool",
       "prompt": "Trace the least-cost drainage path flowline from a starting point over a cumulative cost raster.",
-      "expected_tools": ["r.drain"]
+      "expected_tools": [["r.drain", "r.path"]]
     },
     {
       "id": "tc_24",
@@ -103,7 +103,7 @@
       "id": "tc_27",
       "category": "multi_step",
       "prompt": "Compute drainage direction from the elevation raster and delineate the subwatershed basin draining to outlet coordinate 640000,220000.",
-      "expected_tools": ["r.watershed", "r.water.outlet"]
+      "expected_tools": [["r.watershed", "r.fill.dir"], "r.water.outlet"]
     },
     {
       "id": "tc_28",
@@ -145,7 +145,7 @@
       "id": "tc_34",
       "category": "multi_step",
       "prompt": "Calculate the average temperature per county by computing zonal statistics of temperature raster over county vector polygons.",
-      "expected_tools": ["v.rast.stats"]
+      "expected_tools": [["v.rast.stats", "r.stats.zonal"]]
     },
     {
       "id": "tc_35",

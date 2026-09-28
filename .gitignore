@@ -16,3 +16,4 @@ Thumbs.db
 ollama.log
 .opencode/node_modules/
 benchmarks/output/
+benchmarks/merge.py
