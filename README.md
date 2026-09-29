@@ -12,7 +12,7 @@ This project implements a fully offline autonomous agent that translates unconst
 
 **Objective.** Close that gap with a deterministic, fully offline pipeline that grounds generation in the official GRASS 8.6 manual, optimises the context supplied to the model, and then *verifies* the result statically against the same source of truth. No inference-time network access, no cloud API, no human in the loop. The guarantee is narrow and deliberately so: the system produces scripts that are syntactically valid, schema-conformant, and free of hallucinated modules — it does not claim their numerical results are correct.
 
-**Current state:** Gate 1 complete. 36/40 (90.0%) zero-shot static verification across a two-tier benchmark suite on `qwen2.5-coder:7b`.
+**Current state:** Gate 1 complete. 36/40 (90.0%) zero-shot static verification across a two-tier benchmark suite on `qwen2.5-coder:7b`. Tier 1 alone scores 10/10 on discrete GPU hardware and 9–10/10 on integrated graphics across repeated runs; see [Hardware & Latency](#hardware--latency).
 
 ---
 
@@ -153,10 +153,14 @@ Tier 2 progressed 18 → 21 → 22 → 26 across four iterations; the last was a
 
 | Model | Hardware | Result | Suite (cold) | Suite (warm) | Warm latency / prompt |
 |---|---|---|---|---|---|
-| `qwen2.5-coder:7b` | Colab T4 15 GB | **10 / 10** | 191 s | 26–49 s | **0.9–1.8 s** |
-| `qwen2.5-coder:3b` | Colab T4 15 GB | — | — | — | 0.8–1.1 s |
-| `qwen2.5-coder:7b` | Local laptop, iGPU Vulkan | **10 / 10** | 465 s | — | 10–11 s |
-| `qwen2.5-coder:3b` | Local laptop, iGPU Vulkan | **9 / 10**, **8 / 10** | 173 s | — | 15–16 s |
+| `qwen2.5-coder:7b` | Colab T4 15 GB | **10 / 10** | 181–198 s | 26–49 s | **0.9–1.8 s** |
+| `qwen2.5-coder:3b` | Colab T4 15 GB | 9–10 / 10 | 167 s | 13 s | 0.8–1.1 s |
+| `qwen2.5-coder:7b` | Local laptop, iGPU Vulkan | 9–10 / 10 | 424–465 s | 352 s | 10–11 s |
+| `qwen2.5-coder:3b` | Local laptop, iGPU Vulkan | 8–10 / 10 | 173–258 s | 223 s | 15–16 s |
+
+"Cold" means the model was unloaded before the run and is loaded on first prompt; "warm" re-runs immediately with the model resident. Tier 1 only. `Result` is the observed range across every Tier 1 run performed on that configuration, not a single run.
+
+**The 7B model does not hold a clean 10/10 on this suite.** On local hardware it first scored 10/10, then 9/10 on two subsequent runs (`tc_07`, the multi-step import → buffer → zonal-statistics chain, failing on a hallucinated or mistyped call). Every 7B run on the T4 has scored 10/10, but the honest reading is that 7B is *reliable on discrete hardware and near-reliable on integrated graphics*, not uniformly perfect. The 3B model is weaker and less stable: it has ranged from 8/10 to 10/10 on local hardware and fails `tc_10` (parcel/zoning intersection overlay) on every warm run observed, local and remote alike.
 
 **Local hardware:** HP Laptop 15s-eq2xxx; AMD Ryzen 5 5500U (6C/12T @ 4.0 GHz, mobile-class); 15.67 GB RAM; integrated AMD Radeon (Lucienne, Vega 8); openSUSE Tumbleweed.
 
@@ -206,7 +210,7 @@ Two reasons, and both are methodological rather than budgetary.
 
 **These are Gate 2 work.** All four residual failures are **runtime-detectable exceptions** — a missing layer, a type error, a wrong column name — that a headless execution harness surfaces immediately and unambiguously. Continuing to chase them through prompt wording, against a validator that can only reason statically, is the wrong instrument. They are deferred to the Gate 2 self-healing loop by design.
 
-> **A caveat on the headline number.** 36/40 is a snapshot, not a pass rate with error bars. Re-running produces different scripts: 8 of 10 Tier 1 artifacts were byte-different between two runs of the identical model, and 3B scored 9/10 then 8/10 on consecutive runs. 40 cases is a small sample; the figure should be read as "the pipeline reliably produces verifiable code," not as a stable metric.
+> **A caveat on the headline number.** 36/40 is a snapshot, not a pass rate with error bars. Re-running produces different scripts: 8 of 10 Tier 1 artifacts were byte-different between two runs of the identical model, and across repeated Tier 1 runs 3B has scored anywhere from 8/10 to 10/10 while 7B has scored 9/10 to 10/10 on integrated graphics. 40 cases is a small sample; the figure should be read as "the pipeline reliably produces verifiable code," not as a stable metric.
 
 ---
 
@@ -366,7 +370,7 @@ A script that passes every static check can still fail when run against real dat
 - **Placeholders.** Generated scripts use placeholder map names and assume an already-initialised GRASS session.
 - **Determinism.** LLM output is not reproducible between runs. See the caveat under Diagnostic Failure Analysis.
 - **Suite size.** 40 cases is a small sample; individual case outcomes move between runs.
-- **Model dependence.** 3B (8–9/10) is not a drop-in substitute for 7B (10/10) on Tier 1.
+- **Model dependence.** 3B (8–10/10 observed) is not a drop-in substitute for 7B (9–10/10 observed) on Tier 1, and it fails `tc_10` on every warm run measured.
 
 ---
 
