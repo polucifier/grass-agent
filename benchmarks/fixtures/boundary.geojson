@@ -1,0 +1,45 @@
+{
+ "type": "FeatureCollection",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "urn:ogc:def:crs:EPSG::3358"
+  }
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "cat": 1,
+    "name": "fixture_boundary"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -499.744525,
+       -499.91888883
+      ],
+      [
+       500.57766104,
+       -499.91888883
+      ],
+      [
+       500.57766104,
+       500.47881429
+      ],
+      [
+       -499.744525,
+       500.47881429
+      ],
+      [
+       -499.744525,
+       -499.91888883
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

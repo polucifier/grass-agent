@@ -101,15 +101,21 @@ class GrassCodeGenerator:
         self.last_code: str = ""
         self.last_request: str = ""
 
-    def generate(self, request: str) -> str:
+    def generate(self, request: str, inventory_block: str = "") -> str:
         self.last_request = request
         query_embedding = self.provider.generate_embeddings(request)
         docs = self.retriever.retrieve(request, query_embedding, k=self.config.rag_top_k)
         self.last_retrieved_docs = docs
 
         context = format_context(docs)
+        # Initial-prompt grounding (FR-012b): the dataset's real map names are
+        # injected exactly as in the repair prompt, so attempt 1 can choose an
+        # existing map instead of inventing one. An empty block is omitted
+        # rather than rendered as an empty heading (graceful degradation).
+        grounding = f"{inventory_block}\n\n" if inventory_block.strip() else ""
         user_message = (
             f"Relevant GRASS tools documentation:\n\n{context}\n\n"
+            f"{grounding}"
             f"Task: {request}\n\nGenerate the Python script:"
         )
         self.last_system_prompt = SYSTEM_PROMPT

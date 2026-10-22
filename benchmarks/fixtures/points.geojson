@@ -1,0 +1,56 @@
+{
+ "type": "FeatureCollection",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "urn:ogc:def:crs:EPSG::3358"
+  }
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "cat": 1,
+    "name": "pt1",
+    "label": "fixture point 1"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     0.255475,
+     0.34270148
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "cat": 2,
+    "name": "pt2",
+    "label": "fixture point 2"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     0.57766104,
+     0.08111117
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "cat": 3,
+    "name": "pt3",
+    "label": "fixture point 3"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     0.50120058,
+     0.47881429
+    ]
+   }
+  }
+ ]
+}

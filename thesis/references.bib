@@ -1,0 +1,361 @@
+% =====================================================================
+%  References for: Introduction, Theoretical Background
+%
+%  Entries marked "% VERIFY" were written from memory or from a
+%  truncated source (search snippet, repository page) and should be
+%  checked against the original before submission. Everything else was
+%  verified against the publisher, DOI record, or arXiv abstract page.
+%
+%  Compile with:  pdflatex -> bibtex -> pdflatex -> pdflatex
+% =====================================================================
+
+
+% ---------------------------------------------------------------------
+%  Software, platforms and documentation
+% ---------------------------------------------------------------------
+
+@misc{qgissoftware,
+  author       = {{QGIS.org}},
+  title        = {{QGIS} Geographic Information System},
+  year         = {2026},
+  howpublished = {Open Source Geospatial Foundation},
+  url          = {https://qgis.org},
+  note         = {Accessed 2026-10-13}
+}
+
+@manual{pyqgis,
+  author       = {{QGIS Project}},
+  title        = {{PyQGIS} Developer Cookbook},
+  organization = {QGIS.org},
+  year         = {2026},
+  url          = {https://docs.qgis.org/latest/en/docs/pyqgis_developer_cookbook/},
+  note         = {Accessed 2026-10-13}
+}
+
+@manual{grass_tools,
+  author       = {{GRASS GIS Project}},
+  title        = {{GRASS} GIS Reference Manual: The Python API ({grass.tools})},
+  organization = {Open Source Geospatial Foundation},
+  year         = {2026},
+  url          = {https://grass.osgeo.org/grass-stable/manuals/},
+  note         = {Version 8.6; accessed 2026-10-13}
+}
+
+@manual{astech,
+  author       = {{Python Software Foundation}},
+  title        = {{ast} --- {Abstract Syntax Trees}},
+  year         = {2026},
+  url          = {https://docs.python.org/3/library/ast.html},
+  note         = {Python documentation; accessed 2026-10-13}
+}
+
+@article{neteler2012grass,
+  author  = {Neteler, Markus and Bowman, M. Hamish and Landa, Martin and Metz, Markus},
+  title   = {{GRASS GIS}: A Multi-Purpose Open Source {GIS}},
+  journal = {Environmental Modelling \& Software},
+  volume  = {31},
+  pages   = {124--130},
+  year    = {2012},
+  doi     = {10.1016/j.envsoft.2011.11.014}
+}
+
+
+% ---------------------------------------------------------------------
+%  Foundation models, code generation, hallucination
+% ---------------------------------------------------------------------
+
+@inproceedings{vaswani2017attention,
+  author    = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and
+               Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N. and
+               Kaiser, Lukasz and Polosukhin, Illia},
+  title     = {Attention Is All You Need},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {30},
+  year      = {2017},
+  pages     = {5998--6008}
+}
+
+@inproceedings{brown2020gpt3,
+  author    = {Brown, Tom B. and others},
+  title     = {Language Models are Few-Shot Learners},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {33},
+  year      = {2020},
+  pages     = {1877--1901}
+}
+
+@misc{chen2021codex,
+  author       = {Chen, Mark and others},
+  title        = {Evaluating Large Language Models Trained on Code},
+  year         = {2021},
+  eprint       = {2107.03374},
+  archivePrefix= {arXiv},
+  primaryClass = {cs.LG}
+}
+
+@misc{ji2024qwen25coder,
+  author       = {{Qwen Team}},
+  title        = {{Qwen2.5-Coder} Technical Report},
+  year         = {2024},
+  eprint       = {2409.12186},
+  archivePrefix= {arXiv},
+  primaryClass = {cs.CL}
+}
+% VERIFY: confirm arXiv identifier against the report
+
+@article{ji2023hallucination,
+  author  = {Ji, Ziwei and Lee, Nayeon and Frieske, Rita and Yu, Tiezheng and
+             Su, Dan and Xu, Yan and Ishii, Etsuko and Bang, Ye Jin and
+             Madotto, Andrea and Fung, Pascale},
+  title   = {Survey of Hallucination in Natural Language Generation},
+  journal = {ACM Computing Surveys},
+  volume  = {55},
+  number  = {12},
+  pages   = {1--38},
+  year    = {2023},
+  doi     = {10.1145/3571730}
+}
+
+@inproceedings{zan2023surveycode,
+  author    = {Zan, Daoguang and Chen, Bei and Lin, Zeqi and Guan, Bei and
+               Wang, Yongji and Lou, Jian-Guang},
+  title     = {Large Language Models Meet {NL2Code}: A Survey},
+  booktitle = {Proceedings of the 61st Annual Meeting of the Association for
+               Computational Linguistics (ACL)},
+  year      = {2023},
+  pages     = {7443--7464}
+}
+
+
+% ---------------------------------------------------------------------
+%  Retrieval-augmented generation and hybrid retrieval
+% ---------------------------------------------------------------------
+
+@inproceedings{lewis2020rag,
+  author    = {Lewis, Patrick and Perez, Ethan and Piktus, Aleksandra and
+               Petroni, Fabio and Karpukhin, Vladimir and Goyal, Naman and
+               K{\"u}ttler, Heinrich and Lewis, Mike and Yih, Wen-tau and
+               Rockt{\"a}schel, Tim and Riedel, Sebastian and Kiela, Douwe},
+  title     = {Retrieval-Augmented Generation for Knowledge-Intensive {NLP} Tasks},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {33},
+  year      = {2020},
+  pages     = {9459--9474}
+}
+
+@inproceedings{karpukhin2020dpr,
+  author    = {Karpukhin, Vladimir and O{\u{g}}uz, Barlas and Min, Sewon and
+               Lewis, Patrick and Wu, Ledell and Edunov, Sergey and Chen, Danqi and
+               Yih, Wen-tau},
+  title     = {Dense Passage Retrieval for Open-Domain Question Answering},
+  booktitle = {Proceedings of the 2020 Conference on Empirical Methods in
+               Natural Language Processing (EMNLP)},
+  year      = {2020},
+  pages     = {6769--6781},
+  doi       = {10.18653/v1/2020.emnlp-main.550}
+}
+
+@article{robertson2009bm25,
+  author  = {Robertson, Stephen and Zaragoza, Hugo},
+  title   = {The Probabilistic Relevance Framework: {BM25} and Beyond},
+  journal = {Foundations and Trends in Information Retrieval},
+  volume  = {3},
+  number  = {4},
+  pages   = {333--389},
+  year    = {2009},
+  doi     = {10.1561/1500000019}
+}
+
+@inproceedings{cormack2009rrf,
+  author    = {Cormack, Gordon V. and Clarke, Charles L. A. and Buettcher, Stefan},
+  title     = {Reciprocal Rank Fusion Outperforms Condorcet and Individual
+               Rank Learning Methods},
+  booktitle = {Proceedings of the 32nd International ACM SIGIR Conference on
+               Research and Development in Information Retrieval (SIGIR)},
+  year      = {2009},
+  pages     = {758--759}
+}
+
+
+% ---------------------------------------------------------------------
+%  Agents, tools and program repair
+% ---------------------------------------------------------------------
+
+@inproceedings{yao2023react,
+  author    = {Yao, Shunyu and Zhao, Jeffrey and Yu, Dian and Du, Nan and
+               Shao, Izaak and Narasimhan, Karthik and Cao, Yuan},
+  title     = {{ReAct}: Synergizing Reasoning and Acting in Language Models},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2024},
+  note      = {arXiv:2210.03629}
+}
+
+@misc{shinn2023reflexion,
+  author       = {Shinn, Noah and Cassano, Federico and Gopinath, Ashish and
+                 Narasimhan, Karthik and Yao, Shunyu},
+  title        = {Reflexion: Language Agents with Verbal Reinforcement Learning},
+  year         = {2023},
+  eprint       = {2303.11366},
+  archivePrefix= {arXiv},
+  primaryClass = {cs.AI}
+}
+
+@article{gazzola2019automatic,
+  author  = {Gazzola, Luca and Micucci, Daniela and Mariani, Leonardo},
+  title   = {Automatic Software Repair: A Survey},
+  journal = {IEEE Transactions on Software Engineering},
+  volume  = {45},
+  number  = {1},
+  year    = {2019},
+  pages   = {34--67},
+  doi     = {10.1109/TSE.2017.2755013}
+}
+
+
+% ---------------------------------------------------------------------
+%  Natural language to GIS
+% ---------------------------------------------------------------------
+
+@article{li2023autonomousgis,
+  author  = {Li, Zhenlong and Ning, Huan},
+  title   = {Autonomous {GIS}: The Next-Generation {AI}-Powered {GIS}},
+  journal = {International Journal of Digital Earth},
+  volume  = {16},
+  number  = {2},
+  year    = {2023},
+  pages   = {4668--4686},
+  doi     = {10.1080/17538947.2023.2278895}
+}
+
+@misc{zhang2023geogpt,
+  author       = {Zhang, Yifan and Wei, Cheng and Wu, Shangyou and
+                 He, Zhengting and Yu, Wenhao},
+  title        = {{GeoGPT}: Understanding and Processing Geospatial Tasks
+                 through An Autonomous {GPT}},
+  year         = {2023},
+  eprint       = {2307.07930},
+  archivePrefix= {arXiv},
+  note         = {Published as ``GeoGPT: An assistant for understanding and
+                 processing geospatial tasks'', International Journal of Applied
+                 Earth Observation and Geoinformation, 2024,
+                 doi:10.1016/j.jag.2024.103976}
+}
+
+@article{zhang2024geollmtooluse,
+  author  = {Zhang, Yifan and Li, Jingxuan and Wang, Zhiyun and He, Zhengting and
+             Guan, Qingfeng and Lin, Jianfeng and Yu, Wenhao},
+  title   = {Geospatial large language model trained with a simulated environment
+             for generating tool-use chains autonomously},
+  journal = {International Journal of Applied Earth Observation and
+             Geoinformation},
+  volume  = {136},
+  year    = {2024},
+  pages   = {104312},
+  doi     = {10.1016/j.jag.2024.104312}
+}
+
+@article{wei2024geotoolgpt,
+  author  = {Wei, Cheng and Zhang, Yifan and others},
+  title   = {{GeoTool-GPT}: A Trainable Method for Facilitating Large Language
+             Models to Master {GIS} Tools},
+  journal = {International Journal of Geographical Information Science},
+  volume  = {39},
+  number  = {4},
+  year    = {2024},
+  pages   = {707--731},
+  doi     = {10.1080/13658816.2024.2438937}
+}
+
+@article{zhang2024bbgeogpt,
+  author  = {Zhang, Yifan and Wang, Zhiyun and He, Zhengting and Li, Jingxuan and
+             Mai, Gengchen and Lin, Jianfeng and Wei, Cheng and Yu, Wenhao},
+  title   = {{BB-GeoGPT}: A Framework for Learning a Large Language Model for
+             Geographic Information Science},
+  journal = {Information Processing \& Management},
+  volume  = {61},
+  number  = {5},
+  pages   = {103808},
+  year    = {2024},
+  doi     = {10.1016/j.ipm.2024.103808}
+}
+
+@article{mansourian2024chatgeoai,
+  author  = {Mansourian, Ali and Oucheikh, Rachid},
+  title   = {{ChatGeoAI}: Enabling Geospatial Analysis for Public through
+             Natural Language, with Large Language Models},
+  journal = {ISPRS International Journal of Geo-Information},
+  volume  = {13},
+  number  = {10},
+  year    = {2024},
+  pages   = {348},
+  doi     = {10.3390/ijgi13100348}
+}
+
+@inproceedings{singh2024geollmengine,
+  author    = {Singh, Simranjit and Fore, Michael and Stamoulis, Dimitrios},
+  title     = {{GeoLLM-Engine}: A Realistic Environment for Building Geospatial
+               Copilots},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and
+               Pattern Recognition Workshops (CVPRW)},
+  year      = {2024},
+  pages     = {585--594},
+  doi       = {10.1109/CVPRW63382.2024.00063}
+}
+
+@inproceedings{evalcodellms2024,
+  author    = {Gramacki, Piotr and Martins, Bruno and Szyma{\'n}ski, Piotr},
+  title     = {Evaluation of Code {LLMs} on Geospatial Code Generation},
+  booktitle = {Proceedings of the 7th ACM SIGSPATIAL International Workshop on
+               AI for Geographic Knowledge Discovery (GeoAI '24)},
+  year      = {2024},
+  pages     = {54--62},
+  doi       = {10.1145/3687123.3698286}
+}
+
+@article{zhang2025geoanalystbench,
+  author  = {Zhang, Qianheng and Gao, Song and Wei, Chen and Zhao, Yibo and
+             Nie, Ying and Chen, Ziru and Chen, Shijie and Su, Yu and Sun, Huan},
+  title   = {{GeoAnalystBench}: A {GeoAI} Benchmark for Assessing Large Language
+             Models for Spatial Analysis Workflow and Code Generation},
+  journal = {Transactions in GIS},
+  volume  = {29},
+  number  = {7},
+  year    = {2025},
+  pages   = {e70135},
+  doi     = {10.1111/tgis.70135}
+}
+
+@article{mansourian2026multia,
+  author  = {Mansourian, Ali and Oucheikh, Rachid},
+  title   = {Bridging Natural Language and {GIS}: A Multi-Agent Framework for
+             {LLM}-Driven Geospatial Analysis},
+  journal = {International Journal of Digital Earth},
+  year    = {2026},
+  doi     = {10.1080/17538947.2026.2633849}
+}
+% VERIFY: complete title, volume and article number
+
+
+% ---------------------------------------------------------------------
+%  Operational QGIS plugins
+% ---------------------------------------------------------------------
+
+@software{geopilot,
+  author  = {{GeoPilot Team}},
+  title   = {{GeoPilot}: {AI}-Geospatial Analysis Assistant for {QGIS}},
+  year    = {2026},
+  url     = {https://github.com/xingguangYan/GeoPilot},
+  note    = {QGIS plugin repository identifier 5495; version 1.3.7,
+             June 2026; MIT licence; accessed 2026-10-13}
+}
+
+@software{geoagent,
+  author  = {Wu, Qiusheng},
+  title   = {{GeoAgent}: A Multimodal {AI} Agent for Geospatial Data Analysis
+             and Interactive Visualization},
+  year    = {2026},
+  url     = {https://github.com/opengeos/GeoAgent},
+  note    = {Distributed as the OpenGeoAgent QGIS plugin, repository
+             identifier 5094, version 1.9.0, August 2026; MIT licence;
+             accessed 2026-10-13}
+}

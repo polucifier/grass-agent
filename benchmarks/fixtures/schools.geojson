@@ -1,0 +1,86 @@
+{
+ "type": "FeatureCollection",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "urn:ogc:def:crs:EPSG::3358"
+  }
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "cat": 1,
+    "name": "school1",
+    "type": "elementary"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     0.61974341,
+     0.50435794
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "cat": 2,
+    "name": "school2",
+    "type": "elementary"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     0.04297526,
+     0.40770729
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "cat": 3,
+    "name": "school3",
+    "type": "elementary"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     0.26366486,
+     0.91387946
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "cat": 4,
+    "name": "school4",
+    "type": "elementary"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     0.75822947,
+     0.05720159
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "cat": 5,
+    "name": "school5",
+    "type": "elementary"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     0.66405514,
+     0.85072496
+    ]
+   }
+  }
+ ]
+}

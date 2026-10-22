@@ -17,3 +17,11 @@ ollama.log
 .opencode/node_modules/
 benchmarks/output/
 benchmarks/merge.py
+# Gate 2 execution harness artifacts (task T005, T067).
+# case_result.json holds per-case results and regenerates the report, but the
+# volume scales with (cases x attempts); the generated report is kept.
+benchmarks/output_execution/
+# benchmarks/execution_report.md is deliberately NOT ignored: T067 keeps the
+# report tracked while excluding the per-case case_result.json artifacts, whose
+# volume scales with (cases x attempts).
+.pytest_cache/

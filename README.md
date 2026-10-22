@@ -14,6 +14,8 @@ This project implements a fully offline autonomous agent that translates unconst
 
 **Current state:** Gate 1 complete. 36/40 (90.0%) zero-shot static verification across a two-tier benchmark suite on `qwen2.5-coder:7b`. Tier 1 alone scores 10/10 on discrete GPU hardware and 9–10/10 on integrated graphics across repeated runs; see [Hardware & Latency](#hardware--latency).
 
+Gate 2 is implemented as a headless execution and bounded self-healing harness. On the same 40-case suite it reaches **27.5% Pass@1** and **32.5% Pass@Healed**; those figures measure executability, not correctness. The diagnosis and enhancement plan are in [Gate 2 — Runtime Execution & Self-Healing](#gate-2--runtime-execution--self-healing).
+
 ---
 
 ## Table of Contents
@@ -22,7 +24,7 @@ This project implements a fully offline autonomous agent that translates unconst
 2. [System Architecture & Pipeline](#system-architecture--pipeline)
 3. [Benchmark Methodology & Evaluation Results](#benchmark-methodology--evaluation-results)
 4. [Diagnostic Failure Analysis (The 4 Residual Cases)](#diagnostic-failure-analysis-the-4-residual-cases)
-5. [Roadmap: Transition from Gate 1 to Gate 2](#roadmap-transition-from-gate-1-to-gate-2)
+5. [Gate 2 — Runtime Execution & Self-Healing](#gate-2--runtime-execution--self-healing)
 6. [Quickstart & CLI Usage](#quickstart--cli-usage)
 7. [Repository Layout](#repository-layout)
 8. [Configuration](#configuration)
@@ -214,19 +216,56 @@ Two reasons, and both are methodological rather than budgetary.
 
 ---
 
-## Roadmap: Transition from Gate 1 to Gate 2
+## Gate 2 — Runtime Execution & Self-Healing
 
-### Gate 1 — complete
+Gate 1 asks whether a script is well-formed. Gate 2 asks whether it actually runs in a live GRASS session — and, when it does not, whether a bounded repair loop can recover it.
 
-Feasibility established. The pure-script contract holds: zero-chat compliance, exact `Tools()` instantiation, static syntax validity, schema verification against the authoritative source, and a 90% zero-shot static verification rate on a two-tier suite. Zero external network calls at generation time.
+### Mechanism
 
-### Gate 2 — next milestone
+1. **Pre-flight static guard.** Every generated and repaired script is re-validated against the knowledge base before execution. A static rejection costs one unit of the unified retry budget and skips execution.
+2. **Isolated execution.** Scripts run in disposable `tmp_<uuid>` mapsets via `grass --tmp-mapset <project> --exec python3`. The persistent `PERMANENT` mapset is write-protected and its content hash is verified before and after the run.
+3. **Failure classification.** Each failed attempt is classified deterministically as `missing_input`, `schema_misuse`, `unknown_method`, or `general_exception`, with the failing GRASS tool and a diagnostic excerpt recorded.
+4. **Repair loop.** The next attempt receives the original task, the previous script, the previous error, targeted tool documentation, and the dataset map inventory. The loop is bounded by `--max-retries` (default 2).
+5. **Reporting.** Per-case artifacts and `case_result.json` are written under `benchmarks/output_execution/`; `benchmarks/execution_report.md` is regenerated from them.
 
-1. **Headless runtime execution.** Drive `grass.script.setup.init()` against a sample location (the North Carolina sample dataset) so generated scripts actually run in a real GRASS session rather than being merely well-formed.
-2. **Runtime stderr interception.** Capture and classify tracebacks into missing parameters, non-existent layers, unresolved column names, and type errors — the four residual failure classes above are all in this category.
-3. **Self-healing recovery loop.** Feed the traceback plus the relevant retrieved documentation back to the LLM, regenerate a patch, and re-execute with a bounded retry budget and a no-progress circuit breaker.
+### Results
 
-The design intent of Gate 2 is that stage 4 evolves from *static* verification into *dynamic* verification, converting the "this script is well-formed" guarantee into "this script executes against real data."
+Measured with `qwen2.5-coder:7b`, both suites, 2 retries, 120 s per attempt:
+
+| Metric | Value |
+|---|---|
+| Cases | 40 |
+| Pass@1 (zero-shot, no healing) | 11/40 = **27.5%** |
+| Pass@Healed (after retries) | 13/40 = **32.5%** |
+| Healing gain | **+5.0 pp** |
+| Failed attempts | 83 (`general_exception` 35, `missing_input` 31, `schema_misuse` 17) |
+
+> **Executability is not correctness.** A script can finish with exit code 0 and still produce the wrong map. Gate 2 does not yet validate geospatial output, so these numbers must not be read as accuracy. At least 5 of the 13 "passes" in this run are semantically wrong — for example, `tc_17` computes "NDVI" from `elevation` and `elevation_shade`, and `tc_24` calls `r.external_out` without exporting `elevation.tif`.
+
+### What the first run found
+
+The full breakdown is in [`benchmarks/execution_report.md`](benchmarks/execution_report.md) and [`benchmarks/leakage_report.md`](benchmarks/leakage_report.md).
+
+- **18 of 27 unhealed cases were not repairable by code editing.** The prompts reference maps or columns that do not exist in the North Carolina dataset or the declared fixtures (`parcels`, `bathymetry`, `landcover`, `canopy_density`, `rain_01`…`rain_12`, `northern_dem`, etc.). The model cannot invent data.
+- **The repair loop was mostly a no-op.** 37 of 54 repair turns (69%) produced byte-identical code, and 14 of 27 failed cases never changed code at all. If attempt 2 repeats attempt 1, attempt 3 receives the same prompt and repeats it again.
+- **Some errors hid their own cause.** For nested `r.drain` failures, the repair prompt received the outer `CalledModuleError` wrapper instead of the inner `ERROR: No start point(s) specified` line.
+- **Repair is anchored to the failing tool, not the intended tool.** When the model picked the wrong tool, the loop kept retrieving documentation for that wrong tool and never escaped the local minimum (`tc_28` never reached `v.to.db`; `tc_35` never reached `v.surf.rst`).
+- **Harness conditions consumed budget.** `v.buffer` over the full NC streams layer takes ~188 s and `r.slope.aspect` ~101 s, so the 120 s timeout is too low. `d.rast` has no monitor in headless mode. `tc_24`, `tc_25`, and `tc_30` declare their expected *outputs* as auxiliary inputs, which causes an "already exists" collision during staging.
+
+The prioritised fixes are: provision or alias the missing dataset inputs; remove outputs from `auxiliary_inputs`; raise the per-attempt timeout; add output-level assertions; detect no-op repairs and force a different strategy; pass attempt history to the repair prompt; extract the innermost GRASS error; add a semantic linter for the recurring API mistakes; and retrieve documentation for both the failing tool and the task's intended tool.
+
+### Reproducing
+
+Gate 2 requires GRASS 8.4+ and the North Carolina sample dataset, provisioned once per [`benchmarks/fixtures/README.md`](benchmarks/fixtures/README.md). Then:
+
+```bash
+.venv/bin/python benchmarks/run_execution.py \
+  --model qwen2.5-coder:7b \
+  --max-retries 2 \
+  --timeout 120
+```
+
+Use `--clean` to resample from scratch, `-k tc_01,tc_02` to run selected cases, and `--report-only` to regenerate the report from persisted results.
 
 ---
 
@@ -249,7 +288,7 @@ ollama pull nomic-embed-text
 
 `data/grass_knowledge.db` ships with the repository — no build step is required. To rebuild it from the GRASS 8.6 manual, run `.venv/bin/python scripts/build_knowledge_base.py`.
 
-For GPU execution, `benchmarks/run_remote.sh` provisions Ollama and the models on a Colab instance. It installs `zstd` first, because the Ollama installer refuses to extract without it and stock Colab images do not ship it.
+For GPU execution, `benchmarks/run_remote.sh` provisions a Colab instance end to end: Ollama and the models, GRASS GIS (`grass-core` from the UbuntuGIS PPA — 8.4+, since the harness needs `--tmp-mapset`), the North Carolina sample dataset with its `PERMANENT` write guard, and the Python dependencies. It then runs the test suite (or, with `bash benchmarks/run_remote.sh eval`, the Gate 1 evaluation). It installs `zstd` first, because the Ollama installer refuses to extract without it and stock Colab images do not ship it.
 
 ### Single-query generation
 
@@ -285,6 +324,21 @@ tools.r_contour(input="elevation", output=contour_output, step="10")
 
 Artifacts are written to `benchmarks/output/` for every case, pass or fail, each prefixed with the commented prompt and raw response.
 
+Gate 2 executes those scripts against a real GRASS dataset and retries failures:
+
+```bash
+# Requires GRASS 8.4+ and the NC sample dataset; see benchmarks/fixtures/README.md
+.venv/bin/python benchmarks/run_execution.py --model qwen2.5-coder:7b
+
+# Selected cases, from scratch, with a longer execution timeout
+.venv/bin/python benchmarks/run_execution.py -k tc_01,tc_02 --clean --timeout 300
+
+# Regenerate benchmarks/execution_report.md without re-running anything
+.venv/bin/python benchmarks/run_execution.py --report-only
+```
+
+Per-case artifacts are written to `benchmarks/output_execution/` (gitignored); the aggregate report is tracked at `benchmarks/execution_report.md`.
+
 ### CLI reference
 
 ```text
@@ -304,6 +358,19 @@ options:
   --model MODEL         Ollama model (qwen2.5-coder:3b | qwen2.5-coder:7b)
   -s, --suite SUITE     Path to the benchmark JSON test suite
                         (default: benchmarks/benchmark_prompts_tier1.json)
+
+usage: run_execution.py [-h] [--model MODEL] [-s SUITE] [-k CASE]
+                        [--dataset DATASET] [--max-retries N] [--timeout N]
+                        [--clean] [--resume | --no-resume] [--report-only]
+
+options:
+  -s, --suite SUITE     Benchmark suite (default: both tiers)
+  -k, --case CASE       Comma-separated case ids, e.g. tc_01,tc_11
+  --dataset DATASET     GRASS project directory (default: auto-detect)
+  --max-retries N       Repair budget per case (default: 2)
+  --timeout N           Per-attempt wall-clock bound in seconds (default: 120)
+  --clean               Wipe output_execution/ and run from scratch
+  --report-only         Re-render the report from persisted results
 ```
 
 ---
@@ -312,27 +379,36 @@ options:
 
 ```text
 grass-agent/
-├── generate.py                      CLI entry point (58 lines)
-├── code_generator.py                Stages 3 + 4: prompt, synthesis, verification (290)
-├── rag_retriever.py                 Stage 2: hybrid retrieval (489)
-├── llm_provider.py                  Ollama chat + embeddings (19)
-├── config.py                        Environment-driven settings (23)
-├── data/grass_knowledge.db          543 tools + 768-d embeddings (committed, 3.8 MB)
+├── generate.py                       CLI entry point
+├── code_generator.py                 Stages 3 + 4: prompt, synthesis, verification
+├── rag_retriever.py                  Stage 2: hybrid retrieval
+├── llm_provider.py                   Ollama chat + embeddings
+├── config.py                         Environment-driven settings
+├── data/grass_knowledge.db           543 tools + 768-d embeddings (committed)
+├── grass_agent/                      Gate 2: executor, classifier, healing, fixtures, reporting
 ├── benchmarks/
-│   ├── run_eval.py                  Evaluation runner (126)
-│   ├── benchmark_prompts_tier1.json 10-case smoke suite (default)
-│   ├── benchmark_prompts_tier2.json 30-case advanced suite
-│   ├── run_remote.sh                Colab provisioning
-│   └── output/                      Artifacts (gitignored)
-├── scripts/build_knowledge_base.py  Manual ingestion → SQLite (244)
-└── specs/001-pure-script-generation/  Specification, plan, research, tasks
+│   ├── run_eval.py                   Gate 1 static evaluation runner
+│   ├── run_execution.py              Gate 2 execution + self-healing harness
+│   ├── execution_report.md           Gate 2 aggregate report (tracked)
+│   ├── leakage_report.md             Benchmark contamination audit
+│   ├── benchmark_prompts_tier1.json  10-case smoke suite
+│   ├── benchmark_prompts_tier2.json  30-case advanced suite
+│   ├── fixtures/                     Auxiliary inputs + NC dataset provisioning guide
+│   ├── run_remote.sh                 Colab provisioning
+│   ├── output/                       Gate 1 artifacts (gitignored)
+│   └── output_execution/             Gate 2 per-case artifacts (gitignored)
+├── scripts/                          Knowledge-base build, leakage audit, figures
+├── tests/                            Unit + integration tests (pytest)
+├── specs/001-pure-script-generation/ Gate 1 specification and research
+├── specs/002-runtime-self-healing-harness/  Gate 2 specification and tasks
+└── thesis/                           Thesis sources
 ```
 
 ---
 
 ## Configuration
 
-All settings are environment variables, resolved by `GenerationConfig.from_env()`.
+All settings are environment variables, resolved by `GenerationConfig.from_env()` (Gate 1) and `ExecutionConfig.from_env()` (Gate 2).
 
 | Variable | Default | Description |
 |---|---|---|
@@ -342,6 +418,11 @@ All settings are environment variables, resolved by `GenerationConfig.from_env()
 | `GRASS_RAG_DB` | `data/grass_knowledge.db` | Knowledge base path |
 | `GRASS_RAG_TOP_K` / `RAG_TOP_K` | `5` | Tool documents supplied to the model |
 | `GRASS_OUTPUT_DIR` | `generated` | Output directory for generated scripts |
+| `GRASS_MAX_RETRIES` | `2` | Gate 2 unified repair budget per case |
+| `GRASS_EXEC_TIMEOUT` | `120` | Gate 2 per-attempt execution timeout (seconds) |
+| `GRASS_DATASET_PROJECT` | auto-detect | GRASS project used for Gate 2 execution |
+| `GRASS_FIXTURES_DIR` | `benchmarks/fixtures` | Auxiliary input directory |
+| `GRASS_OUTPUT_EXEC_DIR` | `benchmarks/output_execution` | Gate 2 per-case artifact directory |
 
 Retrieval tuning constants live at the top of `rag_retriever.py`: `CATEGORY_BOOST = 0.2`, `LEXICAL_BOOST = 0.4`, `WRAPPER_BONUS = 0.6`, `MAX_PER_STEP = 1`.
 
@@ -353,21 +434,23 @@ Retrieval tuning constants live at the top of `rag_retriever.py`: `CATEGORY_BOOS
 
 **What is verified, and what is not.**
 
-| Checked statically | Not checked |
+| Checked | Not checked |
 |---|---|
-| Python syntax | Whether the script produces correct *results* |
-| Module exists in the knowledge base | Whether the chosen tool is semantically right for the request |
-| Required parameters present | Whether argument *values* are sensible (e.g. `distance=200`) |
-| No unknown parameters | Whether input layers exist in a GRASS location |
-| Keyword-only calling convention | Whether units and CRS are consistent |
-| No conversational residue | Anything requiring execution |
+| Python syntax; zero-chat compliance (Gate 1) | Whether the script produces correct *results* |
+| Module and parameter names exist in the knowledge base (Gate 1) | Whether the chosen tool is semantically right for the request |
+| Required parameters present (Gate 1) | Whether argument *values* are sensible (e.g. `distance=200`) |
+| Script executes to completion in a live GRASS session (Gate 2) | Whether units, CRS, and geospatial output are correct |
+| Failure mode and failing tool classified (Gate 2) | Whether the output map/table contains the expected values |
+| Persistent `PERMANENT` mapset unchanged (Gate 2) | — |
 
-A script that passes every static check can still fail when run against real data. This is the boundary Gate 2 is designed to move.
+A script that executes cleanly can still be semantically wrong. Gate 2 moves the boundary from "well-formed" to "runs", but it is not yet a correctness oracle.
 
 **Other limitations.**
 
-- **No execution.** The engine generates and validates; it does not run GRASS, resolve input data, or verify results.
-- **Placeholders.** Generated scripts use placeholder map names and assume an already-initialised GRASS session.
+- **No output validation.** Gate 2 checks exit status and runtime failure modes, not whether the resulting map, table, or geometry is correct. At least 5 of the 13 Gate 2 passes in the recorded run are semantically wrong.
+- **Dataset coverage.** Several benchmark prompts reference maps or columns that are absent from the North Carolina dataset or fixtures. Those cases are unhealable by code editing and should be provisioned or rewritten before quoting the Pass@Healed figure.
+- **Bounded, one-step repair memory.** Each retry receives only the immediately previous script and error. There is no cumulative attempt history and no no-op detection, so identical repairs are common.
+- **Placeholders.** Gate 1 examples still use placeholder map names and assume an already-initialised GRASS session; Gate 2 supplies the session and inventory.
 - **Determinism.** LLM output is not reproducible between runs. See the caveat under Diagnostic Failure Analysis.
 - **Suite size.** 40 cases is a small sample; individual case outcomes move between runs.
 - **Model dependence.** 3B (8–10/10 observed) is not a drop-in substitute for 7B (9–10/10 observed) on Tier 1, and it fails `tc_10` on every warm run measured.

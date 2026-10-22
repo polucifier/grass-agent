@@ -5,7 +5,8 @@ import ast
 from pathlib import Path
 
 # Add parent directory to sys.path to import modules
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT))
 
 from config import GenerationConfig
 from llm_provider import OllamaProvider
@@ -13,11 +14,68 @@ from rag_retriever import GrassToolsRetriever
 from code_generator import GrassCodeGenerator, validate_syntax, _dotted_parts
 
 
+def run_contamination_audit(suite_path: Path, threshold: float, strict: bool) -> bool:
+    """Pre-flight contamination check on a suite's prompts.
+
+    Returns True when the run may proceed. A flagged prompt is reported but
+    does not stop the evaluation unless --audit-strict was passed, because the
+    audit is advisory: its job is to make sure a reported score is not quietly
+    inflated by memorised text.
+    """
+    from scripts.audit_leakage import audit_suite
+
+    print(f"\n--- Contamination audit (threshold {threshold:.2f}) ---", flush=True)
+    try:
+        flagged = audit_suite(suite_path, REPO_ROOT / "data" / "grass_knowledge.db",
+                              threshold)
+    except Exception as e:
+        print(f"  ! audit could not run ({e}); continuing without it",
+              file=sys.stderr, flush=True)
+        return True
+
+    if not flagged:
+        print(f"  ✓ Benchmark contamination audit passed "
+              f"(all prompts < {threshold:.2f})", flush=True)
+        return True
+
+    leaks = [r for r in flagged if r["verdict"] == "POTENTIAL_LEAK"]
+    print(f"  ! {len(flagged)} prompt(s) warrant review "
+          f"({len(leaks)} potential leak(s), "
+          f"{len(flagged) - len(leaks)} above threshold only):", flush=True)
+    for rec in sorted(flagged, key=lambda r: -r["score"]):
+        print(f"      {rec['id']}: Jaccard {rec['score']:.3f} "
+              f"(best tool {rec['best_tool']}) — {rec['verdict']} "
+              f"[{', '.join(rec['flags'])}]", flush=True)
+        print(f"          {rec['reason']}", flush=True)
+    if leaks:
+        print("    A verbatim or corroborated overlap may inflate the reported "
+              "score; confirm the flagged cases are non-trivial before "
+              "quoting them.", flush=True)
+    else:
+        print("    None were flagged as leaks; these exceed the similarity "
+              "threshold on shared domain vocabulary alone.", flush=True)
+
+    if strict:
+        print("    Aborting: --audit-strict was requested.", flush=True)
+        return False
+    print("    Continuing evaluation (advisory only; pass --audit-strict to "
+          "make this fatal).", flush=True)
+    return True
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run curated benchmark evaluation suite for GRASS script generation.")
     parser.add_argument("--model", default="qwen2.5-coder:3b", help="Ollama model to evaluate (e.g. qwen2.5-coder:3b or qwen2.5-coder:7b)")
     parser.add_argument("-s", "--suite", default="benchmarks/benchmark_prompts_tier1.json",
                         help="Path to the benchmark JSON test suite file (default: benchmarks/benchmark_prompts_tier1.json)")
+    parser.add_argument("--audit", action="store_true",
+                        help="Audit the suite's prompts for contamination against the "
+                             "knowledge base before running (advisory; does not abort)")
+    parser.add_argument("--audit-threshold", type=float, default=0.35,
+                        help="Similarity threshold for --audit (default: 0.35)")
+    parser.add_argument("--audit-strict", action="store_true",
+                        help="With --audit, abort the run if any prompt exceeds the "
+                             "threshold")
     args = parser.parse_args()
 
     suite_path = Path(args.suite)
@@ -27,6 +85,11 @@ def main() -> int:
 
     data = json.loads(suite_path.read_text())
     test_cases = data.get("test_cases", [])
+
+    if args.audit and not run_contamination_audit(
+            suite_path, args.audit_threshold, args.audit_strict):
+        return 1
+
     print(f"Loaded {len(test_cases)} benchmark test cases from {suite_path}. Evaluating model: {args.model}")
 
     config = GenerationConfig.from_env()

@@ -1,0 +1,432 @@
+% =====================================================================
+%  Thesis chapters - part 1
+%  Chapters: 1 Introduction, 2 Theoretical Background
+%
+%  SELF-CONTAINED DOCUMENT. Compile from the directory containing this
+%  file and references.bib, in this order:
+%
+%      pdflatex chapters
+%      bibtex   chapters
+%      pdflatex chapters
+%      pdflatex chapters
+%
+%  (or simply:  latexmk -pdf chapters)
+%
+%  There is deliberately NO \title, NO \author, NO \date and no title
+%  page in this file. Add those to your own front matter if needed.
+%
+%  If you prefer to include these chapters from a larger document
+%  instead, delete everything between \begin{document} and the first
+%  \chapter, and also delete the \bibliography block at the end of the
+%  file; then \input{chapters.tex} from your main file.
+%
+%  CITATIONS: entries live in references.bib, next to this file. Entries
+%  marked "% VERIFY" were written from memory or from a truncated
+%  source and should be checked against the original before submission.
+% =====================================================================
+
+\documentclass[11pt,a4paper]{report}
+
+% --- encoding, language, fonts -------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% --- page layout ---------------------------------------------------
+\usepackage[a4paper,margin=2.8cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% --- text ----------------------------------------------------------
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{xcolor}
+
+% --- floats, tables, figures ---------------------------------------
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+
+% --- citations and cross-references --------------------------------
+% Numeric citations: \cite -> [12], \citep -> [12], \citet -> Author [12].
+% Swap "numbers" for "authoryear" above if you prefer author-year.
+\usepackage[round,numbers]{natbib}
+\usepackage[hidelinks]{hyperref}   % load hyperref LAST
+
+% --- list formatting -----------------------------------------------
+\setlist[itemize]{leftmargin=1.2em,itemsep=0.3em,topsep=0.4em}
+\setlist[enumerate]{leftmargin=1.4em,itemsep=0.3em,topsep=0.4em}
+
+% --- captions ------------------------------------------------------
+\captionsetup{font=small,labelfont=bf}
+
+\begin{document}
+
+\tableofcontents
+
+\chapter{Introduction}
+\label{ch:introduction}
+
+\section{Motivation}
+
+Geographic information systems (GIS) have become the standard instrument for
+working with spatial data at every scale of public administration, science and
+industry. The reason for their success is not only analytical power but
+\emph{reproducibility}: an analysis performed in a desktop application can be
+recorded as a script and re-executed on new data, on another machine, by
+another analyst. For a long time this reproducibility was obtained from the
+graphical user interfaces of systems such as GRASS \cite{neteler2012grass} and
+QGIS \cite{qgissoftware}, whose Python bindings \cite{pyqgis,grass_tools} let
+an analyst convert a click sequence into a re-runnable script after the fact.
+
+That order of work, however, is inverted with respect to how analytical needs
+are actually formulated. A practitioner usually knows the analysis in
+\emph{intent} long before knowing its implementation: it is clear that the
+streams must be buffered by 200 metres, or that average temperature must be
+computed per administrative unit, while the exact module name, the spelling of
+the parameters and the calling convention remain an implementation detail to be
+looked up. The gap between intent and implementation is small in knowledge but
+large in friction, and it is paid for on every single analysis.
+
+Large language models (LLMs) appear to dissolve that gap: a model can be asked
+for an analysis in ordinary language and can answer with code
+\cite{vaswani2017attention,chen2021codex}. Since 2023 this capability has been
+repackaged into \emph{agents}: systems in which a language model selects tools,
+executes them, observes the outcome and iterates \cite{yao2023react}. The
+geospatial community has adopted this direction vigorously, both through
+research prototypes \cite{zhang2023geogpt,zhang2024geollmtooluse,singh2024geollmengine}
+and through a rapidly growing ecosystem of QGIS plugins that put a chat window
+in front of a running desktop session.
+
+The enthusiasm, however, meets a hard constraint. The most capable code models
+available in practice are large, and the most convenient way of running them is
+as a hosted service. For an analyst handling sensitive spatial data --- land
+cadastre, utility networks, health data, defence-related imagery --- neither the
+upload of the prompt, nor the projection of the resulting code into a vendor's
+cloud, nor the loss of control over which model version produced a given
+analysis are acceptable. A large part of the current literature on LLM-assisted
+GIS silently assumes a cloud endpoint \cite{mansourian2024chatgeoai,singh2024geollmengine}.
+An offline alternative must therefore work with what a workstation can run: a
+model of a few billion parameters, a local inference server, and the
+documentation that ships with the software being automated. Offline-first
+operation and hybrid routing are not mutually exclusive: keeping sensitive
+requests local while allowing non-sensitive ones to reach a stronger hosted
+model gives the analyst both control and capability.
+
+This thesis addresses that gap. It develops and evaluates \textsc{GrassAgent},
+an offline-first agent that translates unconstrained natural-language GIS
+requests into executable Python scripts written against the modern
+object-oriented \texttt{grass.tools} API of GRASS, verifies those scripts
+deterministically against the official GRASS manual, and --- as a second stage
+--- executes them in a live headless GRASS session and attempts to repair them
+from the resulting error feedback.
+
+
+\chapter{Theoretical Background}
+\label{ch:background}
+
+This chapter establishes the conceptual and technical vocabulary on which the
+remainder of the thesis depends, and reviews the literature into which the
+presented system is placed. Section~\ref{sec:bg:substrate} condenses the
+technical substrate: the GIS environment that is automated, the language-model
+machinery that performs the translation, the retrieval and routing layers, and
+the program-analysis techniques that supply the guarantees.
+Section~\ref{sec:bg:related} reviews the prior art, beginning with the method
+of the search, and Section~\ref{sec:bg:assistants} examines the operational
+assistants most closely comparable to the presented system.
+
+\section{Technical Substrate}
+\label{sec:bg:substrate}
+
+\paragraph{The GIS substrate.} GRASS \cite{neteler2012grass} is an open-source
+GIS whose 8.6 release exposes more than five hundred and forty modules spanning
+raster, vector, imagery, database, display and 3D processing; an agent choosing
+among them is solving a selection problem, not a memorisation problem. It is
+dual-interface: every module is reachable from the command line and, since
+version 8.5, through a machine-generated Python wrapper in which
+\texttt{r.slope.aspect} becomes \texttt{r\_slope\_aspect} and every parameter
+becomes a keyword argument \cite{grass_tools}. The two interfaces are
+functionally equivalent but textually dissimilar, so a model pretrained mostly
+on the command line is systematically biased towards the wrong surface syntax.
+Execution is also unusually clean --- analysis operates inside a
+\emph{location} containing \emph{mapsets}, and every operation is a module
+invocation with named options --- which makes process-level isolation of
+generated scripts straightforward. The data model distinguishes raster and
+vector data, with attribute tables attached to vector features; the distinction
+determines which modules may consume which input and is a recurring source of
+ambiguity in requests that mix ``each cell'' with ``points''. Add-ons installed
+with \texttt{g.extension} register alongside core modules and are reachable
+through the same interfaces. QGIS \cite{qgissoftware}, by contrast, exposes
+Python bindings \cite{pyqgis} and a Processing framework of several hundred
+algorithms invoked with a uniform identifier and parameter dictionary; that
+uniform signature explains why much academic work targets PyQGIS
+\cite{mansourian2024chatgeoai}, whereas GRASS is comparatively
+under-represented and its dual interface is a sharper test of grounding.
+
+\paragraph{Language models for code.} Current code-capable models rest on the
+transformer architecture \cite{vaswani2017attention}, and scaling it produced
+general-purpose models with emergent code-completion ability
+\cite{brown2020gpt3}. Code-specialised models trained on function--documentation
+pairs outperform general models of the same size on API-shaped generation
+\cite{chen2021codex}, and code-specialised small models such as the
+Qwen2.5-Coder family \cite{ji2024qwen25coder} make offline deployment realistic
+rather than merely desirable. On a niche API these models hallucinate
+identifiers \cite{zan2023surveycode,ji2023hallucination} through three
+interacting mechanisms: \emph{surface-form dominance}, since the older and more
+frequent command-line form dominates the prior over ``how a GRASS operation
+looks in Python''; \emph{compositional pressure}, which tempts the model to
+append a plausible but invented finalisation step; and \emph{argument-position
+convention transfer}, since the command line names outputs while the wrapper
+returns them. These are grounding deficiencies amenable to context and
+verification, not reasoning deficiencies that a larger model alone would fix.
+
+\paragraph{Retrieval-augmented generation.} RAG \cite{lewis2020rag} conditions a
+parametric model on text fetched from a non-parametric store, addressing
+knowledge that is absent from the weights and weights that cannot be updated. For an API surface the store is small and
+curated, so retrieval is closer to \emph{interface lookup} than to open-domain
+question answering, and precision matters more than coverage. Dense retrieval
+\cite{karpukhin2020dpr} is robust to paraphrase; lexical retrieval such as BM25
+\cite{robertson2009bm25} is precise when vocabulary matches and brittle when it
+does not. On short GIS prompts dense similarity alone tends to promote generic
+terrain modules over the specific module named, because a short query embedding
+is dominated by the broad topic; hybrid retrieval combines both, and Reciprocal
+Rank Fusion \cite{cormack2009rrf} combines rankings by position so that
+incomparable score scales do not matter. Domain re-ranking adds priors invisible
+to a similarity model: \emph{category weighting} towards raster or vector modules
+according to vocabulary, \emph{wrapper preference} for modern wrappers such as
+\texttt{v.import} over the raw drivers they replace, and \emph{anti-crowding},
+which collapses module families so that siblings cannot crowd out the correct
+module. Retrieved context must also be optimised: generic parameters such as
+\texttt{flags}, \texttt{overwrite} and \texttt{verbose} cause \emph{parameter
+bleed} when left in rendered signatures, and corrupt documentation examples are
+faithfully imitated, so deterministic filtering is preferable to instructing the
+model to be careful.
+
+\paragraph{Local inference and hybrid routing.} A workstation-class model trades
+capability for control: it fits in memory and is fast enough for interactive
+use, but is weaker than a hosted frontier model on unfamiliar APIs. Routing
+chooses between a local and a remote backend per request on grounds of data
+sensitivity, task difficulty, cost or latency, and local servers such as Ollama
+and llama.cpp expose an OpenAI-compatible interface so that the same client can
+address either. A verification-first design tolerates a weaker local model
+because the validator rejects malformed output regardless of its origin, while
+cloud routing is acceptable only when the prompt contains no data that may not
+leave the host.
+
+\paragraph{Verification and program analysis.} Static verification over the
+Python abstract syntax tree \cite{astech} checks each generated call against a
+schema for module existence, required parameters, unknown parameters, the
+keyword-only calling convention, and dictionary unpacking, which has no name in
+the tree and would otherwise escape the check. It is exact with respect to its
+schema and reproducible --- no sampling, no temperature, no model in the loop
+--- but says nothing about semantic correctness or whether input layers exist.
+The complementary technique executes the artifact and returns the observation
+as evidence. Automated program repair either patches a failure location
+\cite{gazzola2019automatic} or re-prompts with the failing program and its
+output, and Reflexion \cite{shinn2023reflexion} established the general form of
+the latter as verbal reinforcement, placing the model's own failure observation
+back into context without weight updates. Runtime feedback catches failures that
+static analysis cannot see --- a missing layer, a type error, a wrong column
+name --- at the risk of unbounded cost and non-convergence, which calls for an
+attempt ceiling and recorded failure modes.
+
+\section{Related Work: Natural Language to GIS}
+\label{sec:bg:related}
+
+The review below was conducted as a structured search rather than as an
+accumulation of reading. Works were included if they translate natural language
+into geospatial code or workflows, evaluate language models on geospatial code,
+present an operational language-model-driven GIS assistant, or supply the
+generic machinery --- retrieval, agents, program analysis --- on which such a
+system depends; purely conversational assistants and remote-sensing
+vision-language work were excluded as non-comparable. Searches covered the
+academic indexes and preprint servers, supplemented by citation chasing and by
+a systematic survey of the official QGIS plugin repository. Because the field
+and the plugin ecosystem move quickly, comparative statements reflect the state
+at the date of access.
+
+\subsection{The Autonomous GIS Vision}
+
+The earliest substantial statement of the problem addressed here is the
+\emph{Autonomous GIS} proposal, in which a language model acts as the reasoning
+engine of a GIS, decomposing a task into sub-tasks and generating code for each
+\cite{li2023autonomousgis}. The contribution was primarily conceptual: it
+established that the interesting target is not a single function call but a
+workflow, and that the bottleneck is task decomposition rather than syntax.
+
+\subsection{Grounded, Tool-Augmented Assistants}
+
+GeoGPT extended a general-purpose language model with a set of tools for
+spatial queries and analysis, and demonstrated end-to-end GIS workflows driven
+by natural language \cite{zhang2023geogpt}. Subsequent work along the same line
+developed a fine-tuned variant operating GIS tools from annotated
+instruction--solution data \cite{wei2024geotoolgpt}, and a smaller model adapted
+to GIS question answering from domain corpora \cite{zhang2024bbgeogpt}. The
+characteristic of this family is that grounding is achieved by \emph{tool
+provisioning} --- the agent is given a catalogue and asked to select --- rather
+than by verification of the artifact produced.
+
+A parallel line approached the problem from the generation side, training a
+language model specifically to emit tool-use chains for geospatial analysis in
+a simulated environment \cite{zhang2024geollmtooluse}, and to generate
+executable PyQGIS code \cite{mansourian2024chatgeoai}. This line makes the
+target unambiguous: the unit of output is a script, and the
+evaluation is therefore about code. It also illustrates the dependency of the
+whole line on a fine-tuning corpus that, in the published instances, is
+proprietary in its preparation and expensive to reproduce --- a property that
+motivates a retrieval-based alternative requiring no training data.
+
+\subsection{Benchmarking and Evaluation Practice}
+
+Evaluation of these systems has matured faster than the systems themselves, and
+the benchmark literature is arguably the most useful contribution of the recent
+period to anyone building such a tool.
+
+A dedicated evaluation of code language models on geospatial code generation
+found that performance varies sharply by task framing, and that models
+plausible under loose evaluation can fail under strict signature-level checking
+\cite{evalcodellms2024}. This is the finding that motivates the design of the
+benchmark used in this thesis, whose pass criteria are deliberately strict and
+whose verdict depends on the exact interface rather than on plausibility.
+
+GeoLLM-Engine constructed an environment of more than a million queries over
+long-horizon geospatial tasks, and reported success rates near 77\% for a
+commercial agent \cite{singh2024geollmengine}. Its contribution is the
+recognition that single-task, template-based benchmarks are unrepresentative:
+real analytical requests are long-horizon and require correct tool sequences.
+GeoAnalystBench took the complementary direction, assembling a benchmark of
+spatial analysis workflows with human-in-the-loop annotation to construct
+reference solutions \cite{zhang2025geoanalystbench}.
+
+The gap these benchmarks expose is the one this thesis occupies. Benchmarks
+exist; offline, reproducible generation systems that can be evaluated against
+them with static guarantees do not.
+
+\subsection{Multi-Agent and Hybrid Architectures}
+
+A more recent line combines chain-of-thought reasoning, retrieval and
+specialised collaborating agents, with fine-tuning to improve spatial task
+comprehension and tool selection \cite{mansourian2026multia}. The direction is
+promising and the reported results encouraging, but the architecture assumes a
+hosted multi-agent service, which places it outside the offline constraint that
+governs this work.
+
+Table~\ref{tab:related} summarises the position of the reviewed systems along
+the dimensions that distinguish them for the present purpose.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparison of reviewed natural-language-to-GIS systems. ``Grounding''
+denotes the mechanism by which the model is constrained to the real API;
+``Verification'' denotes whether the artifact is checked before or after
+generation.}
+\label{tab:related}
+\small
+\begin{tabular}{p{2.6cm} p{1.9cm} p{3.1cm} p{2.4cm} p{2.6cm}}
+\toprule
+\textbf{System} & \textbf{Platform} & \textbf{Grounding} & \textbf{Execution} &
+\textbf{Verification} \\
+\midrule
+GeoGPT \cite{zhang2023geogpt} & Platform-agnostic & Tool catalogue & Agent-internal &
+Tool-level \\
+Autonomous GIS \cite{li2023autonomousgis} & Platform-agnostic & Task decomposition
+& Generated + executed & None reported \\
+GeoTool-GPT \cite{wei2024geotoolgpt} & Commercial GIS API & Fine-tuning & Tool use
+via LLM & None \\
+ChatGeoAI \cite{mansourian2024chatgeoai} & QGIS / PyQGIS & Fine-tuning + RAG
+& Script generation & None \\
+GeoLLM-Engine \cite{singh2024geollmengine} & Earth observation & Tool catalogue
+& Engine-internal & Model-checkers \\
+GeoPilot & QGIS & Project context (live layers, CRS, fields) &
+\texttt{exec()} in QGIS & Regex guardlist, user confirmation \\
+GeoAgent & QGIS, leafmap, anymap & Structured tool registry & Tool calls +
+gated script fallback & Confirmation hooks, metadata flags \\
+\midrule
+\textsc{GrassAgent} (this work) & GRASS & Retrieval over
+documentation-derived schema & Headless subprocess, isolated mapset & Static
+AST + schema; runtime classification \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Operational Assistants and Their Design Choices}
+\label{sec:bg:assistants}
+
+Two operational systems illustrate the design space most directly:
+\textsc{GeoPilot}, a QGIS plugin, and \textsc{GeoAgent}, a library with a QGIS
+front-end. Neither is an integration target for this thesis, but their choices
+clarify what a benchmarkable, offline-first system must do differently.
+
+\paragraph{\textsc{GeoPilot}.} \textsc{GeoPilot} \cite{geopilot} lets a user
+drive a live QGIS session from a chat panel. It gathers the project's layers,
+coordinate reference systems, fields and available Processing algorithms,
+prompts a model with that state, parses fenced code blocks, and executes the
+result with \texttt{exec()} in a namespace containing QGIS objects. By default
+the user confirms the code before it runs; an optional auto-execute mode bypasses
+the confirmation, and a regular-expression guard blocks a short list of dangerous
+constructs (\texttt{os.system}, \texttt{subprocess}, \texttt{shutil.rmtree},
+\texttt{eval}). Model access is broad and provider-agnostic, including a local
+Ollama backend.
+
+Its grounding mechanism is \emph{runtime project state}: the model is told what
+exists in the project rather than what the API permits. That is well suited to
+interactive work, where the user's layers are the usual source of error, but it
+leaves interface correctness entirely to the model. There is no signature-level
+check, and a code error surfaces as a traceback for the user to repair. Execution
+is unsandboxed at the Python level, mitigated only by confirmation, and the
+plugin offers no headless, reproducible evaluation path.
+
+\paragraph{\textsc{GeoAgent}.} \textsc{GeoAgent} \cite{geoagent} is a shared
+agent layer, built on the Strands Agents framework, that exposes geospatial
+Python functionality to a model through a structured tool registry. Its QGIS
+interface is distributed as the \textsc{OpenGeoAgent} plugin; the same library
+also binds to \texttt{leafmap}, \texttt{anymap}, SpatioTemporal Asset
+Catalogues and NASA Earthdata. Four abstractions organise it: a
+\texttt{GeoAgent} facade, \texttt{GeoAgentConfig} for provider and sampling
+settings, \texttt{GeoAgentContext} for live runtime objects, and a
+\texttt{@geo\_tool} decorator that turns a typed function into a tool with its
+signature and docstring. Tools are grouped into inspection, navigation, layer
+management, data loading, selection and processing, and a confirmation-gated
+PyQGIS script fallback covers tasks without a dedicated tool. Tools carry risk
+metadata such as \texttt{requires\_confirmation}, \texttt{destructive} and
+\texttt{long\_running}, which hooks intercept before execution.
+
+Two choices matter here. First, \emph{structural grounding}: the tool surface is
+declared statically, with typed signatures and docstrings, which is exactly the
+machine-checkable interface representation that deterministic verification
+needs. Second, \emph{risk metadata as a first-class property}, which generalises
+the question of what generated code is permitted to do. The limitations are the
+mirror image: the integration is inherently interactive (a bound map, a QGIS
+interface, a dockable panel), it documents no headless evaluation mode, and a
+task outside the hand-curated tool surface must fall back on unverified
+generated code.
+
+\paragraph{Other implementations.} A survey of the QGIS plugin repository shows
+that the pattern is widespread. Several plugins bundle catalogues of tool and
+API definitions, retrieve from them before execution, and archive successful
+invocations; others advertise very large tool surfaces backed by a commercial
+model, or delegate entirely to aggregator APIs. What distinguishes the two
+systems above is not membership in this family but the articulation of their
+design: a documented grounding mechanism, an explicit execution model, and an
+explicit safety posture.
+
+\paragraph{Lessons for the present work.} \textsc{GrassAgent} adopts structural
+grounding and risk metadata, but derives the interface from the official manual
+rather than from hand-written declarations, and replaces interactive
+confirmation with process isolation because its evaluation is unattended. The
+comparison is therefore complementary rather than competitive: the two systems
+optimise for a present user in a live session, while this work optimises for a
+reproducible batch guarantee.
+
+% ---------------------------------------------------------------------
+%  Bibliography. Delete this block if these chapters are \input into a
+%  larger document that prints its own bibliography.
+% ---------------------------------------------------------------------
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
