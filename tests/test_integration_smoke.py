@@ -21,7 +21,7 @@ from grass_agent.results import (
     load,
     result_path,
 )
-from benchmarks.run_execution import static_guard
+from benchmarks.run_gate2 import static_guard
 
 pytestmark = pytest.mark.slow
 

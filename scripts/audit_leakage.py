@@ -340,7 +340,7 @@ def audit_suite(
 ) -> list[dict]:
     """Return the test cases in one suite that warrant review.
 
-    This is the entry point used by the pre-flight check in run_eval.py. It
+    This is the entry point used by the pre-flight check in run_gate1.py. It
     returns a case when its similarity exceeds `threshold` *or* when it is
     judged `POTENTIAL_LEAK`, which is a superset of the threshold crossing
     rather than a synonym for it. Filtering on the score alone would report a
@@ -604,7 +604,7 @@ def main() -> int:
         print(f"      {r['id']}: {r['reason']}")
     print(f"  report         : {out_path}")
     print("Exit status reflects whether the report was produced, not the "
-          "verdict; use run_eval.py --audit --audit-strict to gate a run.")
+          "verdict; use run_gate1.py --audit --audit-strict to gate a run.")
     return 0
 
 

@@ -82,7 +82,7 @@ specs/002-runtime-self-healing-harness/
 ├── data-model.md        # Phase 1 output — entities, artifacts, state machine
 ├── quickstart.md        # Phase 1 output — runnable end-to-end validation guide
 ├── contracts/
-│   ├── cli.md           # run_execution.py command-line contract
+│   ├── cli.md           # run_gate2.py command-line contract
 │   └── case-result.md   # case_result.json schema + atomicity/resumption contract
 ├── checklists/
 │   └── requirements.md  # Spec quality checklist (from /speckit.specify)
@@ -93,7 +93,7 @@ specs/002-runtime-self-healing-harness/
 
 ```text
 benchmarks/
-├── run_execution.py          # NEW — Gate 2 CLI entry point; orchestration
+├── run_gate2.py          # NEW — Gate 2 CLI entry point; orchestration
 ├── fixtures/                 # NEW — auxiliary input registry (FR-001b)
 │   ├── points.geojson
 │   ├── boundary.geojson      # + .prj equivalent via CRS note, or .shp/.shx/.dbf set
@@ -132,7 +132,7 @@ tests/                      # NEW — first test suite in the project
 
 > **The per-case artifact directory layout is specified in exactly one place: [data-model.md](./data-model.md) §9.** It is deliberately not duplicated here — a second copy drifted once already, omitting the mandatory `attempt_<n>.stdout` / `attempt_<n>.stderr` files that the resume contract requires.
 
-**Structure Decision**: The existing project is flat (`config.py`, `llm_provider.py`, `rag_retriever.py`, `code_generator.py` at root, `benchmarks/` holding the Gate 1 runner). Gate 2 adds a `grass_agent/` package of ten cohesive, independently testable modules that do not belong at root and would otherwise be un-importable from `benchmarks/run_execution.py` without path hacks. The package splits along the dependency order the harness actually runs in: `config` → `preflight` → `executor`/`inner_wrapper`/`fallback_worker` (the execution boundary) → `classifier`/`fixtures` (per-attempt concerns) → `results` (persistence) → `healing` (the retry loop) → `reporting` (aggregation). `grass_agent/config.py` is distinct from the root `config.py`: the latter remains Gate 1's `GenerationConfig` and is imported unchanged, while the former carries execution settings and its own `from_env()`. `benchmarks/run_execution.py` stays at the path named in the user's architectural decisions and in the spec, and becomes a thin CLI over `grass_agent/`. Existing root modules are **imported and reused unchanged** — no edits to `code_generator.py`, `rag_retriever.py`, or the root `config.py` are planned.
+**Structure Decision**: The existing project is flat (`config.py`, `llm_provider.py`, `rag_retriever.py`, `code_generator.py` at root, `benchmarks/` holding the Gate 1 runner). Gate 2 adds a `grass_agent/` package of ten cohesive, independently testable modules that do not belong at root and would otherwise be un-importable from `benchmarks/run_gate2.py` without path hacks. The package splits along the dependency order the harness actually runs in: `config` → `preflight` → `executor`/`inner_wrapper`/`fallback_worker` (the execution boundary) → `classifier`/`fixtures` (per-attempt concerns) → `results` (persistence) → `healing` (the retry loop) → `reporting` (aggregation). `grass_agent/config.py` is distinct from the root `config.py`: the latter remains Gate 1's `GenerationConfig` and is imported unchanged, while the former carries execution settings and its own `from_env()`. `benchmarks/run_gate2.py` stays at the path named in the user's architectural decisions and in the spec, and becomes a thin CLI over `grass_agent/`. Existing root modules are **imported and reused unchanged** — no edits to `code_generator.py`, `rag_retriever.py`, or the root `config.py` are planned.
 
 The `tests/` tree above is the full set; `tasks.md` is authoritative if the two ever diverge, since it carries the task-level detail.
 
@@ -164,7 +164,7 @@ Full findings in [research.md](./research.md). Summary of decisions:
 ## Phase 1: Design & Contracts
 
 - **[data-model.md](./data-model.md)** — entities (`BenchmarkCase`, `Attempt`, `AttemptOutcome`, `FailureMode`, `CaseResult`, `RunSummary`), the artifact directory layout, the attempt state machine, the resume-key composition, and the atomic write protocol.
-- **[contracts/cli.md](./contracts/cli.md)** — the `run_execution.py` command-line contract: every flag (`--resume`, `--clean`, `--reuse-artifacts`, `--max-retries`, `--timeout`, plus inherited `--model`/`--suite`), defaults, precedence between `--clean` and `--resume`, exit codes, and the pre-flight dependency checks behind FR-023.
+- **[contracts/cli.md](./contracts/cli.md)** — the `run_gate2.py` command-line contract: every flag (`--resume`, `--clean`, `--reuse-artifacts`, `--max-retries`, `--timeout`, plus inherited `--model`/`--suite`), defaults, precedence between `--clean` and `--resume`, exit codes, and the pre-flight dependency checks behind FR-023.
 - **[contracts/case-result.md](./contracts/case-result.md)** — the `case_result.json` schema, field-by-field semantics, the atomic write/torn-file recovery protocol behind FR-006a, and the resume-matching rules behind SC-019.
 - **[quickstart.md](./quickstart.md)** — prerequisites (Ollama running, NC dataset present), a single-case smoke run, the zero-shot baseline run, the healed run, and how to verify each success criterion end to end.
 

@@ -83,8 +83,8 @@ description: "Task list for Pure Script Generation Engine for grass.tools (Gate 
 ### Implementation for User Story 3
 
 - [X] T016 [US3] Create curated benchmark suite JSON file containing 10 diverse geospatial test prompts (4 single-tool, 3 multi-step, 3 edge cases) in benchmarks/benchmark_prompts.json adhering to specs/001-pure-script-generation/contracts/benchmark-schema.json
-- [X] T017 [US3] Implement evaluation runner script in benchmarks/run_eval.py to test benchmark prompts against specified model (`qwen2.5-coder:3b` or `qwen2.5-coder:7b`) via Ollama provider
-- [X] T018 [US3] Add automated assertions in benchmarks/run_eval.py for 100% `ast.parse()` syntax validity and 0% conversational residue (zero-chat compliance) across all benchmark test cases (SC-002)
+- [X] T017 [US3] Implement evaluation runner script in benchmarks/run_gate1.py to test benchmark prompts against specified model (`qwen2.5-coder:3b` or `qwen2.5-coder:7b`) via Ollama provider
+- [X] T018 [US3] Add automated assertions in benchmarks/run_gate1.py for 100% `ast.parse()` syntax validity and 0% conversational residue (zero-chat compliance) across all benchmark test cases (SC-002)
 - [X] T019 [US3] Run benchmark evaluation suite against both `qwen2.5-coder:3b` and `qwen2.5-coder:7b` and verify successful completion
 
 **Checkpoint**: All user stories should now be independently functional and evaluated

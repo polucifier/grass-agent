@@ -183,7 +183,7 @@ def test_legacy_shell_script_is_caught_by_the_guard_not_the_executor(executor, t
         def get_tool(self, name):
             return None
 
-    from benchmarks.run_execution import static_guard
+    from benchmarks.run_gate2 import static_guard
 
     issues = static_guard(textwrap.dedent(SCRIPTS["legacy_shell"]).lstrip(), EmptyRetriever())
     assert any("legacy interface" in issue for issue in issues)

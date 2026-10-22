@@ -21,7 +21,7 @@ description: "Task list for Gate 2 — Headless Runtime Execution & Autonomous S
 
 ## Path Conventions
 
-Single project, repository root. New: `grass_agent/` package, `tests/` package, `benchmarks/run_execution.py`. Existing modules `config.py`, `code_generator.py`, `rag_retriever.py` are imported unchanged.
+Single project, repository root. New: `grass_agent/` package, `tests/` package, `benchmarks/run_gate2.py`. Existing modules `config.py`, `code_generator.py`, `rag_retriever.py` are imported unchanged.
 
 ## Critical Constraints Carried From Design Documents
 
@@ -119,7 +119,7 @@ These are verified environment facts from research.md. Violating them produces s
 
 **Goal**: Run generated scripts for real inside a headless GRASS session and record a defensible per-case pass/fail verdict with no healing, establishing the Gate 2 Pass@1 baseline.
 
-**Independent Test**: Run `run_execution.py --model qwen2.5-coder:3b --max-retries 0 --clean` against one case. Confirm it emits a pass/fail verdict and an execution log, performs **no** repair attempt, leaves `PERMANENT` byte-for-byte unchanged, and leaves zero scratch directories behind.
+**Independent Test**: Run `run_gate2.py --model qwen2.5-coder:3b --max-retries 0 --clean` against one case. Confirm it emits a pass/fail verdict and an execution log, performs **no** repair attempt, leaves `PERMANENT` byte-for-byte unchanged, and leaves zero scratch directories behind.
 
 ### Tests for User Story 1
 
@@ -130,12 +130,12 @@ These are verified environment facts from research.md. Violating them produces s
 
 ### Implementation for User Story 1
 
-- [x] T041 [US1] Implement the Gate 1 static guard in `benchmarks/run_execution.py`: run `validate_syntax` and `validate_api` from `code_generator.py` against `data/grass_knowledge.db` before any execution attempt (FR-001, FR-014). On failure, record `outcome: "static_rejected"` and **skip execution entirely**, routing straight to the healing loop (FR-002). Reject any script importing `grass.script.run_command`, calling `gs.run_command`, or shelling out — treat as a failed attempt (FR-015). Enforce the same rejection on **repair** output, not just initial generation, so no executed script anywhere in `output_execution/` can use a legacy interface (SC-010)
-- [x] T042 [US1] Implement the case loop in `benchmarks/run_execution.py`: iterate the selected suite(s), write `attempt_<n>.py`, execute via `grass_agent/executor.py`, classify, and write `case_result.json` atomically after each attempt
-- [x] T043 [US1] Implement artifact retention in `benchmarks/run_execution.py` per data-model.md §9: write `attempt_<n>.py`, `attempt_<n>.stdout`, `attempt_<n>.stderr`, a combined `attempt_<n>.log`, and copy the last verified script to `final.py` (FR-019). The `.stdout` and `.stderr` files are **mandatory even when zero bytes** — reuse rule R10 requires every referenced path to exist, so a case directory missing an empty capture is not reusable
-- [x] T044 [US1] Implement SIGINT handling in `benchmarks/run_execution.py`: terminate the current child via its process group, run the cleanup sweep, leave `PERMANENT` verified unchanged, and exit promptly (FR-006, SC-002, SC-004)
-- [x] T045 [US1] Wire suite and case selection in `benchmarks/run_execution.py`: `-s/--suite` covers one file; omitting it covers both tiers, all 40 cases (SC-001, FR-017). `-k/--case` takes a comma-separated list of case ids and filters within the selected suite(s); a filter matching no case id exits `2` naming the unmatched ids. `--dataset PATH` overrides auto-detection; omit to search `$GISDBASE`, `$GRASSDATA`, `~/grassdata`, `./grassdata` for the first standard NC project (FR-023). Wire `--resume` / `--no-resume` as a single boolean pair feeding `ExecutionConfig.resume`, with `--clean` taking precedence over `--resume` (FR-006a)
-- [x] T046 [US1] Emit per-case progress to stdout in `benchmarks/run_execution.py` showing each attempt's stage, outcome, failure mode, latency, and token counts
+- [x] T041 [US1] Implement the Gate 1 static guard in `benchmarks/run_gate2.py`: run `validate_syntax` and `validate_api` from `code_generator.py` against `data/grass_knowledge.db` before any execution attempt (FR-001, FR-014). On failure, record `outcome: "static_rejected"` and **skip execution entirely**, routing straight to the healing loop (FR-002). Reject any script importing `grass.script.run_command`, calling `gs.run_command`, or shelling out — treat as a failed attempt (FR-015). Enforce the same rejection on **repair** output, not just initial generation, so no executed script anywhere in `output_execution/` can use a legacy interface (SC-010)
+- [x] T042 [US1] Implement the case loop in `benchmarks/run_gate2.py`: iterate the selected suite(s), write `attempt_<n>.py`, execute via `grass_agent/executor.py`, classify, and write `case_result.json` atomically after each attempt
+- [x] T043 [US1] Implement artifact retention in `benchmarks/run_gate2.py` per data-model.md §9: write `attempt_<n>.py`, `attempt_<n>.stdout`, `attempt_<n>.stderr`, a combined `attempt_<n>.log`, and copy the last verified script to `final.py` (FR-019). The `.stdout` and `.stderr` files are **mandatory even when zero bytes** — reuse rule R10 requires every referenced path to exist, so a case directory missing an empty capture is not reusable
+- [x] T044 [US1] Implement SIGINT handling in `benchmarks/run_gate2.py`: terminate the current child via its process group, run the cleanup sweep, leave `PERMANENT` verified unchanged, and exit promptly (FR-006, SC-002, SC-004)
+- [x] T045 [US1] Wire suite and case selection in `benchmarks/run_gate2.py`: `-s/--suite` covers one file; omitting it covers both tiers, all 40 cases (SC-001, FR-017). `-k/--case` takes a comma-separated list of case ids and filters within the selected suite(s); a filter matching no case id exits `2` naming the unmatched ids. `--dataset PATH` overrides auto-detection; omit to search `$GISDBASE`, `$GRASSDATA`, `~/grassdata`, `./grassdata` for the first standard NC project (FR-023). Wire `--resume` / `--no-resume` as a single boolean pair feeding `ExecutionConfig.resume`, with `--clean` taking precedence over `--resume` (FR-006a)
+- [x] T046 [US1] Emit per-case progress to stdout in `benchmarks/run_gate2.py` showing each attempt's stage, outcome, failure mode, latency, and token counts
 
 **Checkpoint**: User Story 1 fully functional — `--max-retries 0` produces a complete Pass@1 baseline with retained artifacts and a verified-unchanged `PERMANENT`.
 
@@ -158,10 +158,10 @@ These are verified environment facts from research.md. Violating them produces s
 - [x] T050 [P] [US2] Implement targeted RAG re-query in `grass_agent/healing.py`: on failure, query `grass_knowledge.db` for documentation keyed on the tool parsed from the error by `extract_failing_tool()`, rather than reusing the initial generic context (FR-011)
 - [x] T051 [US2] Implement repair prompt construction in `grass_agent/healing.py` from the persisted `CaseResult` fields per contracts/case-result.md: `CaseResult.prompt` for the task, the referenced `attempts[n].script_path` contents for the prior code, `error_excerpt` plus `stderr_path` for the exact error, and the targeted documentation. Pass the error text **verbatim**, never a paraphrase (FR-010)
 - [x] T052 [US2] Implement the repair call in `grass_agent/healing.py` reusing the strict Zero-Chat contract: feed repair output through the same `extract_python_code` path so markdown fences and prose are stripped. A repair response yielding no parseable script is a failed attempt, not a harness error
-- [x] T053 [US2] Implement the unified retry loop in `benchmarks/run_execution.py`: a single budget decremented by every failed attempt regardless of stage (FR-009a), stopping at first `executed_ok` or on exhaustion (FR-013). A case may exhaust its budget without ever executing — an intended, reported outcome
+- [x] T053 [US2] Implement the unified retry loop in `benchmarks/run_gate2.py`: a single budget decremented by every failed attempt regardless of stage (FR-009a), stopping at first `executed_ok` or on exhaustion (FR-013). A case may exhaust its budget without ever executing — an intended, reported outcome
 - [x] T054 [P] [US2] Add `chat_with_stats()` to `llm_provider.py` returning `(text, stats)` from the response's `prompt_eval_count` and `eval_count`, leaving the existing `chat()` **untouched** so the Gate 1 caller at `code_generator.py:118` keeps working (research.md D11). Record zero rather than estimating when counters are absent
-- [x] T055 [US2] Implement `--reuse-artifacts` in `benchmarks/run_execution.py`: load `benchmarks/output/<tc_id>_<model_slug>.py` as attempt 1, set `attempt1_source: "reuse_artifacts"` in the resume key, record attempt 1 token counts as `0`, and fall back to fresh generation per case when the artifact is missing (FR-001a, SC-015)
-- [x] T056 [US2] Implement `--max-retries` handling in `benchmarks/run_execution.py` including `0` producing the pure zero-shot baseline (FR-009)
+- [x] T055 [US2] Implement `--reuse-artifacts` in `benchmarks/run_gate2.py`: load `benchmarks/output/<tc_id>_<model_slug>.py` as attempt 1, set `attempt1_source: "reuse_artifacts"` in the resume key, record attempt 1 token counts as `0`, and fall back to fresh generation per case when the artifact is missing (FR-001a, SC-015)
+- [x] T056 [US2] Implement `--max-retries` handling in `benchmarks/run_gate2.py` including `0` producing the pure zero-shot baseline (FR-009)
 
 **Checkpoint**: User Stories 1 AND 2 both work independently — a real Pass@1 baseline and a bounded healing loop over it.
 
@@ -184,7 +184,7 @@ These are verified environment facts from research.md. Violating them produces s
 - [x] T060 [US3] Implement the failure-mode transition table in `grass_agent/reporting.py` showing each case's ordered per-attempt failure mode so improvement or regression between attempts is visible (FR-018)
 - [x] T061 [US3] Implement per-attempt cost reporting in `grass_agent/reporting.py`: latency and prompt/completion tokens per attempt ordinal plus totals, enabling cost-per-successful-case (SC-008)
 - [x] T062 [US3] Implement the report writer in `grass_agent/reporting.py` emitting `benchmarks/execution_report.md` from the `RunSummary`, including the healed-minus-zero-shot gain as both absolute and relative difference (SC-007) and the mandatory FR-021/SC-014 caveat
-- [x] T063 [US3] Implement `--report-only` in `benchmarks/run_execution.py`: re-render the report from persisted `case_result.json` files without invoking the model or GRASS (SC-013). Report a missing or non-reusable case as **not evaluated** so the denominator is always explicit, never silently omitted
+- [x] T063 [US3] Implement `--report-only` in `benchmarks/run_gate2.py`: re-render the report from persisted `case_result.json` files without invoking the model or GRASS (SC-013). Report a missing or non-reusable case as **not evaluated** so the denominator is always explicit, never silently omitted
 - [x] T064 [US3] Record run-level integrity evidence in `grass_agent/reporting.py`: `permanent_hash_before` / `permanent_hash_after`, `leaked_scratch_dirs` (must be empty in a clean run), and the resumed flag (SC-002, SC-004, SC-018)
 
 **Checkpoint**: All three user stories independently functional; the report is regenerable without re-execution.
@@ -268,7 +268,7 @@ Task: "Implement timeout enforcement in grass_agent/executor.py"
 ```bash
 Task: "Implement targeted RAG re-query in grass_agent/healing.py"
 Task: "Add chat_with_stats() to llm_provider.py"
-Task: "Implement --reuse-artifacts in benchmarks/run_execution.py"
+Task: "Implement --reuse-artifacts in benchmarks/run_gate2.py"
 ```
 
 ---

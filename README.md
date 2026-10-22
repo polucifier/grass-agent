@@ -259,7 +259,7 @@ The prioritised fixes are: provision or alias the missing dataset inputs; remove
 Gate 2 requires GRASS 8.4+ and the North Carolina sample dataset, provisioned once per [`benchmarks/fixtures/README.md`](benchmarks/fixtures/README.md). Then:
 
 ```bash
-.venv/bin/python benchmarks/run_execution.py \
+.venv/bin/python -m benchmarks.run_gate2 \
   --model qwen2.5-coder:7b \
   --max-retries 2 \
   --timeout 120
@@ -290,6 +290,18 @@ ollama pull nomic-embed-text
 
 For GPU execution, `benchmarks/run_remote.sh` provisions a Colab instance end to end: Ollama and the models, GRASS GIS (`grass-core` from the UbuntuGIS PPA — 8.4+, since the harness needs `--tmp-mapset`), the North Carolina sample dataset with its `PERMANENT` write guard, and the Python dependencies. It then runs the test suite (or, with `bash benchmarks/run_remote.sh eval`, the Gate 1 evaluation). It installs `zstd` first, because the Ollama installer refuses to extract without it and stock Colab images do not ship it.
 
+### Workflow entry points
+
+Run all three from the repository root. The `python -m` form is canonical for the benchmark runners: it puts the repository on `sys.path`, so the package imports resolve the same way they do under pytest.
+
+| Workflow | Command | What it does | Writes |
+|---|---|---|---|
+| Ad-hoc custom prompt | `python generate.py "prompt"` | Generates one script for an arbitrary request | `generated/<slug>.py`, or stdout with `--print` |
+| Gate 1 — static evaluation | `python -m benchmarks.run_gate1` | Generates every benchmark case and applies AST/API/zero-chat validation | `benchmarks/output/` |
+| Gate 2 — runtime execution | `python -m benchmarks.run_gate2` | Executes every case in headless GRASS and repairs failures within `--max-retries` | `benchmarks/output_execution/`, `benchmarks/execution_report.md` |
+
+All commands assume the virtualenv is active; from an unactivated checkout use `.venv/bin/python`. Direct invocation (`python benchmarks/run_gate1.py`, `python benchmarks/run_gate2.py`) also works. The old `benchmarks/run_eval.py` and `benchmarks/run_execution.py` names remain as deprecated wrappers that print a warning and forward to the new modules.
+
 ### Single-query generation
 
 ```bash
@@ -316,10 +328,10 @@ tools.r_contour(input="elevation", output=contour_output, step="10")
 
 ```bash
 # Tier 1 (default suite)
-.venv/bin/python benchmarks/run_eval.py --model qwen2.5-coder:7b
+.venv/bin/python -m benchmarks.run_gate1 --model qwen2.5-coder:7b
 
 # Tier 2
-.venv/bin/python benchmarks/run_eval.py --suite benchmarks/benchmark_prompts_tier2.json --model qwen2.5-coder:7b
+.venv/bin/python -m benchmarks.run_gate1 --suite benchmarks/benchmark_prompts_tier2.json --model qwen2.5-coder:7b
 ```
 
 Artifacts are written to `benchmarks/output/` for every case, pass or fail, each prefixed with the commented prompt and raw response.
@@ -328,13 +340,13 @@ Gate 2 executes those scripts against a real GRASS dataset and retries failures:
 
 ```bash
 # Requires GRASS 8.4+ and the NC sample dataset; see benchmarks/fixtures/README.md
-.venv/bin/python benchmarks/run_execution.py --model qwen2.5-coder:7b
+.venv/bin/python -m benchmarks.run_gate2 --model qwen2.5-coder:7b
 
 # Selected cases, from scratch, with a longer execution timeout
-.venv/bin/python benchmarks/run_execution.py -k tc_01,tc_02 --clean --timeout 300
+.venv/bin/python -m benchmarks.run_gate2 -k tc_01,tc_02 --clean --timeout 300
 
 # Regenerate benchmarks/execution_report.md without re-running anything
-.venv/bin/python benchmarks/run_execution.py --report-only
+.venv/bin/python -m benchmarks.run_gate2 --report-only
 ```
 
 Per-case artifacts are written to `benchmarks/output_execution/` (gitignored); the aggregate report is tracked at `benchmarks/execution_report.md`.
@@ -352,25 +364,35 @@ options:
   --model MODEL         Override the Ollama model
   --print               Print code to stdout instead of writing a file
 
-usage: run_eval.py [-h] [--model MODEL] [-s SUITE]
+usage: run_gate1.py [-h] [--model MODEL] [-s SUITE] [--audit]
+                    [--audit-threshold AUDIT_THRESHOLD] [--audit-strict]
 
 options:
   --model MODEL         Ollama model (qwen2.5-coder:3b | qwen2.5-coder:7b)
   -s, --suite SUITE     Path to the benchmark JSON test suite
                         (default: benchmarks/benchmark_prompts_tier1.json)
+  --audit               Audit suite prompts for contamination (advisory)
+  --audit-threshold N   Similarity threshold for --audit (default: 0.35)
+  --audit-strict        With --audit, abort if any prompt exceeds the threshold
 
-usage: run_execution.py [-h] [--model MODEL] [-s SUITE] [-k CASE]
-                        [--dataset DATASET] [--max-retries N] [--timeout N]
-                        [--clean] [--resume | --no-resume] [--report-only]
+usage: run_gate2.py [-h] [--model MODEL] [-s SUITE] [-k CASE]
+                    [--dataset DATASET] [--max-retries N] [--timeout N]
+                    [--resume | --no-resume] [--clean] [--reuse-artifacts]
+                    [--report-only] [--verbose]
 
 options:
+  --model MODEL         Local Ollama model (default: env or qwen2.5-coder:3b)
   -s, --suite SUITE     Benchmark suite (default: both tiers)
   -k, --case CASE       Comma-separated case ids, e.g. tc_01,tc_11
   --dataset DATASET     GRASS project directory (default: auto-detect)
-  --max-retries N       Repair budget per case (default: 2)
+  --max-retries N       Repair budget per case (default: 2; 0 disables healing)
   --timeout N           Per-attempt wall-clock bound in seconds (default: 120)
+  --resume              Skip completed cases (default)
+  --no-resume           Rerun every case, reusing nothing
   --clean               Wipe output_execution/ and run from scratch
+  --reuse-artifacts     Load Gate 1 scripts as attempt 1
   --report-only         Re-render the report from persisted results
+  --verbose             Explain every resume rejection
 ```
 
 ---
@@ -387,8 +409,10 @@ grass-agent/
 ├── data/grass_knowledge.db           543 tools + 768-d embeddings (committed)
 ├── grass_agent/                      Gate 2: executor, classifier, healing, fixtures, reporting
 ├── benchmarks/
-│   ├── run_eval.py                   Gate 1 static evaluation runner
-│   ├── run_execution.py              Gate 2 execution + self-healing harness
+│   ├── run_gate1.py                  Gate 1 static evaluation runner
+│   ├── run_gate2.py                  Gate 2 execution + self-healing harness
+│   ├── run_eval.py                   Deprecated alias for run_gate1.py
+│   ├── run_execution.py              Deprecated alias for run_gate2.py
 │   ├── execution_report.md           Gate 2 aggregate report (tracked)
 │   ├── leakage_report.md             Benchmark contamination audit
 │   ├── benchmark_prompts_tier1.json  10-case smoke suite

@@ -121,7 +121,7 @@ Expected:
 The fastest end-to-end proof. ~1 attempt × (generation + execution).
 
 ```sh
-.venv/bin/python benchmarks/run_execution.py \
+.venv/bin/python benchmarks/run_gate2.py \
   --model qwen2.5-coder:3b \
   --suite benchmarks/benchmark_prompts_tier1.json \
   --max-retries 0 \
@@ -131,7 +131,7 @@ The fastest end-to-end proof. ~1 attempt × (generation + execution).
 Use the `-k/--case` filter to run a single case (comma-separated for several, e.g. `-k tc_01,tc_11`). A filter matching no case id exits `2` naming the unmatched ids. Expect per-case progress blocks on stdout and one report.
 
 ```sh
-.venv/bin/python benchmarks/run_execution.py \
+.venv/bin/python benchmarks/run_gate2.py \
   --model qwen2.5-coder:3b --suite benchmarks/benchmark_prompts_tier1.json \
   --case tc_01 --max-retries 0 --clean
 ```
@@ -150,7 +150,7 @@ Confirm in the report: Pass@1 is stated, Pass@Healed equals Pass@1 (healing disa
 ## Scenario D — Zero-shot baseline (all 40 cases, no healing)
 
 ```sh
-.venv/bin/python benchmarks/run_execution.py \
+.venv/bin/python benchmarks/run_gate2.py \
   --model qwen2.5-coder:3b \
   --max-retries 0 \
   --clean
@@ -165,7 +165,7 @@ Budget: with no healing this is one generation plus at most one execution per ca
 ## Scenario E — Self-healing (all 40 cases, default budget)
 
 ```sh
-.venv/bin/python benchmarks/run_execution.py \
+.venv/bin/python benchmarks/run_gate2.py \
   --model qwen2.5-coder:3b \
   --max-retries 2 \
   --clean
@@ -182,7 +182,7 @@ With the 7b model, expect materially longer wall-clock: a prior Gate 1 run's `ol
 ## Scenario F — Gate 1 vs Gate 2 comparison
 
 ```sh
-.venv/bin/python benchmarks/run_execution.py --model qwen2.5-coder:7b --max-retries 2 --clean
+.venv/bin/python benchmarks/run_gate2.py --model qwen2.5-coder:7b --max-retries 2 --clean
 ```
 
 Open `benchmarks/execution_report.md`. Expected (FR-020, SC-013):
@@ -197,7 +197,7 @@ Open `benchmarks/execution_report.md`. Expected (FR-020, SC-013):
 Uses the 40 Gate 1 scripts already in `benchmarks/output/` as attempt 1, skipping generation entirely:
 
 ```sh
-.venv/bin/python benchmarks/run_execution.py \
+.venv/bin/python benchmarks/run_gate2.py \
   --reuse-artifacts --max-retries 0 --clean
 ```
 
@@ -215,10 +215,10 @@ The property most likely to be silently wrong. Test it explicitly.
 
 ```sh
 # start a full run, then interrupt with Ctrl-C partway through
-.venv/bin/python benchmarks/run_execution.py --model qwen2.5-coder:3b --max-retries 2 --clean
+.venv/bin/python benchmarks/run_gate2.py --model qwen2.5-coder:3b --max-retries 2 --clean
 
 # immediately re-run the same command WITHOUT --clean
-.venv/bin/python benchmarks/run_execution.py --model qwen2.5-coder:3b --max-retries 2
+.venv/bin/python benchmarks/run_gate2.py --model qwen2.5-coder:3b --max-retries 2
 ```
 
 Expected (FR-006a, SC-018, SC-019):
@@ -231,7 +231,7 @@ Expected (FR-006a, SC-018, SC-019):
 Then confirm the negative case — a changed configuration must invalidate prior results:
 
 ```sh
-.venv/bin/python benchmarks/run_execution.py --model qwen2.5-coder:3b --max-retries 1   # budget changed
+.venv/bin/python benchmarks/run_gate2.py --model qwen2.5-coder:3b --max-retries 1   # budget changed
 ```
 
 Expected: the resume key no longer matches, so cases rerun rather than being carried across configurations (SC-019).
@@ -239,7 +239,7 @@ Expected: the resume key no longer matches, so cases rerun rather than being car
 ## Scenario I — Report regeneration without re-execution
 
 ```sh
-.venv/bin/python benchmarks/run_execution.py --report-only
+.venv/bin/python benchmarks/run_gate2.py --report-only
 ```
 
 Expected (SC-013): `benchmarks/execution_report.md` is rewritten with identical figures. No model inference, no GRASS execution — verifiable by watching that the run completes in seconds and that `ollama list` shows no new load.
@@ -250,14 +250,14 @@ Each should exit `3` with a message naming the missing dependency (FR-023):
 
 ```sh
 # model service down
-ollama stop; .venv/bin/python benchmarks/run_execution.py --max-retries 0; echo "exit=$?"
+ollama stop; .venv/bin/python benchmarks/run_gate2.py --max-retries 0; echo "exit=$?"
 ollama serve &
 
 # dataset path wrong
-.venv/bin/python benchmarks/run_execution.py --max-retries 0 --dataset /nonexistent; echo "exit=$?"
+.venv/bin/python benchmarks/run_gate2.py --max-retries 0 --dataset /nonexistent; echo "exit=$?"
 
 # unmatched case filter
-.venv/bin/python benchmarks/run_execution.py -k tc_99 --max-retries 0; echo "exit=$?"
+.venv/bin/python benchmarks/run_gate2.py -k tc_99 --max-retries 0; echo "exit=$?"
 ```
 
 Expected: `exit=3` with a message naming the specific missing dependency — not a traceback, not `exit=1`. The `-k tc_99` case is an argument error and exits `2` naming the unmatched id.

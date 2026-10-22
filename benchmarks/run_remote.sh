@@ -108,7 +108,7 @@ REPO="$(pwd)"
 chown -R "$GRADER:$GRADER" "$REPO"
 
 if [ "$1" = "eval" ]; then
-  su "$GRADER" -c "cd '$REPO' && HOME='$GRADER_HOME' python3 benchmarks/run_eval.py --model qwen2.5-coder:7b"
+  su "$GRADER" -c "cd '$REPO' && HOME='$GRADER_HOME' python3 -m benchmarks.run_gate1 --model qwen2.5-coder:7b"
 else
   # The full suite. Without GRASS and the dataset above, the `slow` tests
   # (test_executor.py, test_integration_smoke.py) skip themselves; with them

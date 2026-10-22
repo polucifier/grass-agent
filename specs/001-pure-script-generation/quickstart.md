@@ -24,6 +24,6 @@ python generate.py --print "compute slope from elevation raster and generate con
 ## Running the Curated Benchmark Suite
 Execute the evaluation runner to verify `ast.parse()` validity and zero-chat compliance across all 10 benchmark test cases:
 ```bash
-python benchmarks/run_eval.py --model qwen2.5-coder:3b
-python benchmarks/run_eval.py --model qwen2.5-coder:7b
+python benchmarks/run_gate1.py --model qwen2.5-coder:3b
+python benchmarks/run_gate1.py --model qwen2.5-coder:7b
 ```

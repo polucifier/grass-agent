@@ -197,7 +197,7 @@ def check_reuse_artifacts(config: ExecutionConfig) -> Path:
         raise MissingDependency(
             "Gate 1 artifacts",
             f"{artifacts} does not exist",
-            "run benchmarks/run_eval.py first, or omit --reuse-artifacts",
+            "run benchmarks/run_gate1.py first, or omit --reuse-artifacts",
         )
     return artifacts
 

@@ -17,7 +17,7 @@ class OllamaProvider:
         self.embedding_model = config.embedding_model
         self.base_url = config.ollama_base_url
         # Merged into any request that does not pass explicit options. Left as
-        # None by the Gate 1 caller, so run_eval.py behaviour is unchanged.
+        # None by the Gate 1 caller, so run_gate1.py behaviour is unchanged.
         self.default_options = default_options
         # Stats from the most recent call. Recorded as a side effect because
         # GrassCodeGenerator.generate() returns only the code, so re-issuing the

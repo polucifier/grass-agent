@@ -8,7 +8,7 @@ first generation prompt, and its absence never breaks prompt construction.
 
 from pathlib import Path
 
-from benchmarks.run_execution import generate_attempt, read_inventory_safely
+from benchmarks.run_gate2 import generate_attempt, read_inventory_safely
 from code_generator import GrassCodeGenerator
 from config import GenerationConfig
 from grass_agent.inventory import MapInventory, read_inventory
@@ -128,12 +128,12 @@ def test_generate_attempt_forwards_the_inventory_block():
 
 
 def test_unreadable_inventory_degrades_to_empty_without_raising(monkeypatch, tmp_path):
-    import benchmarks.run_execution as run_execution
+    import benchmarks.run_gate2 as run_gate2
 
     def boom(_dataset_project):
         raise OSError("dataset is unreadable")
 
-    monkeypatch.setattr(run_execution, "read_inventory", boom)
+    monkeypatch.setattr(run_gate2, "read_inventory", boom)
 
     inventory = read_inventory_safely(tmp_path)
 

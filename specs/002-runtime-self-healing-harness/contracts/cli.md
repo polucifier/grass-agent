@@ -1,4 +1,4 @@
-# Contract: `benchmarks/run_execution.py` CLI
+# Contract: `benchmarks/run_gate2.py` CLI
 
 **Date**: 2026-10-06 | **Plan**: [../plan.md](../plan.md) | **Data model**: [../data-model.md](../data-model.md)
 
@@ -7,7 +7,7 @@ Normative specification of the Gate 2 execution harness command line. The harnes
 ## Invocation
 
 ```sh
-python benchmarks/run_execution.py [OPTIONS]
+python benchmarks/run_gate2.py [OPTIONS]
 ```
 
 Run from the repository root. The interpreter must be the project virtual environment (`.venv/bin/python`), which provides `ollama`, `sqlite-vec`, and `pytest`.

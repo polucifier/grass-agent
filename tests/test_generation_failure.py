@@ -8,7 +8,7 @@ rejection that routes into the healing loop, not a harness fault.
 
 import pytest
 
-from benchmarks.run_execution import GenerationFailed, generate_attempt, static_guard
+from benchmarks.run_gate2 import GenerationFailed, generate_attempt, static_guard
 
 
 class ExplodingGenerator:

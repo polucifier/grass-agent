@@ -18,6 +18,6 @@
 - **Alternatives Considered**: `Tools(overwrite=True)` (rejected as FR-003 explicitly specifies `Tools()` instantiation).
 
 ## 4. Curated Benchmark Suite & Evaluation Runner
-- **Decision**: Create a JSON benchmark file (`benchmarks/benchmark_prompts.json`) containing 10 prompts (4 single-tool, 3 multi-step, 3 edge cases) and an evaluation script (`benchmarks/run_eval.py`) that tests generation across `qwen2.5-coder:3b` and `qwen2.5-coder:7b`.
+- **Decision**: Create a JSON benchmark file (`benchmarks/benchmark_prompts.json`) containing 10 prompts (4 single-tool, 3 multi-step, 3 edge cases) and an evaluation script (`benchmarks/run_gate1.py`) that tests generation across `qwen2.5-coder:3b` and `qwen2.5-coder:7b`.
 - **Rationale**: Satisfies SC-002 (0% conversational phrases across 10 benchmark test cases) and enables automated regression testing of pure-code compliance and `ast.parse()` validity.
 - **Alternatives Considered**: Manual testing (rejected due to lack of scalability and objective verification).
