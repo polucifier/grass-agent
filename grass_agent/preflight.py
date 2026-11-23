@@ -142,8 +142,40 @@ def check_model_service(config: ExecutionConfig) -> None:
         ) from exc
 
 
-def check_knowledge_db(config: ExecutionConfig) -> Path:
-    """Confirm the tool knowledge base is readable and non-empty (FR-001)."""
+def _installed_grass_version(config: ExecutionConfig) -> str:
+    try:
+        completed = subprocess.run(
+            [config.grass_bin, "--version"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    text = (completed.stdout or completed.stderr or "").strip()
+    for line in text.splitlines():
+        parts = line.split()
+        if len(parts) >= 2 and parts[0].upper().startswith("GRASS"):
+            return parts[1]
+    return ""
+
+
+REBUILD_HINT = (
+    'rebuild with: python scripts/build_knowledge_base.py '
+    '--gisbase "$(grass --config path)" --rebuild'
+)
+
+_REQUIRED_META_KEYS = ("source", "built_at", "content_hash", "gisbase")
+
+
+def check_knowledge_db(config: ExecutionConfig, pipeline: str | None = None) -> Path:
+    """Confirm the tool knowledge base is readable and non-empty (FR-001).
+
+    In ``manual-kb``/``planned`` the Feature 004 schema, a matching GRASS
+    version, and the required provenance keys are mandatory. ``legacy`` keeps
+    accepting an old six-column DB and performs no new validation.
+    """
+    pipeline = pipeline if pipeline is not None else getattr(config, "pipeline", "legacy")
     db_path = Path(config.knowledge_db)
     if not db_path.is_file():
         raise MissingDependency(
@@ -151,15 +183,59 @@ def check_knowledge_db(config: ExecutionConfig) -> Path:
             f"{db_path} does not exist",
             "build data/grass_knowledge.db before running the harness",
         )
+    meta: dict = {}
+    has_meta_table = False
     try:
         with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True) as conn:
             count = conn.execute("SELECT COUNT(*) FROM tools").fetchone()[0]
+            table = conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='db_meta'"
+            ).fetchone()
+            has_meta_table = table is not None
+            if has_meta_table:
+                meta = {
+                    row[0]: row[1]
+                    for row in conn.execute("SELECT key, value FROM db_meta").fetchall()
+                }
     except sqlite3.Error as exc:
         raise MissingDependency(
             "knowledge base", f"{db_path} is not readable as sqlite: {exc}"
         ) from exc
     if count == 0:
         raise MissingDependency("knowledge base", f"{db_path} contains no tools")
+
+    if pipeline in ("manual-kb", "planned"):
+        if not has_meta_table:
+            raise MissingDependency(
+                "knowledge base schema",
+                f"{db_path} has no Feature 004 db_meta provenance table",
+                REBUILD_HINT,
+            )
+        version = str(meta.get("schema_version", ""))
+        if version != "2":
+            raise MissingDependency(
+                "knowledge base schema",
+                f"{db_path} schema_version is {version or 'missing'}; "
+                "manual-kb/planned require schema_version 2",
+                REBUILD_HINT,
+            )
+        missing = [key for key in _REQUIRED_META_KEYS if not str(meta.get(key, "")).strip()]
+        if missing:
+            raise MissingDependency(
+                "knowledge base provenance",
+                f"{db_path} is missing required provenance key(s): "
+                + ", ".join(missing),
+                REBUILD_HINT,
+            )
+        installed = _installed_grass_version(config)
+        built = str(meta.get("grass_version", "")).strip()
+        if installed and built != installed:
+            raise MissingDependency(
+                "knowledge base version",
+                f"{db_path} was built for GRASS {built or 'unknown'} but "
+                f"the installed GRASS is {installed}",
+                REBUILD_HINT,
+            )
     return db_path
 
 
@@ -206,6 +282,7 @@ def run_preflight(
     config: ExecutionConfig,
     required_fixtures: list[tuple[str, str]] | None = None,
     need_reuse_artifacts: bool = False,
+    pipeline: str | None = None,
 ) -> PreflightReport:
     """Run every check, collecting all failures rather than stopping at the first.
 
@@ -215,12 +292,13 @@ def run_preflight(
     failures: list[MissingDependency] = []
     project: Path | None = None
     tmp_mapset = True
+    pipeline = pipeline if pipeline is not None else getattr(config, "pipeline", "legacy")
 
     checks = [
         ("GRASS installation", lambda: check_grass_installed(config)),
         ("dataset", lambda: check_dataset(config)),
         ("local model service", lambda: check_model_service(config)),
-        ("knowledge base", lambda: check_knowledge_db(config)),
+        ("knowledge base", lambda: check_knowledge_db(config, pipeline)),
     ]
     if required_fixtures:
         checks.append(("benchmark fixtures", lambda: check_fixtures(config, required_fixtures)))

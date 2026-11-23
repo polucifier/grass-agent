@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<task name="r.mismatch">
+	<description>Fixture whose XML parameter name disagrees with Markdown.</description>
+	<parameter name="input" type="string" required="yes" multiple="no">
+		<description>Input raster</description>
+	</parameter>
+	<parameter name="direction_range" type="string" required="no" multiple="no">
+		<description>Direction range in XML</description>
+		<values>
+			<value><name>north</name><description>north</description></value>
+			<value><name>south</name><description>south</description></value>
+		</values>
+	</parameter>
+	<flag name="b">
+		<description>A flag only XML knows</description>
+	</flag>
+</task>

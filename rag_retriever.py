@@ -1,8 +1,67 @@
 import json
 import sqlite3
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import sqlite_vec
+
+
+@dataclass
+class ModuleFlag:
+    """One module flag (``-b``) or synthetic generic flag keyword."""
+
+    flag: str
+    description: str = ""
+    generic: bool = False
+    gui_section: str = ""
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "ModuleFlag":
+        return cls(
+            flag=str(payload.get("flag", "")),
+            description=str(payload.get("description", "")),
+            generic=bool(payload.get("generic", False)),
+            gui_section=str(payload.get("gui_section", "")),
+        )
+
+
+@dataclass
+class ClosedEnumOption:
+    """One finite allowed value for an API parameter."""
+
+    parameter: str = ""
+    value: str = ""
+    description: str = ""
+    ordinal: int = 0
+
+    @classmethod
+    def from_dict(cls, payload: dict, parameter: str = "") -> "ClosedEnumOption":
+        return cls(
+            parameter=str(payload.get("parameter", parameter)),
+            value=str(payload.get("value", "")),
+            description=str(payload.get("description", "")),
+            ordinal=int(payload.get("ordinal", 0) or 0),
+        )
+
+
+@dataclass
+class ManualSection:
+    """One canonical manual section stored at rest."""
+
+    section: str
+    ordinal: int = 0
+    text: str = ""
+    token_estimate: int = 0
+    content_hash: str = ""
+
+    @classmethod
+    def from_dict(cls, payload: dict, section: str = "") -> "ManualSection":
+        return cls(
+            section=str(payload.get("section", section)),
+            ordinal=int(payload.get("ordinal", 0) or 0),
+            text=str(payload.get("text", "")),
+            token_estimate=int(payload.get("token_estimate", 0) or 0),
+            content_hash=str(payload.get("content_hash", "")),
+        )
 
 
 @dataclass
@@ -14,6 +73,41 @@ class ToolDoc:
     example: str
     params: dict
     similarity: float
+
+    # ---- Feature 004 optional manual fields (appended; defaulted) ---------
+    flags: list[ModuleFlag] = field(default_factory=list)
+    options: dict[str, list[ClosedEnumOption]] = field(default_factory=dict)
+    sections: dict[str, list[ManualSection]] = field(default_factory=dict)
+    source: str = ""
+    grass_version: str = ""
+    content_hash: str = ""
+    source_mismatches: list[dict] = field(default_factory=list)
+    xml_validated: bool = False
+
+    @property
+    def manual_section_count(self) -> int:
+        return sum(len(entries) for entries in self.sections.values())
+
+    def section_text(self, name: str) -> str:
+        return "\n".join(
+            entry.text for entry in self.sections.get(name, []) if entry.text
+        ).strip()
+
+
+@dataclass
+class CandidateShortlist:
+    """Planned-mode retrieval result (data-model section 7)."""
+
+    query: str
+    candidates: list[ToolDoc] = field(default_factory=list)
+    shortlist_shortfall: bool = False
+    shortlist_k: int = 12
+    retrieval_mode: str = "hybrid"
+    embedding_model: str = "nomic-embed-text"
+
+    @property
+    def names(self) -> list[str]:
+        return [candidate.name for candidate in self.candidates]
 
 
 VECTOR_KEYWORDS = [
@@ -172,6 +266,100 @@ STEP_SYNONYMS = {
 DUPLICATE_STEP_PENALTY = 0.8
 MAX_PER_STEP = 1
 DISPLAY_OFF_TOPIC_PENALTY = 0.5
+
+# 4. Functional families: members are interchangeable variants of one
+# operation. Feature 004 uses these for documented tool swaps and compact card
+# alternatives. Membership is a claim about function, never about API identity.
+TOOL_FAMILIES = {
+    "reclassify": ["r.reclass", "r.recode", "r.mapcalc"],
+    "clean": ["v.clean", "v.edit", "v.generalize"],
+    "buffer": ["v.buffer", "r.buffer"],
+    "import": ["v.import", "r.import", "v.in.ogr", "r.in.gdal"],
+    "rasterize": ["v.to.rast", "r.mapcalc"],
+}
+
+TOOL_FAMILY_NOTES = {
+    "reclassify": {
+        "r.reclass": "integer input only; rules file or stream",
+        "r.recode": "rule-based recoding for categorical rasters",
+        "r.mapcalc": "expression-based classification",
+    },
+    "clean": {
+        "v.clean": "topology cleaning with rmdupl/snap tools",
+        "v.edit": "interactive-style vector edits",
+        "v.generalize": "geometry generalization",
+    },
+    "buffer": {
+        "v.buffer": "vector buffer",
+        "r.buffer": "raster buffer",
+    },
+    "import": {
+        "v.import": "modern vector import wrapper",
+        "r.import": "modern raster import wrapper",
+        "v.in.ogr": "low-level vector OGR import",
+        "r.in.gdal": "low-level raster GDAL import",
+    },
+    "rasterize": {
+        "v.to.rast": "rasterize a vector map",
+        "r.mapcalc": "raster expression",
+    },
+}
+
+
+def tool_family(name: str) -> str | None:
+    """Return the functional family a module belongs to, if any."""
+    for family, members in TOOL_FAMILIES.items():
+        if name in members:
+            return family
+    return None
+
+
+def family_alternatives(
+    name: str,
+    retriever: "GrassToolsRetriever | None" = None,
+    limit: int = 2,
+) -> list[ToolDoc]:
+    """Documented alternatives for a tool, excluding the tool itself.
+
+    When a retriever is supplied, only modules that actually exist in the
+    knowledge base are returned, so an alternative is always renderable.
+    """
+    family = tool_family(name)
+    if family is None:
+        return []
+    alternatives: list[ToolDoc] = []
+    for member in TOOL_FAMILIES[family]:
+        if member == name:
+            continue
+        if retriever is not None:
+            doc = retriever.get_tool(member)
+            if doc is None:
+                continue
+            alternatives.append(doc)
+        else:
+            alternatives.append(
+                ToolDoc(
+                    name=member,
+                    category=member.split(".")[0],
+                    description="",
+                    signature="",
+                    example="",
+                    params={},
+                    similarity=0.0,
+                )
+            )
+        if len(alternatives) >= limit:
+            break
+    return alternatives
+
+
+def family_note(name: str) -> str:
+    """One-line functional distinction for an alternative in a card."""
+    family = tool_family(name)
+    if family is None:
+        return ""
+    return TOOL_FAMILY_NOTES.get(family, {}).get(name, "")
+
 
 # Module families whose members are all variants of one operation. Without this,
 # five slots fill with e.g. r.li.* and the actual answer never appears.
@@ -382,23 +570,115 @@ KEYWORD_TOOL_OVERRIDES = {
 
 class GrassToolsRetriever:
 
+    BASE_COLUMNS = ("name", "category", "description", "signature", "example", "params_json")
+    EXTENDED_COLUMNS = (
+        "flags_json",
+        "options_json",
+        "source",
+        "grass_version",
+        "content_hash",
+        "source_mismatches_json",
+        "xml_validated",
+    )
+
     def __init__(self, db_path: str):
         self.conn = sqlite3.connect(db_path)
         self.conn.enable_load_extension(True)
         sqlite_vec.load(self.conn)
         self.conn.enable_load_extension(False)
+        self._extended_columns = self._detect_extended_columns()
+
+    def _detect_extended_columns(self) -> bool:
+        """True when the Feature 004 additive columns exist."""
+        try:
+            columns = {
+                row[1] for row in self.conn.execute("PRAGMA table_info(tools)").fetchall()
+            }
+        except sqlite3.Error:
+            return False
+        return all(column in columns for column in self.EXTENDED_COLUMNS)
+
+    def _select_columns(self) -> str:
+        columns = list(self.BASE_COLUMNS)
+        if self._extended_columns:
+            columns.extend(self.EXTENDED_COLUMNS)
+        return ", ".join(columns)
+
+    @property
+    def extended(self) -> bool:
+        return self._extended_columns
 
     def _row_to_doc(self, row) -> ToolDoc:
-        name, category, description, signature, example, params_json = row
-        return ToolDoc(
+        """Map a six-column legacy row or an extended Feature 004 row.
+
+        The extended fields are appended in schema order, so old six-column
+        callers keep constructing positionally without change.
+        """
+        if len(row) < 6:
+            raise ValueError(f"expected at least 6 tool columns, got {len(row)}")
+        name, category, description, signature, example, params_json = row[:6]
+        doc = ToolDoc(
             name=name,
             category=category,
             description=description,
             signature=signature,
             example=example,
-            params=json.loads(params_json),
+            params=json.loads(params_json or "{}"),
             similarity=0.0,
         )
+        if len(row) >= 13:
+            (
+                flags_json,
+                options_json,
+                source,
+                grass_version,
+                content_hash,
+                source_mismatches_json,
+                xml_validated,
+            ) = row[6:13]
+            doc.flags = [
+                ModuleFlag.from_dict(item) for item in _loads_json(flags_json, [])
+            ]
+            raw_options = _loads_json(options_json, {})
+            doc.options = {
+                parameter: [
+                    ClosedEnumOption.from_dict(item, parameter)
+                    for item in entries or []
+                ]
+                for parameter, entries in (raw_options or {}).items()
+            }
+            doc.sections = self._load_sections(name)
+            doc.source = source or ""
+            doc.grass_version = grass_version or ""
+            doc.content_hash = content_hash or ""
+            doc.source_mismatches = list(
+                _loads_json(source_mismatches_json, []) or []
+            )
+            doc.xml_validated = bool(xml_validated)
+        return doc
+
+    def _load_sections(self, name: str) -> dict[str, list[ManualSection]]:
+        """Load stored manual sections, tolerating a DB without the table."""
+        try:
+            rows = self.conn.execute(
+                "SELECT section, ordinal, text, token_estimate, content_hash "
+                "FROM tool_sections WHERE tool_name = ? ORDER BY section, ordinal",
+                (name,),
+            ).fetchall()
+        except sqlite3.Error:
+            return {}
+        sections: dict[str, list[ManualSection]] = {}
+        for section, ordinal, text, token_estimate, content_hash in rows:
+            sections.setdefault(section, []).append(
+                ManualSection(
+                    section=section,
+                    ordinal=int(ordinal or 0),
+                    text=text or "",
+                    token_estimate=int(token_estimate or 0),
+                    content_hash=content_hash or "",
+                )
+            )
+        return sections
 
     def _consider(self, candidate_dict: dict, doc: ToolDoc, score: float) -> None:
         if doc.name not in candidate_dict or candidate_dict[doc.name].similarity < score:
@@ -414,8 +694,7 @@ class GrassToolsRetriever:
             if kw in query_lower:
                 for tname in tool_names:
                     row = self.conn.execute(
-                        "SELECT name, category, description, signature, example, params_json "
-                        "FROM tools WHERE name = ?",
+                        f"SELECT {self._select_columns()} FROM tools WHERE name = ?",
                         (tname,),
                     ).fetchone()
                     if row:
@@ -431,8 +710,7 @@ class GrassToolsRetriever:
 
         for rowid, distance in vec_rows:
             row = self.conn.execute(
-                "SELECT name, category, description, signature, example, params_json "
-                "FROM tools WHERE rowid = ?",
+                f"SELECT {self._select_columns()} FROM tools WHERE rowid = ?",
                 (rowid,),
             ).fetchone()
             if row is None:
@@ -444,8 +722,8 @@ class GrassToolsRetriever:
         #    matching both dot-separated names and underscore method names.
         for pattern in _like_patterns(query):
             lex_rows = self.conn.execute(
-                "SELECT name, category, description, signature, example, params_json "
-                "FROM tools WHERE name LIKE ? OR description LIKE ? LIMIT 10",
+                f"SELECT {self._select_columns()} FROM tools "
+                "WHERE name LIKE ? OR description LIKE ? LIMIT 10",
                 (pattern, pattern),
             ).fetchall()
             for row in lex_rows:
@@ -468,22 +746,67 @@ class GrassToolsRetriever:
 
     def get_tool(self, name: str) -> ToolDoc | None:
         row = self.conn.execute(
-            "SELECT name, category, description, signature, example, params_json "
-            "FROM tools WHERE name = ?",
+            f"SELECT {self._select_columns()} FROM tools WHERE name = ?",
             (name,),
         ).fetchone()
         if row is None:
             return None
-        name, category, description, signature, example, params_json = row
-        return ToolDoc(
-            name=name,
-            category=category,
-            description=description,
-            signature=signature,
-            example=example,
-            params=json.loads(params_json),
-            similarity=0.0,
+        return self._row_to_doc(row)
+
+    def get_manual(self, name: str) -> ToolDoc | None:
+        """Return the full manual record for ``name``, or None.
+
+        A legacy DB returns the six base fields with empty optional fields; a
+        missing tool returns ``None`` rather than raising.
+        """
+        return self.get_tool(name)
+
+    def retrieve_shortlist(
+        self,
+        query: str,
+        query_embedding: list[float],
+        shortlist_k: int = 12,
+        embedding_model: str = "nomic-embed-text",
+    ) -> CandidateShortlist:
+        """Planned-mode candidate shortlist (data-model section 7)."""
+        if shortlist_k < 8 or shortlist_k > 12:
+            raise ValueError(
+                f"shortlist_k must be between 8 and 12 (got {shortlist_k})"
+            )
+        candidates = self.retrieve(query, query_embedding, k=shortlist_k)
+        return CandidateShortlist(
+            query=query,
+            candidates=candidates,
+            shortlist_shortfall=len(candidates) < 8,
+            shortlist_k=shortlist_k,
+            retrieval_mode="hybrid",
+            embedding_model=embedding_model,
         )
 
     def close(self):
         self.conn.close()
+
+
+def _loads_json(raw, default):
+    """Tolerant JSON decode for additive columns, including NULL/blank."""
+    if raw is None or raw == "":
+        return default
+    try:
+        value = json.loads(raw)
+    except (TypeError, ValueError):
+        return default
+    return value if value is not None else default
+
+
+def retrieve_shortlist(
+    retriever: GrassToolsRetriever,
+    query: str,
+    query_embedding: list[float],
+    shortlist_k: int = 12,
+    embedding_model: str = "nomic-embed-text",
+) -> CandidateShortlist:
+    """Module-level shortlist helper (kept beside the family constants)."""
+    return retriever.retrieve_shortlist(
+        query, query_embedding, shortlist_k=shortlist_k, embedding_model=embedding_model
+    )
+

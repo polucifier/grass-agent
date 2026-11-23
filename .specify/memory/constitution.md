@@ -1,18 +1,22 @@
 # GrassAgent Constitution
 <!-- Sync Impact Report
-Version change: 1.1.0 → 1.2.0
-Modified principles: IV (Phased Development Gates — Gate 2 headless execution mechanism)
+Version change: 1.3.0 → 1.4.0
+Modified principles: II (Technology Stack & API Standards — approved model stack),
+IV (Phased Development Gates — Feature 004 current milestone and internal JSON planning)
 Added sections: N/A
 Removed sections: N/A
-Amendment rationale: Gate 2 planning verified that `grass.script.setup.init()` provides no
-temp-mapset support, requires manual removal of the `.gislock` left by `g.mapset -c`, and is
-strictly more fragile than the GRASS CLI sandbox. Principle IV.2 is amended to name
-`grass --tmp-mapset <dataset> --exec python3` as the primary execution mechanism, retaining
-`grass.script.setup.init()` as a fallback worker for hosts where the CLI sandbox is unsupported.
-The four Gate 2 sub-gates, their ordering, and Principle V's isolation mandate are unchanged.
-Affected components: spec 002 plan/tasks (all references to the execution mechanism).
-Migration plan: none — Gate 2 is unreleased; no prior implementation depends on the old wording.
-Follow-up TODOs: none for Gate 2
+Amendment rationale: Feature 004 replaces the online manual scraper with a strictly offline
+local knowledge base and adds a candidate-constrained JSON planning stage. The amendment
+names 004-manual-grounded-planning as the current milestone, ratifies internal JSON planning
+as an intermediate workflow step while preserving the zero-chat executable-Python final-output
+contract, and extends the approved benchmark model stack with qwen2.5-coder:14b and
+qwen2.5-coder:32b. Gate 3's semantic oracle, two-tier budgets, stateful healing, and
+report-only semantic failures remain unchanged.
+Affected components: spec 004 spec/plan/tasks; grass_agent knowledge-base, manual context,
+planner, healing, results, and reporting modules.
+Migration plan: legacy results and the existing v1.3.0 knowledge base remain readable; no
+existing requirement is weakened. New modes are opt-in and legacy remains the default.
+Follow-up TODOs: none for Feature 004.
 -->
 
 ## Core Principles
@@ -22,7 +26,7 @@ GrassAgent is an open-source, fully offline local AI agent that translates natur
 
 ### II. Technology Stack & API Standards
 All generated scripts must strictly use the modern `grass.tools` interface (`from grass.tools import Tools`). Legacy `grass.script.run_command` or raw CLI calls are strictly prohibited. All inference and embeddings must run strictly offline via Ollama. No external cloud APIs are permitted. The approved model stack is:
-- LLM Code Generation: `qwen2.5-coder:7b` (primary evaluation) and `qwen2.5-coder:3b` (rapid smoke testing)
+- LLM Code Generation: `qwen2.5-coder:7b` (baseline evaluation), `qwen2.5-coder:14b` and `qwen2.5-coder:32b` (extended benchmark comparison), and `qwen2.5-coder:3b` (rapid smoke testing)
 - Embeddings & Retrieval: `nomic-embed-text:latest` for semantic search, RAG, and tool discovery
 
 ### III. Zero-Chat & Pure Script Contract
@@ -31,13 +35,19 @@ The agent is a code generator, not a chatbot. Model output must be strictly exec
 ### IV. Phased Development Gates
 Development proceeds through strictly ordered, verifiable milestones:
 - **Gate 1 (Completed):** Pure script contract adherence, static AST validity, and schema verification against `grass_knowledge.db`. Established baseline: 90.0% zero-shot static verification across the 40-case two-tier benchmark suite.
-- **Gate 2 (Current Focus — Runtime Execution & Self-Healing):** Dynamic execution and closed-loop error correction.
+- **Gate 2 (Completed — Runtime Execution & Self-Healing):** Dynamic execution and closed-loop error correction.
   1. *Pre-flight Static Guard:* Generated scripts must pass Gate 1 static AST/schema validation before execution.
   2. *Headless Runtime Execution:* Scripts execute headlessly against designated sample datasets (e.g., North Carolina sample location) inside isolated scratch mapsets. Execution **primarily** uses the GRASS CLI sandbox `grass --tmp-mapset <dataset> --exec python3 <script>`, which provides process-level isolation so that C-level crashes in GRASS or its geospatial dependencies cannot terminate the evaluation harness. `grass.script.setup.init()` is **retained as a fallback worker** for host environments where the CLI sandbox is unsupported. Because the CLI sandbox provides a writable *default mapset* rather than a true sandbox, Principle V's zero-mutation mandate additionally requires an explicit filesystem-level guard on the persistent mapset.
   3. *Runtime Traceback Interception:* Capture and classify runtime `stderr` (missing layers, schema exceptions, syntax slips).
   4. *Autonomous Self-Healing Loop:* Re-prompt the local LLM with the execution traceback, previous code, and targeted RAG documentation under a bounded retry budget to achieve runtime convergence.
+- **Gate 3 (Completed — Semantic Validation & Stateful Healing):** Geospatial correctness of generated outputs.
+  1. *Read-Only Semantic Oracle:* After a zero-exit execution, assert raster statistics and vector topology/columns inside the same ephemeral session, using independently derived expectations.
+  2. *Dual Metrics:* Report `Pass@Executed` and `Pass@Semantic` with separate denominators; Gate 2 `Pass@Healed` remains a historical comparison only.
+  3. *Stateful Healing Memory:* Repair prompts carry the ordered attempt history and reject byte- or AST-identical duplicates before execution.
+  4. *Independent Repair Tiers:* Static and runtime repairs have separate, configurable budgets; semantic failures are report-only and never consume either tier.
+- **Feature 004 (Current Focus — Manual-Grounded Knowledge Base and Candidate-Constrained Planning):** Step A builds a strictly offline local GRASS 8.5 manual knowledge base with budgeted manual cards, strict closed-enum validation in the new modes only, and verbatim repair diagnostics. Step B adds an opt-in candidate-constrained JSON planning stage whose plan is advisory and whose final output remains executable Python using `grass.tools`. Internal planner JSON is permitted as an intermediate workflow step but must never appear in the final script. Gate 3's semantic oracle, two-tier budgets, stateful healing, and report-only semantic failures are unchanged. Step C, an autonomous ReAct tool-calling loop, is deferred to Feature 005.
 - **Subsequent Milestones (Future Work):**
-  1. *Hybrid Model Backends:* Optional cloud API adapter allowing users to toggle between local offline inference (Ollama) and cloud LLMs.
+  1. *Hybrid Model Backends:* Optional cloud API adapter allowing users to toggle between local offline inference (Ollama) and cloud LLMs; this is future work beyond Feature 004, which remains fully offline.
   2. *Native GRASS UI Integration:* Native GRASS wxGUI extension and interactive session tooling.
 
 ### V. Code Quality & Pre-flight Execution Safety
@@ -47,4 +57,4 @@ Every generated script must be fully self-contained with explicit imports. All `
 
 This constitution supersedes all other development practices. Amendments require documented rationale, version increment per semantic versioning (MAJOR for backward-incompatible principle changes, MINOR for new principles or material expansions, PATCH for clarifications), and migration plan for affected components. All PRs and reviews must verify compliance with these principles. Complexity must be justified against the zero-chat contract and offline-first mandate.
 
-**Version**: 1.2.0 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-10-06
+**Version**: 1.4.0 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-11-19

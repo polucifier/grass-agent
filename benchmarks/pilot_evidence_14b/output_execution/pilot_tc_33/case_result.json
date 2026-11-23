@@ -1,0 +1,153 @@
+{
+  "attempts": [
+    {
+      "assertion_results": [],
+      "ast_sha256": "9a87502146e1503ac0fda83e15cb74b66f95f026e09a215fccd62ded05d753cd",
+      "budget_tier": "initial",
+      "code_sha256": "d060b6405722824640ca8400f6931cba8f1012ba2785ba1c35382690754bb11a",
+      "completion_tokens": 91,
+      "duplicate": false,
+      "error_excerpt": "grass.tools.session_tools.ToolError: Column parameter missing (or use value parameter)",
+      "exit_code": 1,
+      "failing_tool": "v.to.rast",
+      "failure_mode": "general_exception",
+      "latency_s": 2.7683879089308903,
+      "log_path": "attempt_1.log",
+      "new_maps": {
+        "raster": [],
+        "vector": []
+      },
+      "ordinal": 1,
+      "outcome": "runtime_failed",
+      "pivot_used": false,
+      "prompt_tokens": 1409,
+      "script_path": "attempt_1.py",
+      "semantic_evaluated": false,
+      "semantic_passed": null,
+      "signal_name": null,
+      "stage": "runtime",
+      "static_issues": [],
+      "static_passed": true,
+      "stderr_path": "attempt_1.stderr",
+      "stdout_path": "attempt_1.stdout",
+      "timed_out": false
+    },
+    {
+      "assertion_results": [
+        {
+          "check": "non_null_count",
+          "detail": "n=157 (minimum 1)",
+          "expected": 1,
+          "observed": 157,
+          "output": "pilot_hospitals_raster",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_hospitals_raster",
+          "tolerance": null
+        },
+        {
+          "check": "non_null_count",
+          "detail": "n=1010600 (minimum 1)",
+          "expected": 1,
+          "observed": 1010600,
+          "output": "pilot_distance",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_distance",
+          "tolerance": null
+        },
+        {
+          "check": "value_range",
+          "detail": "observed [0.0, 161505.417865779], expected [0.0, 161505.417865779]",
+          "expected": [
+            0.0,
+            161505.417865779
+          ],
+          "observed": "0.0\u2013161505.417865779",
+          "output": "pilot_distance",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_distance",
+          "tolerance": null
+        },
+        {
+          "check": "mean",
+          "detail": "within 1.00% relative tolerance",
+          "expected": 40470.4763760589,
+          "observed": 40470.4763760589,
+          "output": "pilot_distance",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_distance",
+          "tolerance": 0.01
+        }
+      ],
+      "ast_sha256": "01331fb0a70c74b871d124d152491c761f1daaab2a354353a9c39ee486f3e31a",
+      "budget_tier": "runtime",
+      "code_sha256": "e1f3892af279ab1999941f922e63921ac71d203158e3cd219ab9de9815956692",
+      "completion_tokens": 95,
+      "duplicate": false,
+      "error_excerpt": null,
+      "exit_code": 0,
+      "failing_tool": null,
+      "failure_mode": null,
+      "latency_s": 3.015407706028782,
+      "log_path": "attempt_2.log",
+      "new_maps": {
+        "raster": [
+          "pilot_distance",
+          "pilot_hospitals_raster"
+        ],
+        "vector": []
+      },
+      "ordinal": 2,
+      "outcome": "executed_ok",
+      "pivot_used": false,
+      "prompt_tokens": 1202,
+      "script_path": "attempt_2.py",
+      "semantic_evaluated": true,
+      "semantic_passed": true,
+      "signal_name": null,
+      "stage": "success",
+      "static_issues": [],
+      "static_passed": true,
+      "stderr_path": "attempt_2.stderr",
+      "stdout_path": "attempt_2.stdout",
+      "timed_out": false
+    }
+  ],
+  "auxiliary_inputs": [],
+  "budget_ledger": {
+    "runtime_limit": 2,
+    "runtime_remaining": 1,
+    "runtime_used": 1,
+    "static_limit": 2,
+    "static_remaining": 2,
+    "static_used": 0
+  },
+  "category": "multi_step",
+  "completed_at": "2026-11-11T08:36:26+00:00",
+  "failure_mode_transitions": [
+    "general_exception",
+    null
+  ],
+  "final_script": "final.py",
+  "harness_version": "gate3",
+  "no_op_count": 0,
+  "pass_at_1": false,
+  "pass_at_executed": true,
+  "pass_at_healed": true,
+  "pass_at_semantic": true,
+  "prompt": "Convert the hospitals vector points into a raster map and calculate the minimum Euclidean distance from each cell to the nearest hospital. Write the hospitals raster to the raster map pilot_hospitals_raster and the distance surface to the raster map pilot_distance. Do not change the computational region.",
+  "resume_key": {
+    "attempt1_source": "fresh",
+    "harness": "gate3",
+    "max_retries": 2,
+    "max_runtime_retries": 2,
+    "max_static_retries": 2,
+    "model": "qwen2.5-coder:14b",
+    "timeout": 120
+  },
+  "schema_version": 1,
+  "semantic_declared": true,
+  "semantic_evaluated": true,
+  "status": "complete",
+  "tc_id": "pilot_tc_33",
+  "tier": 2
+}

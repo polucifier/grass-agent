@@ -36,6 +36,7 @@ from enum import Enum
 from pathlib import Path
 
 from .classifier import FailureMode, classify, error_excerpt, extract_failing_tool
+from .semantic import SemanticResult
 
 # Grace period between SIGTERM and SIGKILL when an attempt is killed.
 KILL_GRACE_S = 5
@@ -46,6 +47,7 @@ KILL_GRACE_S = 5
 _FIXED_LOCALE = "en_US.UTF-8"
 
 _INNER_WRAPPER = Path(__file__).with_name("inner_wrapper.py")
+_SEMANTIC_PROBE = Path(__file__).with_name("semantic_probe.py")
 
 
 class AttemptOutcome(str, Enum):
@@ -80,6 +82,11 @@ class ExecutionResult:
     failing_tool: str | None = None
     error_excerpt: str = ""
     latency_s: float = 0.0
+    # Gate 3: maps created by this attempt, and the normalized probe result.
+    new_maps: dict = field(
+        default_factory=lambda: {"raster": [], "vector": []}
+    )
+    semantic: SemanticResult | None = None
 
     @property
     def succeeded(self) -> bool:
@@ -98,6 +105,9 @@ class Executor:
     # scripts. Kept in step with config.py deliberately.
     timeout_s: int = 120
     tmp_root: Path | None = None
+    # Added grace for a successful child followed by a bounded probe. The
+    # generated script's own bound remains timeout_s.
+    semantic_probe_grace_s: int = 5
     _snapshots: list[set[str]] = field(default_factory=list, repr=False)
 
     # ------------------------------------------------------------------ launch
@@ -120,7 +130,7 @@ class Executor:
             str(script),
         ]
 
-    def child_env(self, tmp_dir: Path) -> dict[str, str]:
+    def child_env(self, tmp_dir: Path, extra: dict[str, str] | None = None) -> dict[str, str]:
         """Environment for the child session.
 
         PYTHONPATH is deliberately not set here: GRASS injects its own for the
@@ -132,6 +142,8 @@ class Executor:
         env["LC_ALL"] = _FIXED_LOCALE
         env["LANGUAGE"] = "en"
         env["TMPDIR"] = str(tmp_dir)
+        if extra:
+            env.update(extra)
         return env
 
     # --------------------------------------------------------------- integrity
@@ -210,20 +222,60 @@ class Executor:
 
     # ---------------------------------------------------------------- execution
 
-    def execute(self, script: Path, workdir: Path) -> ExecutionResult:
-        """Run one script in a disposable GRASS session."""
+    def execute(
+        self,
+        script: Path,
+        workdir: Path,
+        semantic_spec: dict | None = None,
+        case_id: str | None = None,
+    ) -> ExecutionResult:
+        """Run one script in a disposable GRASS session.
+
+        When `semantic_spec` is supplied, the in-session wrapper snapshots the
+        scratch mapset and runs the read-only probe after a zero-exit child.
+        Process-group handling, timeout enforcement, PERMANENT hashing, and the
+        write guard are unchanged.
+        """
         workdir.mkdir(parents=True, exist_ok=True)
         tmp_dir = self.tmp_root or workdir / "tmp"
         tmp_dir.mkdir(parents=True, exist_ok=True)
 
         inner = workdir / "inner_wrapper.py"
         shutil.copy2(_INNER_WRAPPER, inner)
+        # The wrapper imports the probe from its own directory at run time.
+        shutil.copy2(_SEMANTIC_PROBE, workdir / "semantic_probe.py")
         status_path = workdir / "status.json"
+        maps_path = workdir / "maps.json"
+        semantic_path = workdir / "semantic.json"
+
+        probe_env = {
+            "GRASS_AGENT_MAPS_OUT": str(maps_path),
+            "GRASS_AGENT_CASE_ID": case_id or "",
+        }
+        if semantic_spec is not None:
+            spec_path = workdir / "semantic_spec.json"
+            spec_path.write_text(
+                json.dumps(semantic_spec, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            probe_env["GRASS_AGENT_SEMANTIC_SPEC"] = str(spec_path)
+            probe_env["GRASS_AGENT_SEMANTIC_OUT"] = str(semantic_path)
+            probe_env["GRASS_AGENT_SNAPSHOT_TIMEOUT"] = str(
+                semantic_spec.get("query_timeout_s")
+                or getattr(self, "semantic_query_timeout_s", 30)
+            )
 
         command = self.build_command(script, status_path, inner)
         started = time.monotonic()
         run_start = time.time()
         self.snapshot_tmp_mapsets()
+
+        # A successful script may be followed by a bounded probe inside the
+        # same session. Only that probe gets the grace; the script's own bound
+        # is still timeout_s.
+        deadline = self.timeout_s
+        if semantic_spec is not None:
+            deadline += self.semantic_probe_grace_s
 
         # start_new_session gives the child its own process group. Killing only
         # the `grass` process orphans the Python child and its grandchildren, and
@@ -235,13 +287,13 @@ class Executor:
             text=True,
             errors="replace",
             start_new_session=True,
-            env=self.child_env(tmp_dir),
+            env=self.child_env(tmp_dir, probe_env),
             cwd=str(workdir),
         )
 
         timed_out = False
         try:
-            stdout, stderr = process.communicate(timeout=self.timeout_s)
+            stdout, stderr = process.communicate(timeout=deadline)
         except subprocess.TimeoutExpired:
             timed_out = True
             self._kill_group(process)
@@ -250,6 +302,17 @@ class Executor:
             except subprocess.TimeoutExpired:
                 self._kill_group(process, signal.SIGKILL)
                 stdout, stderr = process.communicate()
+        except BaseException:
+            # An operator interrupt (or any harness fault) must not leave a
+            # GRASS child and its scratch mapset behind (FR-014, SC-008).
+            self._kill_group(process, signal.SIGKILL)
+            try:
+                process.communicate(timeout=KILL_GRACE_S)
+            except (subprocess.TimeoutExpired, OSError):
+                pass
+            self.sweep(self._snapshots[-1], run_start)
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+            raise
 
         latency = time.monotonic() - started
         self.sweep(self._snapshots[-1], run_start)
@@ -278,6 +341,27 @@ class Executor:
             )
             result.stderr = f"{result.stderr}\n{annotation}\n"
             result.error_excerpt = error_excerpt(result.stdout, result.stderr)
+
+        # ---- Gate 3 evidence. A missing/unparseable probe after a successful
+        # execution is a semantic failure, never a harness fault (FR-008e/8g).
+        maps_payload = _read_json(maps_path)
+        discovered = (maps_payload or {}).get("new_maps") or {}
+        result.new_maps = {
+            "raster": sorted(discovered.get("raster") or []),
+            "vector": sorted(discovered.get("vector") or []),
+        }
+        if semantic_spec is not None and result.succeeded and not timed_out:
+            payload = _read_json(semantic_path)
+            if payload is None:
+                result.semantic = SemanticResult(
+                    evaluated=True,
+                    passed=False,
+                    case_id=case_id or semantic_spec.get("case_id", ""),
+                    new_maps=result.new_maps,
+                    error="parse_error",
+                )
+            else:
+                result.semantic = SemanticResult.from_dict(payload)
         return result
 
     @staticmethod
@@ -353,6 +437,16 @@ def _read_status(status_path: Path) -> dict | None:
     """Read the inner wrapper's status file, tolerating absence or corruption."""
     try:
         with status_path.open(encoding="utf-8") as handle:
+            data = json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _read_json(path: Path) -> dict | None:
+    """Read an optional evidence file, tolerating absence or corruption."""
+    try:
+        with path.open(encoding="utf-8") as handle:
             data = json.load(handle)
     except (OSError, json.JSONDecodeError):
         return None

@@ -1,6 +1,5 @@
 ollama
 sqlite-vec
 beautifulsoup4
-requests
 pydantic
 pytest

@@ -1,0 +1,143 @@
+{
+  "attempts": [
+    {
+      "assertion_results": [],
+      "ast_sha256": "f13ec2623e7d55bf1297d6089d36c4c8634e3bd7d79ccf070c5cda90e163bd31",
+      "budget_tier": "initial",
+      "code_sha256": "c0f6586437a0d67c246d69324494a8dd9bf803181543fecff3a2d41c7e4e5465",
+      "completion_tokens": 91,
+      "duplicate": false,
+      "error_excerpt": "tools.v_buffer: unknown parameter(s): distances (valid: input, layer, cats, where, type, output, distance, minordistance, angle, column, scale, tolerance, flags, overwrite, verbose, quiet, superquiet)",
+      "exit_code": null,
+      "failing_tool": null,
+      "failure_mode": "schema_misuse",
+      "latency_s": 2.2297963720047846,
+      "log_path": "",
+      "new_maps": {
+        "raster": [],
+        "vector": []
+      },
+      "ordinal": 1,
+      "outcome": "static_rejected",
+      "pivot_used": false,
+      "prompt_tokens": 1421,
+      "script_path": "attempt_1.py",
+      "semantic_evaluated": false,
+      "semantic_passed": null,
+      "signal_name": null,
+      "stage": "static",
+      "static_issues": [
+        "tools.v_buffer: unknown parameter(s): distances (valid: input, layer, cats, where, type, output, distance, minordistance, angle, column, scale, tolerance, flags, overwrite, verbose, quiet, superquiet)"
+      ],
+      "static_passed": false,
+      "stderr_path": "",
+      "stdout_path": "",
+      "timed_out": false
+    },
+    {
+      "assertion_results": [
+        {
+          "check": "feature_count",
+          "detail": "feature_count=289 (minimum 1)",
+          "expected": 1,
+          "observed": 289,
+          "output": "pilot_streams_buffer_100m",
+          "passed": true,
+          "query": "v.info -t map=pilot_streams_buffer_100m",
+          "tolerance": null
+        },
+        {
+          "check": "geometry_type",
+          "detail": "geometry=area, expected area",
+          "expected": "area",
+          "observed": "area",
+          "output": "pilot_streams_buffer_100m",
+          "passed": true,
+          "query": "v.info -t map=pilot_streams_buffer_100m",
+          "tolerance": null
+        },
+        {
+          "check": "non_null_count",
+          "detail": "n=470 (minimum 1)",
+          "expected": 1,
+          "observed": 470,
+          "output": "pilot_streams_buffer_raster",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_streams_buffer_raster",
+          "tolerance": null
+        }
+      ],
+      "ast_sha256": "214665eca3fb1c8ced395628785ec157938440d23bc3524c1f825bca2019d4bf",
+      "budget_tier": "static",
+      "code_sha256": "fb6f0541ba4e4633f5bb6e4cd3b36ec65e76a60389bff6201a8cc030f394c053",
+      "completion_tokens": 91,
+      "duplicate": false,
+      "error_excerpt": null,
+      "exit_code": 0,
+      "failing_tool": null,
+      "failure_mode": null,
+      "latency_s": 60.384869982954115,
+      "log_path": "attempt_2.log",
+      "new_maps": {
+        "raster": [
+          "pilot_streams_buffer_raster"
+        ],
+        "vector": [
+          "pilot_streams_buffer_100m"
+        ]
+      },
+      "ordinal": 2,
+      "outcome": "executed_ok",
+      "pivot_used": false,
+      "prompt_tokens": 1718,
+      "script_path": "attempt_2.py",
+      "semantic_evaluated": true,
+      "semantic_passed": true,
+      "signal_name": null,
+      "stage": "success",
+      "static_issues": [],
+      "static_passed": true,
+      "stderr_path": "attempt_2.stderr",
+      "stdout_path": "attempt_2.stdout",
+      "timed_out": false
+    }
+  ],
+  "auxiliary_inputs": [],
+  "budget_ledger": {
+    "runtime_limit": 2,
+    "runtime_remaining": 2,
+    "runtime_used": 0,
+    "static_limit": 2,
+    "static_remaining": 1,
+    "static_used": 1
+  },
+  "category": "multi_step",
+  "completed_at": "2026-11-11T08:35:16+00:00",
+  "failure_mode_transitions": [
+    "schema_misuse",
+    null
+  ],
+  "final_script": "final.py",
+  "harness_version": "gate3",
+  "no_op_count": 0,
+  "pass_at_1": false,
+  "pass_at_executed": true,
+  "pass_at_healed": true,
+  "pass_at_semantic": true,
+  "prompt": "Buffer streams by 100 meters and convert the buffered vector areas into a raster map. Write the vector buffer to the vector map pilot_streams_buffer_100m and the rasterized buffer to the raster map pilot_streams_buffer_raster. Do not change the computational region.",
+  "resume_key": {
+    "attempt1_source": "fresh",
+    "harness": "gate3",
+    "max_retries": 2,
+    "max_runtime_retries": 2,
+    "max_static_retries": 2,
+    "model": "qwen2.5-coder:14b",
+    "timeout": 120
+  },
+  "schema_version": 1,
+  "semantic_declared": true,
+  "semantic_evaluated": true,
+  "status": "complete",
+  "tc_id": "pilot_tc_06",
+  "tier": 1
+}

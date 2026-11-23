@@ -1,0 +1,26 @@
+{
+  "attempt1_source": "fresh",
+  "cases_completed": 10,
+  "cases_semantic": 10,
+  "cases_total": 10,
+  "dataset": "nc_basic_spm_grass7",
+  "grass_version": "8.5.0",
+  "harness": "gate3",
+  "leaked_scratch_dirs": [],
+  "max_retries": 2,
+  "max_runtime_retries": 2,
+  "max_static_retries": 2,
+  "model": "qwen2.5-coder:7b",
+  "not_evaluated": [],
+  "permanent_hash_after": "7ee9b49d11264d9497dd28358260dd5a7dccf719f2dbbc9a6c4d2b7fcd56630e",
+  "permanent_hash_before": "7ee9b49d11264d9497dd28358260dd5a7dccf719f2dbbc9a6c4d2b7fcd56630e",
+  "pilot_expectations_hash": "550a956c298ab9c76a36ce62dfd439ace0fef8feab6a0a4ad449b9f5f76403c4",
+  "pilot_reviewed": true,
+  "pilot_suite_hash": "8cbcac67a45be0952900c8d614f76c007e5cd1b13bc92fc54ea6ae8d09182e37",
+  "report_path": "/grass-agent/benchmarks/gate3_report.md",
+  "resumed": false,
+  "suites": [
+    "benchmark_prompts_pilot10.json"
+  ],
+  "timeout_s": 120
+}

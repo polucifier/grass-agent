@@ -1,0 +1,199 @@
+{
+  "version": "1.0.0",
+  "name": "gate3-semantic-pilot",
+  "tier": "pilot",
+  "description": "Deterministic, output-producing tasks with independent geospatial assertions.",
+  "target_dataset": "nc_basic_spm_grass7",
+  "test_cases": [
+    {
+      "id": "pilot_tc_01",
+      "source_id": "tc_01",
+      "source_suite": "tier1",
+      "tier": 1,
+      "category": "single_tool",
+      "prompt": "Create a 200-meter buffer around the stream network lines. Write the buffered areas to the vector map pilot_streams_buffer. Do not change the computational region.",
+      "expected_tools": ["v.buffer"],
+      "auxiliary_inputs": [],
+      "outputs": [
+        {"name": "pilot_streams_buffer", "type": "vector", "geometry": "area"}
+      ],
+      "assertions": [
+        {"output": "pilot_streams_buffer", "check": "feature_count", "min": 1},
+        {"output": "pilot_streams_buffer", "check": "geometry_type", "expected": "area"}
+      ]
+    },
+    {
+      "id": "pilot_tc_05",
+      "source_id": "tc_05",
+      "source_suite": "tier1",
+      "tier": 1,
+      "category": "multi_step",
+      "prompt": "Compute slope from the elevation raster and then generate 10-meter contour lines from the elevation raster. Write the slope to the raster map pilot_slope and the contours to the vector map pilot_contours. Do not change the computational region.",
+      "expected_tools": ["r.slope.aspect", "r.contour"],
+      "auxiliary_inputs": [],
+      "outputs": [
+        {"name": "pilot_slope", "type": "raster"},
+        {"name": "pilot_contours", "type": "vector", "geometry": "line"}
+      ],
+      "assertions": [
+        {"output": "pilot_slope", "check": "non_null_count", "min": 1},
+        {"output": "pilot_slope", "check": "value_range", "min_value": 0, "max": 90},
+        {"output": "pilot_slope", "check": "mean", "tolerance": 0.01, "expected_source": "reference"},
+        {"output": "pilot_contours", "check": "feature_count", "min": 1},
+        {"output": "pilot_contours", "check": "geometry_type", "expected": "line"},
+        {"output": "pilot_contours", "check": "required_columns", "columns": ["cat", "level"]}
+      ]
+    },
+    {
+      "id": "pilot_tc_06",
+      "source_id": "tc_06",
+      "source_suite": "tier1",
+      "tier": 1,
+      "category": "multi_step",
+      "prompt": "Buffer streams by 100 meters and convert the buffered vector areas into a raster map. Write the vector buffer to the vector map pilot_streams_buffer_100m and the rasterized buffer to the raster map pilot_streams_buffer_raster. Do not change the computational region.",
+      "expected_tools": ["v.buffer", "v.to.rast"],
+      "auxiliary_inputs": [],
+      "outputs": [
+        {"name": "pilot_streams_buffer_100m", "type": "vector", "geometry": "area"},
+        {"name": "pilot_streams_buffer_raster", "type": "raster"}
+      ],
+      "assertions": [
+        {"output": "pilot_streams_buffer_100m", "check": "feature_count", "min": 1},
+        {"output": "pilot_streams_buffer_100m", "check": "geometry_type", "expected": "area"},
+        {"output": "pilot_streams_buffer_raster", "check": "non_null_count", "min": 1}
+      ]
+    },
+    {
+      "id": "pilot_tc_08",
+      "source_id": "tc_08",
+      "source_suite": "tier1",
+      "tier": 1,
+      "category": "edge_case",
+      "prompt": "Calculate binary viewshed visibility (1 for visible, 0 for not visible) from the elevation raster starting at viewpoint coordinate 635000,216500. Write the result to the raster map pilot_viewshed. Do not change the computational region.",
+      "expected_tools": ["r.viewshed"],
+      "auxiliary_inputs": [],
+      "outputs": [
+        {"name": "pilot_viewshed", "type": "raster"}
+      ],
+      "assertions": [
+        {"output": "pilot_viewshed", "check": "non_null_count", "min": 1},
+        {"output": "pilot_viewshed", "check": "value_range", "min_value": 0, "max": 1},
+        {"output": "pilot_viewshed", "check": "mean", "tolerance": 0.05, "expected_source": "reference"}
+      ]
+    },
+    {
+      "id": "pilot_tc_09",
+      "source_id": "tc_09",
+      "source_suite": "tier1",
+      "tier": 1,
+      "category": "edge_case",
+      "prompt": "Multiply the elevation raster by 2 using raster map calculation. Write the result to the raster map pilot_elevation_double. Do not change the computational region.",
+      "expected_tools": ["r.mapcalc"],
+      "auxiliary_inputs": [],
+      "outputs": [
+        {"name": "pilot_elevation_double", "type": "raster"}
+      ],
+      "assertions": [
+        {"output": "pilot_elevation_double", "check": "non_null_count", "min": 1},
+        {"output": "pilot_elevation_double", "check": "value_range", "expected_source": "reference"},
+        {"output": "pilot_elevation_double", "check": "mean", "tolerance": 0.01, "expected_source": "reference"}
+      ]
+    },
+    {
+      "id": "pilot_tc_12",
+      "source_id": "tc_12",
+      "source_suite": "tier2",
+      "tier": 2,
+      "category": "single_tool",
+      "prompt": "Compute shaded relief from the elevation raster with sun azimuth 315 and sun altitude 45. Write the result to the raster map pilot_relief. Do not change the computational region.",
+      "expected_tools": ["r.relief"],
+      "auxiliary_inputs": [],
+      "outputs": [
+        {"name": "pilot_relief", "type": "raster"}
+      ],
+      "assertions": [
+        {"output": "pilot_relief", "check": "non_null_count", "min": 1},
+        {"output": "pilot_relief", "check": "value_range", "min_value": 0, "max": 255},
+        {"output": "pilot_relief", "check": "mean", "tolerance": 0.01, "expected_source": "reference"}
+      ]
+    },
+    {
+      "id": "pilot_tc_14",
+      "source_id": "tc_14",
+      "source_suite": "tier2",
+      "tier": 2,
+      "category": "single_tool",
+      "prompt": "Clean the road network vector by removing duplicate line segments and snapping nodes with a 1-meter threshold. Write the cleaned roads to the vector map pilot_roads_clean. Do not change the computational region.",
+      "expected_tools": ["v.clean"],
+      "auxiliary_inputs": [],
+      "outputs": [
+        {"name": "pilot_roads_clean", "type": "vector", "geometry": "line"}
+      ],
+      "assertions": [
+        {"output": "pilot_roads_clean", "check": "feature_count", "min": 1},
+        {"output": "pilot_roads_clean", "check": "geometry_type", "expected": "line"},
+        {"output": "pilot_roads_clean", "check": "required_columns", "columns": ["cat", "ROAD_NAME"]}
+      ]
+    },
+    {
+      "id": "pilot_tc_18",
+      "source_id": "tc_18",
+      "source_suite": "tier2",
+      "tier": 2,
+      "category": "single_tool",
+      "prompt": "Dissolve adjacent geology polygons that share the same GEO_NAME attribute. Write the dissolved areas to the vector map pilot_geology_dissolved. Do not change the computational region.",
+      "expected_tools": ["v.dissolve"],
+      "auxiliary_inputs": [],
+      "outputs": [
+        {"name": "pilot_geology_dissolved", "type": "vector", "geometry": "area"}
+      ],
+      "assertions": [
+        {"output": "pilot_geology_dissolved", "check": "feature_count", "min": 1},
+        {"output": "pilot_geology_dissolved", "check": "geometry_type", "expected": "area"},
+        {"output": "pilot_geology_dissolved", "check": "required_columns", "columns": ["cat", "GEO_NAME"]}
+      ]
+    },
+    {
+      "id": "pilot_tc_32",
+      "source_id": "tc_32",
+      "source_suite": "tier2",
+      "tier": 2,
+      "category": "multi_step",
+      "prompt": "Calculate slope from the elevation raster, reclassify slopes greater than 15 degrees into steep areas, and convert the steep areas to vector polygons. Write the slope to the raster map pilot_steep_slope and the steep polygons to the vector map pilot_steep. Do not change the computational region.",
+      "expected_tools": ["r.slope.aspect", "r.reclass", "r.to.vect"],
+      "auxiliary_inputs": [],
+      "outputs": [
+        {"name": "pilot_steep_slope", "type": "raster"},
+        {"name": "pilot_steep", "type": "vector", "geometry": "area"}
+      ],
+      "assertions": [
+        {"output": "pilot_steep_slope", "check": "non_null_count", "min": 1},
+        {"output": "pilot_steep_slope", "check": "value_range", "min_value": 0, "max": 90},
+        {"output": "pilot_steep_slope", "check": "mean", "tolerance": 0.01, "expected_source": "reference"},
+        {"output": "pilot_steep", "check": "feature_count", "min": 1},
+        {"output": "pilot_steep", "check": "geometry_type", "expected": "area"},
+        {"output": "pilot_steep", "check": "required_columns", "columns": ["cat"]}
+      ]
+    },
+    {
+      "id": "pilot_tc_33",
+      "source_id": "tc_33",
+      "source_suite": "tier2",
+      "tier": 2,
+      "category": "multi_step",
+      "prompt": "Convert the hospitals vector points into a raster map and calculate the minimum Euclidean distance from each cell to the nearest hospital. Write the hospitals raster to the raster map pilot_hospitals_raster and the distance surface to the raster map pilot_distance. Do not change the computational region.",
+      "expected_tools": ["v.to.rast", "r.grow.distance"],
+      "auxiliary_inputs": [],
+      "outputs": [
+        {"name": "pilot_hospitals_raster", "type": "raster"},
+        {"name": "pilot_distance", "type": "raster"}
+      ],
+      "assertions": [
+        {"output": "pilot_hospitals_raster", "check": "non_null_count", "min": 1},
+        {"output": "pilot_distance", "check": "non_null_count", "min": 1},
+        {"output": "pilot_distance", "check": "value_range", "expected_source": "reference"},
+        {"output": "pilot_distance", "check": "mean", "tolerance": 0.01, "expected_source": "reference"}
+      ]
+    }
+  ]
+}

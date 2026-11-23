@@ -1,0 +1,61 @@
+Traceback (most recent call last):
+  File "/grass-agent/benchmarks/output_execution_32b/pilot_tc_14/attempt_1.py", line 3, in <module>
+    tools.v_clean(input="roadsmajor", output="pilot_roads_clean", tool="rm_duplicates")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/grass85/etc/python/grass/tools/support.py", line 188, in wrapper
+    return self._run_function(tool_name, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/grass85/etc/python/grass/tools/session_tools.py", line 415, in run
+    result = self._run_cmd(
+        args,
+    ...<3 lines>...
+        **popen_options,
+    )
+  File "/usr/lib/grass85/etc/python/grass/tools/session_tools.py", line 505, in _run_cmd
+    result = self.call_cmd(
+        command,
+    ...<2 lines>...
+        **popen_options,
+    )
+  File "/usr/lib/grass85/etc/python/grass/tools/session_tools.py", line 591, in call_cmd
+    return gs.handle_errors(
+           ~~~~~~~~~~~~~~~~^
+        returncode,
+        ^^^^^^^^^^^
+    ...<6 lines>...
+        env=popen_options["env"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/lib/grass85/etc/python/grass/script/core.py", line 470, in handle_errors
+    raise exception(module, code, returncode=returncode, errors=stderr)
+grass.tools.session_tools.ToolError: Run `v.clean input=roadsmajor output=pilot_roads_clean tool=rm_duplicates` ended with an error (return code 1):
+Toolset for cleaning topology of vector map.
+
+Usage:
+ v.clean [-bc] input=name [layer=string] [type=string[,string,...]]
+   output=name [error=name] tool=string[,string,...]
+   [threshold=value[,value,...]] [--overwrite] [--help] [--verbose]
+   [--quiet] [--ui]
+
+Flags:
+  -b   Do not build topology for the output vector
+  -c   Combine tools with recommended follow-up tools
+
+Parameters:
+      input   Name of input vector map
+      layer   Layer number or name ('-1' for all layers)
+              default: -1
+       type   Input feature type
+              options: point,line,boundary,centroid,area,face,kernel
+              default: point,line,boundary,centroid,area,face,kernel
+     output   Name for output vector map
+      error   Name of output map where errors are written
+       tool   Cleaning tool
+              options: break,snap,rmdangle,chdangle,rmbridge,chbridge,rmdupl,
+                       rmdac,bpol,prune,rmarea,rmline,rmsa
+  threshold   One value for each tool; for threshold units, see each tool
+
+ERROR: Value <rm_duplicates> out of range for parameter <tool>
+	Legal range: break,snap,rmdangle,chdangle,rmbridge,chbridge,rmdupl,rmdac,bpol,prune,rmarea,rmline,rmsa
+

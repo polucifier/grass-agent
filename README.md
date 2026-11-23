@@ -1,4 +1,4 @@
-# Autonomous Code Generation Agent for GRASS GIS 8.6 (`grass.tools`)
+# Autonomous Code Generation Agent for GRASS GIS 8.5 (`grass.tools`)
 
 ## Project Description
 
@@ -10,7 +10,7 @@ This project implements a fully offline autonomous agent that translates unconst
 2. **Signature hallucination.** They invent plausible but non-existent method signatures and parameter names that never existed in any GRASS release.
 3. **Interface-convention confusion.** They conflate the CLI calling convention — where `output=` is always written explicitly — with the Python wrapper convention, where many tools *return* their result and therefore have no `output` parameter at all. This is the single most persistent error class observed during development.
 
-**Objective.** Close that gap with a deterministic, fully offline pipeline that grounds generation in the official GRASS 8.6 manual, optimises the context supplied to the model, and then *verifies* the result statically against the same source of truth. No inference-time network access, no cloud API, no human in the loop. The guarantee is narrow and deliberately so: the system produces scripts that are syntactically valid, schema-conformant, and free of hallucinated modules — it does not claim their numerical results are correct.
+**Objective.** Close that gap with a deterministic, fully offline pipeline that grounds generation in the installed local GRASS 8.5 manual, optimises the context supplied to the model, and then *verifies* the result statically against the same source of truth. No inference-time network access, no cloud API, no human in the loop. The guarantee is narrow and deliberately so: the system produces scripts that are syntactically valid, schema-conformant, and free of hallucinated modules — it does not claim their numerical results are correct.
 
 **Current state:** Gate 1 complete. 36/40 (90.0%) zero-shot static verification across a two-tier benchmark suite on `qwen2.5-coder:7b`. Tier 1 alone scores 10/10 on discrete GPU hardware and 9–10/10 on integrated graphics across repeated runs; see [Hardware & Latency](#hardware--latency).
 
@@ -41,8 +41,8 @@ The agent executes four sequential stages. Each is deterministic, and stages 1, 
                       ┌─────────────────────────────────────────────┐
   "Buffer the streams │  STAGE 1  Knowledge Extraction (offline)    │
    by 200 metres"     │  scripts/build_knowledge_base.py           │
-                      │  GRASS 8.6 manual  →  SQLite + sqlite-vec │
-                      │  543 tools · signatures · schemas · 768-d  │
+                      │  local GRASS 8.5   →  SQLite + sqlite-vec │
+                      │  541 tools · signatures · schemas · 768-d  │
                       └──────────────────┬──────────────────────────┘
                                          │  data/grass_knowledge.db
                                          v
@@ -74,7 +74,7 @@ The agent executes four sequential stages. Each is deterministic, and stages 1, 
 
 ### Stage 1 — Knowledge Extraction & Offline Database
 
-`scripts/build_knowledge_base.py` ingests the official GRASS 8.6 manual and produces `data/grass_knowledge.db`. For each of **543 tools** it stores the name, category, description, the exact `grass.tools` method signature, parsed parameter schema (type, required flag, default), a usage example, and a **768-dimensional** `float32` embedding generated locally by `nomic-embed-text` and indexed in a `sqlite-vec` virtual table.
+`scripts/build_knowledge_base.py` ingests the installed local GRASS 8.5 Markdown manuals plus XML interface descriptions and produces `data/grass_knowledge.db`. For each of **541 tools** it stores the name, category, description, the exact `grass.tools` method signature, parsed parameter schema (type, required flag, default), a usage example, and a **768-dimensional** `float32` embedding generated locally by `nomic-embed-text` and indexed in a `sqlite-vec` virtual table.
 
 The database is **committed to the repository** (3.8 MB), so a fresh clone runs without a network round-trip. Scraped HTML is cached in `data/cache/` (gitignored), which makes a rebuild network-free.
 
@@ -286,7 +286,13 @@ ollama pull qwen2.5-coder:7b
 ollama pull nomic-embed-text
 ```
 
-`data/grass_knowledge.db` ships with the repository — no build step is required. To rebuild it from the GRASS 8.6 manual, run `.venv/bin/python scripts/build_knowledge_base.py`.
+`data/grass_knowledge.db` ships with the repository when it is at most 50 MB; otherwise generate it during setup with the offline builder and commit only `data/kb_build_report.json` plus its checksums. The builder reads the installed GRASS 8.5 tree — no network access:
+
+```bash
+.venv/bin/python scripts/build_knowledge_base.py \
+  --gisbase "$(grass --config path)" \
+  --db data/grass_knowledge.db --source local --rebuild
+```
 
 For GPU execution, `benchmarks/run_remote.sh` provisions a Colab instance end to end: Ollama and the models, GRASS GIS (`grass-core` from the UbuntuGIS PPA — 8.4+, since the harness needs `--tmp-mapset`), the North Carolina sample dataset with its `PERMANENT` write guard, and the Python dependencies. It then runs the test suite (or, with `bash benchmarks/run_remote.sh eval`, the Gate 1 evaluation). It installs `zstd` first, because the Ollama installer refuses to extract without it and stock Colab images do not ship it.
 
@@ -299,6 +305,7 @@ Run all three from the repository root. The `python -m` form is canonical for th
 | Ad-hoc custom prompt | `python generate.py "prompt"` | Generates one script for an arbitrary request | `generated/<slug>.py`, or stdout with `--print` |
 | Gate 1 — static evaluation | `python -m benchmarks.run_gate1` | Generates every benchmark case and applies AST/API/zero-chat validation | `benchmarks/output/` |
 | Gate 2 — runtime execution | `python -m benchmarks.run_gate2` | Executes every case in headless GRASS and repairs failures within `--max-retries` | `benchmarks/output_execution/`, `benchmarks/execution_report.md` |
+| Gate 3 — semantic validation | `python -m benchmarks.run_gate3` | Runs the semantic pilot (or `--all`) with stateful healing and ablation reporting | `benchmarks/output_execution/`, `benchmarks/gate3_report.md` |
 
 All commands assume the virtualenv is active; from an unactivated checkout use `.venv/bin/python`. Direct invocation (`python benchmarks/run_gate1.py`, `python benchmarks/run_gate2.py`) also works. The old `benchmarks/run_eval.py` and `benchmarks/run_execution.py` names remain as deprecated wrappers that print a warning and forward to the new modules.
 
@@ -350,6 +357,49 @@ Gate 2 executes those scripts against a real GRASS dataset and retries failures:
 ```
 
 Per-case artifacts are written to `benchmarks/output_execution/` (gitignored); the aggregate report is tracked at `benchmarks/execution_report.md`.
+
+### Pipeline modes (Feature 004)
+
+`--pipeline` selects how generation is grounded. `legacy` remains the default and is behaviorally unchanged.
+
+| Mode | Grounding |
+|---|---|
+| `legacy` | Existing top-k retrieval + `format_context()` |
+| `manual-kb` | Retrieval + budgeted local-manual cards (flags, parameters, closed enums, top-3 NOTES) |
+| `planned` | Up-to-12-module shortlist → validated JSON plan → per-step manual cards + alternatives |
+
+```bash
+# Step A MVP
+.venv/bin/python -m benchmarks.run_gate3 --pipeline manual-kb \
+  --model qwen2.5-coder:7b --num-ctx 8192 -k pilot_tc_08,pilot_tc_14,pilot_tc_32
+
+# Step B
+.venv/bin/python -m benchmarks.run_gate3 --pipeline planned \
+  --model qwen2.5-coder:7b --planner-timeout 60 -k pilot_tc_32,pilot_tc_33
+```
+
+Shared flags:
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--pipeline` | `legacy` | `legacy`, `manual-kb`, or `planned` |
+| `--num-ctx` | `8192` | Context used for the manual budget; `16384` is the explicit opt-in |
+| `--manual-context-tokens` | `int(0.45 * num_ctx)` | Global documentation budget (3686 at 8K, 7372 at 16K) |
+| `--strict-options` | off | Legacy-only opt-in; rejected (exit 2) with `manual-kb`/`planned`, where strict enum checks are always on |
+| `--planner-model` | synthesis model | Validated only in `planned`; an unapproved value exits 2 before inference |
+| `--planner-timeout` | `60` | Planner timeout in seconds; a timeout is treated as an invalid plan |
+| `--ablation-dirs` | none | With `--report-only`, render a per-mode ablation from each directory's `run_summary.json` |
+
+Environment equivalents are `GRASS_PIPELINE`, `GRASS_NUM_CTX`, `GRASS_MANUAL_CONTEXT_TOKENS`, `GRASS_STRICT_OPTIONS`, and `GRASS_PLANNER_TIMEOUT` (CLI > env > default).
+
+```bash
+# Combined per-mode ablation without inference, GRASS, or network
+.venv/bin/python -m benchmarks.run_gate3 --report-only \
+  --ablation-dirs benchmarks/output_legacy,benchmarks/output_manual_kb,benchmarks/output_planned \
+  --report-path benchmarks/gate3_ablation.md
+```
+
+Distribution policy: commit `data/grass_knowledge.db` only when it is at most 50 MB. Otherwise generate it during setup and commit the build report/checksums. Pre-flight verifies `db_meta` schema, GRASS version, and provenance (`source`, `built_at`, `content_hash`, `gisbase`) in the new modes; `legacy` still accepts an old DB.
 
 ### CLI reference
 
@@ -406,7 +456,7 @@ grass-agent/
 ├── rag_retriever.py                  Stage 2: hybrid retrieval
 ├── llm_provider.py                   Ollama chat + embeddings
 ├── config.py                         Environment-driven settings
-├── data/grass_knowledge.db           543 tools + 768-d embeddings (committed)
+├── data/grass_knowledge.db           541 tools + 768-d embeddings (committed when ≤50 MB)
 ├── grass_agent/                      Gate 2: executor, classifier, healing, fixtures, reporting
 ├── benchmarks/
 │   ├── run_gate1.py                  Gate 1 static evaluation runner

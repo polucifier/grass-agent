@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<task name="r.viewshed">
+	<description>
+		Computes the viewshed of a point on an elevation raster map.
+	</description>
+	<keywords>
+		raster, viewshed
+	</keywords>
+	<parameter name="input" type="string" required="yes" multiple="no">
+		<description>Name of input elevation raster map</description>
+		<gisprompt age="old" element="raster" prompt="raster" />
+	</parameter>
+	<parameter name="output" type="string" required="yes" multiple="no">
+		<description>Name for output raster map</description>
+		<gisprompt age="new" element="raster" prompt="raster" />
+	</parameter>
+	<parameter name="coordinates" type="string" required="yes" multiple="no">
+		<description>Coordinates of viewing position</description>
+		<keydesc>
+			<item order="1">east,north</item>
+		</keydesc>
+	</parameter>
+	<parameter name="observer_elevation" type="double" required="no" multiple="no">
+		<description>Viewing elevation above the ground</description>
+		<default>1.75</default>
+	</parameter>
+	<parameter name="target_elevation" type="double" required="no" multiple="no">
+		<description>Offset for target elevation above the ground</description>
+		<default>0.0</default>
+	</parameter>
+	<parameter name="max_distance" type="double" required="no" multiple="no">
+		<description>Maximum visibility radius</description>
+		<default>-1</default>
+	</parameter>
+	<parameter name="direction_range" type="double" required="no" multiple="no">
+		<description>Minimum and maximum horizontal angle</description>
+		<keydesc>
+			<item order="1">min,max</item>
+		</keydesc>
+		<values>
+			<range min="0" max="360" />
+		</values>
+	</parameter>
+	<flag name="b">
+		<description>Output format is invisible = 0, visible = 1</description>
+	</flag>
+	<flag name="c">
+		<description>Consider the curvature of the earth</description>
+	</flag>
+	<flag name="e">
+		<description>Output format is invisible = NULL, else current elev - viewpoint_elev</description>
+	</flag>
+	<flag name="r">
+		<description>Consider atmospheric refraction</description>
+	</flag>
+</task>

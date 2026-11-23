@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0",
+  "description": "Acceptable executed tool sets for the SC-003 pilot cases. A tool is acceptable when the reference script uses it or when it is a documented member of the same functional family in rag_retriever.TOOL_FAMILIES.",
+  "cases": {
+    "pilot_tc_08": {
+      "required_any": ["r.viewshed"],
+      "acceptable": ["r.viewshed"]
+    },
+    "pilot_tc_14": {
+      "required_any": ["v.clean"],
+      "acceptable": ["v.clean", "v.edit", "v.generalize"]
+    },
+    "pilot_tc_32": {
+      "required_any": ["r.slope.aspect", "r.to.vect"],
+      "acceptable": [
+        "r.slope.aspect",
+        "r.reclass",
+        "r.recode",
+        "r.mapcalc",
+        "r.to.vect"
+      ]
+    }
+  }
+}

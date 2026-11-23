@@ -1,0 +1,181 @@
+{
+  "cases": {
+    "pilot_tc_01": {
+      "outputs": {
+        "pilot_streams_buffer": {
+          "columns": [],
+          "feature_count": 235,
+          "geometry": "area",
+          "type": "vector"
+        }
+      },
+      "reference_script": "benchmarks/pilot_reference/pilot_tc_01.py",
+      "reference_script_sha256": "5810c3395b14a7cc0629624714871f538979177dd2ca45cceec325e590903595"
+    },
+    "pilot_tc_05": {
+      "outputs": {
+        "pilot_contours": {
+          "columns": [
+            "cat",
+            "level"
+          ],
+          "feature_count": 122,
+          "geometry": "line",
+          "type": "vector"
+        },
+        "pilot_slope": {
+          "max": 38.6893920898438,
+          "mean": 3.86452240667335,
+          "min": 0.0,
+          "n": 2019304,
+          "type": "raster"
+        }
+      },
+      "reference_script": "benchmarks/pilot_reference/pilot_tc_05.py",
+      "reference_script_sha256": "bdfa6971cb139efeded40e0c7f848375ef0e4d09f572ef5262911a46b46f1ddc"
+    },
+    "pilot_tc_06": {
+      "outputs": {
+        "pilot_streams_buffer_100m": {
+          "columns": [],
+          "feature_count": 272,
+          "geometry": "area",
+          "type": "vector"
+        },
+        "pilot_streams_buffer_raster": {
+          "max": 1.0,
+          "mean": 1.0,
+          "min": 1.0,
+          "n": 470,
+          "type": "raster"
+        }
+      },
+      "reference_script": "benchmarks/pilot_reference/pilot_tc_06.py",
+      "reference_script_sha256": "5e77752cd91ad8c5495e25c333a8599604bee54cd577fc63ae2938fca9cae52b"
+    },
+    "pilot_tc_08": {
+      "outputs": {
+        "pilot_viewshed": {
+          "max": 1.0,
+          "mean": 0.0271604938271605,
+          "min": 0.0,
+          "n": 810,
+          "type": "raster"
+        }
+      },
+      "reference_script": "benchmarks/pilot_reference/pilot_tc_08.py",
+      "reference_script_sha256": "bc3c895248340aeaff3b66ecdeecfd4fb4b91674381c451b1e499c891e757a99"
+    },
+    "pilot_tc_09": {
+      "outputs": {
+        "pilot_elevation_double": {
+          "max": 304.525360107422,
+          "mean": 220.975605585546,
+          "min": 115.224952697754,
+          "n": 810,
+          "type": "raster"
+        }
+      },
+      "reference_script": "benchmarks/pilot_reference/pilot_tc_09.py",
+      "reference_script_sha256": "f04ae33fc01b59a5196c7c2ad426f7f2556c6ebea142d9b873600aaa571a0f12"
+    },
+    "pilot_tc_12": {
+      "outputs": {
+        "pilot_relief": {
+          "max": 184.0,
+          "mean": 179.255714285714,
+          "min": 175.0,
+          "n": 700,
+          "type": "raster"
+        }
+      },
+      "reference_script": "benchmarks/pilot_reference/pilot_tc_12.py",
+      "reference_script_sha256": "ee12ebf2d681739e9f2a7aa9d36e9af3bae2d4d112fa4b8353d7088035dc5c4f"
+    },
+    "pilot_tc_14": {
+      "outputs": {
+        "pilot_roads_clean": {
+          "columns": [
+            "cat",
+            "MAJORRDS_",
+            "ROAD_NAME",
+            "MULTILANE",
+            "PROPYEAR",
+            "OBJECTID",
+            "SHAPE_LEN"
+          ],
+          "feature_count": 361,
+          "geometry": "line",
+          "type": "vector"
+        }
+      },
+      "reference_script": "benchmarks/pilot_reference/pilot_tc_14.py",
+      "reference_script_sha256": "0c0e87313e6ec30e83e39691779582942d8705ec06efe35d6f80db3f921257f3"
+    },
+    "pilot_tc_18": {
+      "outputs": {
+        "pilot_geology_dissolved": {
+          "columns": [
+            "cat",
+            "GEO_NAME"
+          ],
+          "feature_count": 1830,
+          "geometry": "area",
+          "type": "vector"
+        }
+      },
+      "reference_script": "benchmarks/pilot_reference/pilot_tc_18.py",
+      "reference_script_sha256": "29ca5e38be9351d688a28414a2a91b137adba814a4d05f395536e595532c4ae4"
+    },
+    "pilot_tc_32": {
+      "outputs": {
+        "pilot_steep": {
+          "columns": [
+            "cat",
+            "value"
+          ],
+          "feature_count": 1,
+          "geometry": "area",
+          "type": "vector"
+        },
+        "pilot_steep_slope": {
+          "max": 38.6893920898438,
+          "mean": 3.86452240667335,
+          "min": 0.0,
+          "n": 2019304,
+          "type": "raster"
+        }
+      },
+      "reference_script": "benchmarks/pilot_reference/pilot_tc_32.py",
+      "reference_script_sha256": "5e5b946f2bcddbc7542ef355086e5a4c01e190a247c1602494079b2d27e1e7a2"
+    },
+    "pilot_tc_33": {
+      "outputs": {
+        "pilot_distance": {
+          "max": 161505.417865779,
+          "mean": 40470.4763760589,
+          "min": 0.0,
+          "n": 1010600,
+          "type": "raster"
+        },
+        "pilot_hospitals_raster": {
+          "max": 1.0,
+          "mean": 1.0,
+          "min": 1.0,
+          "n": 157,
+          "type": "raster"
+        }
+      },
+      "reference_script": "benchmarks/pilot_reference/pilot_tc_33.py",
+      "reference_script_sha256": "af21c4ffbc474b1d4a62fdfdf9b3a9401e7ab160608a9a7735dd2f483f4edb6b"
+    }
+  },
+  "dataset": {
+    "permanent_hash": "7ee9b49d11264d9497dd28358260dd5a7dccf719f2dbbc9a6c4d2b7fcd56630e",
+    "project": "/home/rhea/grassdata/nc_basic_spm_grass7"
+  },
+  "generated_at": "2026-11-10T12:50:29+00:00",
+  "generator": "benchmarks/derive_pilot_expectations.py",
+  "grass_version": "8.5.0",
+  "version": "1.0.0"
+}

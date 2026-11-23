@@ -193,6 +193,35 @@ _EXCEPTION_LINE = re.compile(r"^([A-Za-z_][\w.]*(?:Error|Exception|Warning|Exit)
 _TRACEBACK_SOURCE = re.compile(r"^\s{4,}\S")
 
 
+def _wrapper_error_block(raw_stderr: str, limit: int) -> str | None:
+    """Return the last underlying ``ERROR:`` block verbatim, if present.
+
+    A wrapper ``ToolError`` hides the module's diagnostic under its own
+    "ended with an error" line. GRASS then emits the real cause followed by
+    continuation lines such as ``Legal range:``, ``options:``, or
+    ``Allowed values:``. Those lines are the difference between a repair that
+    converges and one that repeats the same invalid value.
+    """
+    raw_lines = (raw_stderr or "").splitlines()
+    for index in range(len(raw_lines) - 1, -1, -1):
+        stripped = raw_lines[index].strip()
+        if not (stripped.startswith("ERROR:") or stripped.startswith("ERROR ")):
+            continue
+        block = [raw_lines[index]]
+        for following in raw_lines[index + 1 :]:
+            continuation = following.strip()
+            if not continuation:
+                break
+            if following[:1] not in (" ", "\t"):
+                break
+            if _TRACEBACK_SOURCE.match(continuation):
+                break
+            block.append(following)
+        excerpt = "\n".join(block).strip()
+        return excerpt[:limit]
+    return None
+
+
 def error_excerpt(stdout: str, stderr: str, limit: int = 400) -> str:
     """Extract the single most diagnostic line from captured output.
 
@@ -230,6 +259,9 @@ def error_excerpt(stdout: str, stderr: str, limit: int = 400) -> str:
             # surface the cause and keep the command in the repair prompt via
             # the full traceback.
             if line.rstrip().endswith(":"):
+                block = _wrapper_error_block(stderr or "", limit)
+                if block:
+                    return block
                 for inner in lines:
                     if inner.startswith(("ERROR:", "ERROR ")):
                         return inner[:limit]

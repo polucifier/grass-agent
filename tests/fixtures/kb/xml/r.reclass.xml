@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<task name="r.reclass">
+	<description>
+		Reclassify raster map based on category values.
+	</description>
+	<parameter name="input" type="string" required="yes" multiple="no">
+		<description>Name of raster map to be reclassified</description>
+	</parameter>
+	<parameter name="output" type="string" required="yes" multiple="no">
+		<description>Name for output raster map</description>
+	</parameter>
+	<parameter name="rules" type="string" required="yes" multiple="no">
+		<description>File containing reclass rules</description>
+		<keydesc>
+			<item order="1">name</item>
+		</keydesc>
+		<gisprompt age="old" element="file" prompt="rules" />
+	</parameter>
+	<parameter name="title" type="string" required="no" multiple="no">
+		<description>Title for output raster map</description>
+	</parameter>
+</task>

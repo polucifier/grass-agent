@@ -1,0 +1,147 @@
+{
+  "attempts": [
+    {
+      "assertion_results": [
+        {
+          "check": "non_null_count",
+          "detail": "n=2019304 (minimum 1)",
+          "expected": 1,
+          "observed": 2019304,
+          "output": "pilot_slope",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_slope",
+          "tolerance": null
+        },
+        {
+          "check": "value_range",
+          "detail": "observed [0.0, 38.6893920898438], expected [0, 90]",
+          "expected": [
+            0,
+            90
+          ],
+          "observed": "0.0\u201338.6893920898438",
+          "output": "pilot_slope",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_slope",
+          "tolerance": null
+        },
+        {
+          "check": "mean",
+          "detail": "within 1.00% relative tolerance",
+          "expected": 3.86452240667335,
+          "observed": 3.86452240667335,
+          "output": "pilot_slope",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_slope",
+          "tolerance": 0.01
+        },
+        {
+          "check": "feature_count",
+          "detail": "feature_count=122 (minimum 1)",
+          "expected": 1,
+          "observed": 122,
+          "output": "pilot_contours",
+          "passed": true,
+          "query": "v.info -t map=pilot_contours",
+          "tolerance": null
+        },
+        {
+          "check": "geometry_type",
+          "detail": "geometry=line, expected line",
+          "expected": "line",
+          "observed": "line",
+          "output": "pilot_contours",
+          "passed": true,
+          "query": "v.info -t map=pilot_contours",
+          "tolerance": null
+        },
+        {
+          "check": "required_columns",
+          "detail": "all required columns present",
+          "expected": [
+            "cat",
+            "level"
+          ],
+          "observed": [
+            "cat",
+            "level"
+          ],
+          "output": "pilot_contours",
+          "passed": true,
+          "query": "v.info -c map=pilot_contours",
+          "tolerance": null
+        }
+      ],
+      "ast_sha256": "bdf53e73fa96574d430edd7a0693280c2e35a04c0fe9ad202217771c5a278054",
+      "budget_tier": "initial",
+      "code_sha256": "7e07968260b1eaa5bb7f76cf3f7ccbacdcffbb275f3a5d5dd952fda0da04420c",
+      "completion_tokens": 73,
+      "duplicate": false,
+      "error_excerpt": null,
+      "exit_code": 0,
+      "failing_tool": null,
+      "failure_mode": null,
+      "latency_s": 22.46127730200533,
+      "log_path": "attempt_1.log",
+      "new_maps": {
+        "raster": [
+          "pilot_slope"
+        ],
+        "vector": [
+          "pilot_contours"
+        ]
+      },
+      "ordinal": 1,
+      "outcome": "executed_ok",
+      "pivot_used": false,
+      "prompt_tokens": 1367,
+      "script_path": "attempt_1.py",
+      "semantic_evaluated": true,
+      "semantic_passed": true,
+      "signal_name": null,
+      "stage": "success",
+      "static_issues": [],
+      "static_passed": true,
+      "stderr_path": "attempt_1.stderr",
+      "stdout_path": "attempt_1.stdout",
+      "timed_out": false
+    }
+  ],
+  "auxiliary_inputs": [],
+  "budget_ledger": {
+    "runtime_limit": 2,
+    "runtime_remaining": 2,
+    "runtime_used": 0,
+    "static_limit": 2,
+    "static_remaining": 2,
+    "static_used": 0
+  },
+  "category": "multi_step",
+  "completed_at": "2026-11-11T08:34:13+00:00",
+  "failure_mode_transitions": [
+    null
+  ],
+  "final_script": "final.py",
+  "harness_version": "gate3",
+  "no_op_count": 0,
+  "pass_at_1": true,
+  "pass_at_executed": true,
+  "pass_at_healed": true,
+  "pass_at_semantic": true,
+  "prompt": "Compute slope from the elevation raster and then generate 10-meter contour lines from the elevation raster. Write the slope to the raster map pilot_slope and the contours to the vector map pilot_contours. Do not change the computational region.",
+  "resume_key": {
+    "attempt1_source": "fresh",
+    "harness": "gate3",
+    "max_retries": 2,
+    "max_runtime_retries": 2,
+    "max_static_retries": 2,
+    "model": "qwen2.5-coder:14b",
+    "timeout": 120
+  },
+  "schema_version": 1,
+  "semantic_declared": true,
+  "semantic_evaluated": true,
+  "status": "complete",
+  "tc_id": "pilot_tc_05",
+  "tier": 1
+}

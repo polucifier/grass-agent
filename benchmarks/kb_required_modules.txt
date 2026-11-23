@@ -1,0 +1,59 @@
+# Benchmark-relevant GRASS modules (Feature 004 manifest)
+#
+# Purpose: authoritative set of modules the benchmark harness depends on.
+# The offline KB builder fails (exit 3) when the file is missing or when any
+# module listed here lacks a local manual record.
+#
+# Derivation (kept reproducible):
+#   1. Parse every `tools.<name>(` call in benchmarks/pilot_reference/*.py.
+#   2. Parse all string values in benchmarks/pilot_expectations.json and in the
+#      40-case suite prompts (benchmark_prompts_tier1.json, tier2.json) and the
+#      10-case pilot definition (benchmark_prompts_pilot10.json) for module
+#      names (r.*, v.*, d.*, g.*, i.*, db.*).
+#   3. Sort the union, one module per line.
+#
+# NOTE: keep this list minimal-but-complete; add-on modules that are neither
+# exercised by the pilot nor by the 40-case suite belong in the optional set.
+
+d.rast
+i.vi
+r.clump
+r.contour
+r.cost
+r.drain
+r.fill.dir
+r.grow.distance
+r.mapcalc
+r.mapcalc.simple
+r.mask
+r.null
+r.out.gdal
+r.patch
+r.path
+r.reclass
+r.relief
+r.series
+r.slope.aspect
+r.stats.zonal
+r.stream.extract
+r.to.vect
+r.univar
+r.viewshed
+r.water.outlet
+r.watershed
+v.buffer
+v.clean
+v.db.addcolumn
+v.dissolve
+v.distance
+v.extract
+v.import
+v.in.ogr
+v.net.path
+v.out.ogr
+v.overlay
+v.rast.stats
+v.select
+v.surf.rst
+v.to.db
+v.to.rast

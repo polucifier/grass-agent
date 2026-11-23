@@ -19,6 +19,30 @@ from pathlib import Path
 # 404s upstream; `nc_basic_spm_grass7` is the live package and loads in 8.5.
 NC_PROJECT_NAMES = ("nc_basic_spm_grass8", "nc_spm_08_grass7")
 
+# ---------------------------------------------------------------- Feature 004
+PIPELINE_LEGACY = "legacy"
+PIPELINE_MANUAL_KB = "manual-kb"
+PIPELINE_PLANNED = "planned"
+PIPELINE_MODES = (PIPELINE_LEGACY, PIPELINE_MANUAL_KB, PIPELINE_PLANNED)
+
+# Constitution v1.4.0: local Ollama models approved for benchmark runs.
+APPROVED_PLANNER_MODELS = frozenset(
+    {
+        "qwen2.5-coder:3b",
+        "qwen2.5-coder:7b",
+        "qwen2.5-coder:14b",
+        "qwen2.5-coder:32b",
+    }
+)
+
+DEFAULT_NUM_CTX = 8192
+DEFAULT_MANUAL_BUDGET_FRACTION = 0.45
+MANUAL_BUDGET_WARN_FRACTION = 0.50
+MANUAL_BUDGET_MAX_FRACTION = 0.60
+DEFAULT_SHORTLIST_K = 12
+MIN_SHORTLIST_K = 8
+MAX_SHORTLIST_K = 12
+
 # Roots searched, in order, when no dataset path is supplied.
 DEFAULT_DATASET_ROOTS = ("GISDBASE", "GRASSDATA", "~/grassdata", "./grassdata")
 
@@ -87,7 +111,114 @@ class ExecutionConfig:
     python_bin: str = "python3"
     case_filter: tuple[str, ...] = ()
 
+    # ---- Gate 3: independent repair tiers and the semantic oracle ----------
+    # Static (pre-execution) and runtime (execution) repairs are charged
+    # independently (FR-001). `max_retries` remains the both-tier shorthand.
+    max_static_retries: int = 2
+    max_runtime_retries: int = 2
+    pilot_suite: str = "benchmarks/benchmark_prompts_pilot10.json"
+    pilot_expectations: str = "benchmarks/pilot_expectations.json"
+    semantic_query_timeout_s: int = 30
+    semantic_probe_timeout_s: int = 60
+    semantic_probe_grace_s: int = 5
+    # Gate 2 records "gate2"; only run_gate3 overrides this to "gate3". A Gate 2
+    # result therefore never matches a Gate 3 resume key (R9).
+    harness: str = "gate2"
+    semantic_enabled: bool = False
+
+    # ---- Feature 004 additive fields (legacy defaults unchanged) ----------
+    pipeline: str = PIPELINE_LEGACY
+    num_ctx: int = DEFAULT_NUM_CTX
+    manual_context_tokens: int | None = None
+    # None means "resolve from the pipeline": True for manual-kb/planned, and
+    # the explicit legacy opt-in (default False) otherwise.
+    strict_options: bool | None = None
+    shortlist_k: int = DEFAULT_SHORTLIST_K
+    planner_model: str | None = None
+    planner_timeout: int = 60
+
     # ---------------------------------------------------------------- helpers
+
+    def resolve_manual_budget(self) -> int:
+        """Resolved documentation budget.
+
+        An explicit ``manual_context_tokens`` wins; otherwise the budget is
+        45% of the context (3686 at 8192, 7372 at 16384).
+        """
+        if self.manual_context_tokens is not None:
+            return self.manual_context_tokens
+        return int(DEFAULT_MANUAL_BUDGET_FRACTION * self.num_ctx)
+
+    def effective_strict_options(self) -> bool:
+        """Strict closed-enum validation is always on in the new modes."""
+        if self.pipeline in (PIPELINE_MANUAL_KB, PIPELINE_PLANNED):
+            return True
+        return bool(self.strict_options)
+
+    def resolved_planner_model(self) -> str | None:
+        """The planner model, defaulting to the synthesis model in planned mode."""
+        if self.pipeline != PIPELINE_PLANNED:
+            return self.planner_model
+        return self.planner_model or self.model
+
+    def config_errors(self) -> list[str]:
+        """Human-readable argument errors (exit code 2 when non-empty).
+
+        Kept as a helper rather than raised from the frozen dataclass so the
+        CLI can report every problem in one pass.
+        """
+        errors: list[str] = []
+        if self.pipeline not in PIPELINE_MODES:
+            errors.append(
+                f"--pipeline must be one of {', '.join(PIPELINE_MODES)} "
+                f"(got {self.pipeline!r})"
+            )
+        if self.num_ctx <= 0:
+            errors.append("--num-ctx must be > 0")
+        if self.manual_context_tokens is not None:
+            if self.manual_context_tokens <= 0:
+                errors.append("--manual-context-tokens must be > 0")
+            elif self.manual_context_tokens > MANUAL_BUDGET_MAX_FRACTION * self.num_ctx:
+                errors.append(
+                    "--manual-context-tokens must not exceed 60% of --num-ctx "
+                    f"({int(MANUAL_BUDGET_MAX_FRACTION * self.num_ctx)})"
+                )
+        if self.shortlist_k < MIN_SHORTLIST_K or self.shortlist_k > MAX_SHORTLIST_K:
+            errors.append(
+                f"shortlist_k must be between {MIN_SHORTLIST_K} and "
+                f"{MAX_SHORTLIST_K} (got {self.shortlist_k})"
+            )
+        if self.planner_timeout <= 0:
+            errors.append("--planner-timeout must be > 0")
+        if self.pipeline == PIPELINE_PLANNED and self.planner_model is not None:
+            if self.planner_model not in APPROVED_PLANNER_MODELS:
+                errors.append(
+                    f"--planner-model {self.planner_model!r} is not in the "
+                    f"constitution-approved local stack: "
+                    f"{', '.join(sorted(APPROVED_PLANNER_MODELS))}"
+                )
+        return errors
+
+    def config_warnings(self) -> list[str]:
+        """Non-fatal configuration warnings."""
+        warnings: list[str] = []
+        if self.num_ctx not in (8192, 16384):
+            warnings.append(
+                f"--num-ctx {self.num_ctx} is not a benchmark value "
+                "(supported: 8192, 16384)"
+            )
+        if self.manual_context_tokens is not None:
+            if (
+                MANUAL_BUDGET_WARN_FRACTION * self.num_ctx
+                < self.manual_context_tokens
+                <= MANUAL_BUDGET_MAX_FRACTION * self.num_ctx
+            ):
+                warnings.append(
+                    "--manual-context-tokens is above 50% of --num-ctx; leave "
+                    "room for the task, inventory, history, and output"
+                )
+        return warnings
+
 
     @staticmethod
     def is_valid_project(path: Path | str) -> bool:
@@ -172,15 +303,46 @@ class ExecutionConfig:
             except ValueError:
                 return fallback
 
+        def _bool(name: str) -> bool | None:
+            raw = os.environ.get(name)
+            if raw is None or raw.strip() == "":
+                return None
+            return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+        max_retries = _int("GRASS_MAX_RETRIES", cls.max_retries)
+        # Environment precedence for one tier: its own variable > GRASS_MAX_RETRIES
+        # > built-in default. CLI flags are applied later by resolve_config().
         base = cls(
             model=os.environ.get("GRASS_OLLAMA_MODEL", cls.model),
             ollama_base_url=os.environ.get("GRASS_OLLAMA_BASE_URL", cls.ollama_base_url),
-            max_retries=_int("GRASS_MAX_RETRIES", cls.max_retries),
+            max_retries=max_retries,
+            max_static_retries=_int("GRASS_MAX_STATIC_RETRIES", max_retries),
+            max_runtime_retries=_int("GRASS_MAX_RUNTIME_RETRIES", max_retries),
             timeout_s=_int("GRASS_EXEC_TIMEOUT", cls.timeout_s),
             dataset_project=os.environ.get("GRASS_DATASET_PROJECT") or None,
             fixtures_dir=os.environ.get("GRASS_FIXTURES_DIR", cls.fixtures_dir),
             output_dir=os.environ.get("GRASS_OUTPUT_EXEC_DIR", cls.output_dir),
             knowledge_db=os.environ.get("GRASS_RAG_DB", cls.knowledge_db),
+            pilot_suite=os.environ.get("GRASS_PILOT_SUITE", cls.pilot_suite),
+            pilot_expectations=os.environ.get(
+                "GRASS_PILOT_EXPECTATIONS", cls.pilot_expectations
+            ),
+            semantic_query_timeout_s=_int(
+                "GRASS_SEMANTIC_QUERY_TIMEOUT", cls.semantic_query_timeout_s
+            ),
+            semantic_probe_timeout_s=_int(
+                "GRASS_SEMANTIC_PROBE_TIMEOUT", cls.semantic_probe_timeout_s
+            ),
+            # ---- Feature 004 environment layer
+            pipeline=os.environ.get("GRASS_PIPELINE", cls.pipeline),
+            num_ctx=_int("GRASS_NUM_CTX", cls.num_ctx),
+            manual_context_tokens=(
+                _int("GRASS_MANUAL_CONTEXT_TOKENS", 0)
+                if os.environ.get("GRASS_MANUAL_CONTEXT_TOKENS", "").strip()
+                else None
+            ),
+            strict_options=_bool("GRASS_STRICT_OPTIONS"),
+            planner_timeout=_int("GRASS_PLANNER_TIMEOUT", cls.planner_timeout),
         )
         return base.with_overrides(**overrides) if overrides else base
 

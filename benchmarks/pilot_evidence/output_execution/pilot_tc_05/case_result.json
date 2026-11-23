@@ -1,0 +1,182 @@
+{
+  "attempts": [
+    {
+      "assertion_results": [],
+      "ast_sha256": "0344cdf2ab678fef73e18fbfccfcc5534966dcb43716f8981c3616bb94a3f096",
+      "budget_tier": "initial",
+      "code_sha256": "b657b542c97303a08061f99b4a6b2ee4d5886d690e4c3a9f408eb02a23fcec5e",
+      "completion_tokens": 74,
+      "duplicate": false,
+      "error_excerpt": "tools.r_slope_aspect: unknown parameter(s): step (valid: elevation, slope, aspect, format, precision, pcurvature, tcurvature, dx, dy, dxx, dyy, dxy, zscale, min_slope, nprocs, memory, flags, overwrite, verbose, quiet, superquiet)",
+      "exit_code": null,
+      "failing_tool": null,
+      "failure_mode": "schema_misuse",
+      "latency_s": 1.0926075170282274,
+      "log_path": "",
+      "new_maps": {
+        "raster": [],
+        "vector": []
+      },
+      "ordinal": 1,
+      "outcome": "static_rejected",
+      "pivot_used": false,
+      "prompt_tokens": 1367,
+      "script_path": "attempt_1.py",
+      "semantic_evaluated": false,
+      "semantic_passed": null,
+      "signal_name": null,
+      "stage": "static",
+      "static_issues": [
+        "tools.r_slope_aspect: unknown parameter(s): step (valid: elevation, slope, aspect, format, precision, pcurvature, tcurvature, dx, dy, dxx, dyy, dxy, zscale, min_slope, nprocs, memory, flags, overwrite, verbose, quiet, superquiet)"
+      ],
+      "static_passed": false,
+      "stderr_path": "",
+      "stdout_path": "",
+      "timed_out": false
+    },
+    {
+      "assertion_results": [
+        {
+          "check": "non_null_count",
+          "detail": "n=2019304 (minimum 1)",
+          "expected": 1,
+          "observed": 2019304,
+          "output": "pilot_slope",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_slope",
+          "tolerance": null
+        },
+        {
+          "check": "value_range",
+          "detail": "observed [0.0, 38.6893920898438], expected [0, 90]",
+          "expected": [
+            0,
+            90
+          ],
+          "observed": "0.0\u201338.6893920898438",
+          "output": "pilot_slope",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_slope",
+          "tolerance": null
+        },
+        {
+          "check": "mean",
+          "detail": "within 1.00% relative tolerance",
+          "expected": 3.86452240667335,
+          "observed": 3.86452240667335,
+          "output": "pilot_slope",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_slope",
+          "tolerance": 0.01
+        },
+        {
+          "check": "feature_count",
+          "detail": "feature_count=122 (minimum 1)",
+          "expected": 1,
+          "observed": 122,
+          "output": "pilot_contours",
+          "passed": true,
+          "query": "v.info -t map=pilot_contours",
+          "tolerance": null
+        },
+        {
+          "check": "geometry_type",
+          "detail": "geometry=line, expected line",
+          "expected": "line",
+          "observed": "line",
+          "output": "pilot_contours",
+          "passed": true,
+          "query": "v.info -t map=pilot_contours",
+          "tolerance": null
+        },
+        {
+          "check": "required_columns",
+          "detail": "all required columns present",
+          "expected": [
+            "cat",
+            "level"
+          ],
+          "observed": [
+            "cat",
+            "level"
+          ],
+          "output": "pilot_contours",
+          "passed": true,
+          "query": "v.info -c map=pilot_contours",
+          "tolerance": null
+        }
+      ],
+      "ast_sha256": "adb177e10d59d67de4925fcd9fc83140f9fd7dfbbb31de592eff20bf5667c40a",
+      "budget_tier": "static",
+      "code_sha256": "a4fe75b8ed77baf797d67d71945d369bb2e9b6a2033eb91fad90ab3a85f365f9",
+      "completion_tokens": 69,
+      "duplicate": false,
+      "error_excerpt": null,
+      "exit_code": 0,
+      "failing_tool": null,
+      "failure_mode": null,
+      "latency_s": 22.082415117998607,
+      "log_path": "attempt_2.log",
+      "new_maps": {
+        "raster": [
+          "pilot_slope"
+        ],
+        "vector": [
+          "pilot_contours"
+        ]
+      },
+      "ordinal": 2,
+      "outcome": "executed_ok",
+      "pivot_used": false,
+      "prompt_tokens": 1807,
+      "script_path": "attempt_2.py",
+      "semantic_evaluated": true,
+      "semantic_passed": true,
+      "signal_name": null,
+      "stage": "success",
+      "static_issues": [],
+      "static_passed": true,
+      "stderr_path": "attempt_2.stderr",
+      "stdout_path": "attempt_2.stdout",
+      "timed_out": false
+    }
+  ],
+  "auxiliary_inputs": [],
+  "budget_ledger": {
+    "runtime_limit": 2,
+    "runtime_remaining": 2,
+    "runtime_used": 0,
+    "static_limit": 2,
+    "static_remaining": 1,
+    "static_used": 1
+  },
+  "category": "multi_step",
+  "completed_at": "2026-11-11T08:25:05+00:00",
+  "failure_mode_transitions": [
+    "schema_misuse",
+    null
+  ],
+  "final_script": "final.py",
+  "harness_version": "gate3",
+  "no_op_count": 0,
+  "pass_at_1": false,
+  "pass_at_executed": true,
+  "pass_at_healed": true,
+  "pass_at_semantic": true,
+  "prompt": "Compute slope from the elevation raster and then generate 10-meter contour lines from the elevation raster. Write the slope to the raster map pilot_slope and the contours to the vector map pilot_contours. Do not change the computational region.",
+  "resume_key": {
+    "attempt1_source": "fresh",
+    "harness": "gate3",
+    "max_retries": 2,
+    "max_runtime_retries": 2,
+    "max_static_retries": 2,
+    "model": "qwen2.5-coder:7b",
+    "timeout": 120
+  },
+  "schema_version": 1,
+  "semantic_declared": true,
+  "semantic_evaluated": true,
+  "status": "complete",
+  "tc_id": "pilot_tc_05",
+  "tier": 1
+}

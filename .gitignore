@@ -25,3 +25,10 @@ benchmarks/output_execution/
 # report tracked while excluding the per-case case_result.json artifacts, whose
 # volume scales with (cases x attempts).
 .pytest_cache/
+
+# Python tooling caches and runtime logs.
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.log

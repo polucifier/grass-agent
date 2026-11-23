@@ -1,0 +1,96 @@
+{
+  "attempts": [
+    {
+      "assertion_results": [
+        {
+          "check": "feature_count",
+          "detail": "feature_count=251 (minimum 1)",
+          "expected": 1,
+          "observed": 251,
+          "output": "pilot_streams_buffer",
+          "passed": true,
+          "query": "v.info -t map=pilot_streams_buffer",
+          "tolerance": null
+        },
+        {
+          "check": "geometry_type",
+          "detail": "geometry=area, expected area",
+          "expected": "area",
+          "observed": "area",
+          "output": "pilot_streams_buffer",
+          "passed": true,
+          "query": "v.info -t map=pilot_streams_buffer",
+          "tolerance": null
+        }
+      ],
+      "ast_sha256": "4767c8b47b40cf6719ea7034cd8957bf928b7c25bfdc2ccdb93a8eeec392285b",
+      "budget_tier": "initial",
+      "code_sha256": "c743e1918297f97ca0ff7e067ac7f40e36c6a99034aecca007a1f3bc0e8ca63b",
+      "completion_tokens": 35,
+      "duplicate": false,
+      "error_excerpt": null,
+      "exit_code": 0,
+      "failing_tool": null,
+      "failure_mode": null,
+      "latency_s": 103.99323605594691,
+      "log_path": "attempt_1.log",
+      "new_maps": {
+        "raster": [],
+        "vector": [
+          "pilot_streams_buffer"
+        ]
+      },
+      "ordinal": 1,
+      "outcome": "executed_ok",
+      "pivot_used": false,
+      "prompt_tokens": 1306,
+      "script_path": "attempt_1.py",
+      "semantic_evaluated": true,
+      "semantic_passed": true,
+      "signal_name": null,
+      "stage": "success",
+      "static_issues": [],
+      "static_passed": true,
+      "stderr_path": "attempt_1.stderr",
+      "stdout_path": "attempt_1.stdout",
+      "timed_out": false
+    }
+  ],
+  "auxiliary_inputs": [],
+  "budget_ledger": {
+    "runtime_limit": 2,
+    "runtime_remaining": 2,
+    "runtime_used": 0,
+    "static_limit": 2,
+    "static_remaining": 2,
+    "static_used": 0
+  },
+  "category": "single_tool",
+  "completed_at": "2026-11-11T08:33:51+00:00",
+  "failure_mode_transitions": [
+    null
+  ],
+  "final_script": "final.py",
+  "harness_version": "gate3",
+  "no_op_count": 0,
+  "pass_at_1": true,
+  "pass_at_executed": true,
+  "pass_at_healed": true,
+  "pass_at_semantic": true,
+  "prompt": "Create a 200-meter buffer around the stream network lines. Write the buffered areas to the vector map pilot_streams_buffer. Do not change the computational region.",
+  "resume_key": {
+    "attempt1_source": "fresh",
+    "harness": "gate3",
+    "max_retries": 2,
+    "max_runtime_retries": 2,
+    "max_static_retries": 2,
+    "model": "qwen2.5-coder:14b",
+    "timeout": 120
+  },
+  "schema_version": 1,
+  "semantic_declared": true,
+  "semantic_evaluated": true,
+  "status": "complete",
+  "tc_id": "pilot_tc_01",
+  "tier": 1
+}
