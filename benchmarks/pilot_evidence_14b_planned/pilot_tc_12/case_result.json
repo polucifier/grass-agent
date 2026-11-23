@@ -1,0 +1,131 @@
+{
+  "attempts": [
+    {
+      "assertion_results": [
+        {
+          "check": "non_null_count",
+          "detail": "n=700 (minimum 1)",
+          "expected": 1,
+          "observed": 700,
+          "output": "pilot_relief",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_relief",
+          "tolerance": null
+        },
+        {
+          "check": "value_range",
+          "detail": "observed [175.0, 184.0], expected [0, 255]",
+          "expected": [
+            0,
+            255
+          ],
+          "observed": "175.0\u2013184.0",
+          "output": "pilot_relief",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_relief",
+          "tolerance": null
+        },
+        {
+          "check": "mean",
+          "detail": "within 1.00% relative tolerance",
+          "expected": 179.255714285714,
+          "observed": 179.255714285714,
+          "output": "pilot_relief",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_relief",
+          "tolerance": 0.01
+        }
+      ],
+      "ast_sha256": "dbdc3aab7e15cecd19c4f2248f5a584748d42ef3f5273645de7d3e0de53141bb",
+      "budget_tier": "initial",
+      "code_sha256": "88b1d0e12d4aaa54111ffe22e078e172596524af1327b179ffb35158b41c4354",
+      "completion_tokens": 42,
+      "duplicate": false,
+      "error_excerpt": null,
+      "exit_code": 0,
+      "failing_tool": null,
+      "failure_mode": null,
+      "latency_s": 4.458114612847567,
+      "log_path": "attempt_1.log",
+      "manual_card_tokens": 391,
+      "manual_context_tokens": 3686,
+      "manual_omissions": [
+        "r.relief: DESCRIPTION"
+      ],
+      "new_maps": {
+        "raster": [
+          "pilot_relief"
+        ],
+        "vector": []
+      },
+      "num_ctx": 8192,
+      "ordinal": 1,
+      "outcome": "executed_ok",
+      "pipeline": "planned",
+      "pivot_used": false,
+      "plan_fallback": false,
+      "plan_repair_count": 0,
+      "plan_revision": 0,
+      "planned_tools": [
+        "r.relief"
+      ],
+      "planner_completion_tokens": 81,
+      "planner_invocations": 1,
+      "planner_prompt_tokens": 672,
+      "prompt_tokens": 1221,
+      "replan_count": 0,
+      "script_path": "attempt_1.py",
+      "semantic_evaluated": true,
+      "semantic_passed": true,
+      "shortlist_shortfall": false,
+      "signal_name": null,
+      "stage": "success",
+      "static_issues": [],
+      "static_passed": true,
+      "stderr_path": "attempt_1.stderr",
+      "stdout_path": "attempt_1.stdout",
+      "timed_out": false,
+      "tool_swaps": []
+    }
+  ],
+  "auxiliary_inputs": [],
+  "budget_ledger": {
+    "runtime_limit": 2,
+    "runtime_remaining": 2,
+    "runtime_used": 0,
+    "static_limit": 2,
+    "static_remaining": 2,
+    "static_used": 0
+  },
+  "category": "single_tool",
+  "completed_at": "2026-11-23T19:19:16+00:00",
+  "failure_mode_transitions": [
+    null
+  ],
+  "final_script": "final.py",
+  "harness_version": "gate3",
+  "no_op_count": 0,
+  "pass_at_1": true,
+  "pass_at_executed": true,
+  "pass_at_healed": true,
+  "pass_at_semantic": true,
+  "prompt": "Compute shaded relief from the elevation raster with sun azimuth 315 and sun altitude 45. Write the result to the raster map pilot_relief. Do not change the computational region.",
+  "resume_key": {
+    "attempt1_source": "fresh",
+    "harness": "gate3",
+    "manual_context_tokens": 3686,
+    "max_retries": 2,
+    "max_runtime_retries": 2,
+    "max_static_retries": 2,
+    "model": "qwen2.5-coder:14b",
+    "num_ctx": 8192,
+    "pipeline": "planned",
+    "timeout": 120
+  },
+  "schema_version": 1,
+  "semantic_declared": true,
+  "semantic_evaluated": true,
+  "status": "complete",
+  "tc_id": "pilot_tc_12",
+  "tier": 2
+}

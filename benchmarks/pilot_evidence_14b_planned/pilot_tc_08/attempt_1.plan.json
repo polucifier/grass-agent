@@ -1,0 +1,58 @@
+{
+  "fallback": false,
+  "pipeline": "planned",
+  "plan": {
+    "assumptions": [
+      "The computational region is already set and does not need to be changed."
+    ],
+    "plan_repair_count": 0,
+    "planner_invocations": 1,
+    "replan_count": 0,
+    "revision": 0,
+    "steps": [
+      {
+        "constraints": [
+          "coordinates: 635000,216500",
+          "set_output_format: 1 (visible), 0 (not visible)"
+        ],
+        "id": 1,
+        "inputs": [
+          "elevation"
+        ],
+        "intent": "Calculate binary viewshed visibility",
+        "output_types": [
+          "raster"
+        ],
+        "outputs": [
+          "pilot_viewshed"
+        ],
+        "tool": "r.viewshed"
+      }
+    ]
+  },
+  "plan_repair_count": 0,
+  "planner_completion_tokens": 136,
+  "planner_invocations": 1,
+  "planner_prompt_tokens": 611,
+  "replan_count": 0,
+  "revision": 0,
+  "shortlist": [
+    "r.viewshed",
+    "v.rast.stats",
+    "r.horizon",
+    "v.extrude",
+    "v.net.visibility",
+    "r.surf.area",
+    "v.drape",
+    "v.vect.stats",
+    "r.out.pov",
+    "r.flow",
+    "v.what.rast",
+    "r.geomorphon"
+  ],
+  "shortlist_shortfall": false,
+  "validation": {
+    "errors": [],
+    "ok": true
+  }
+}

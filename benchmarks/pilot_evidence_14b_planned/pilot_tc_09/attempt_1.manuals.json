@@ -1,0 +1,81 @@
+{
+  "cards": [
+    {
+      "alternatives": [
+        "r.reclass \u2014 integer input only; rules file or stream",
+        "r.recode \u2014 rule-based recoding for categorical rasters"
+      ],
+      "constraints": [
+        "it manufactures file=- (which reads from stdin), so you can continue",
+        "r.mapcalc < file",
+        "file= explicitly, as stated above."
+      ],
+      "examples": [
+        "ave = (a + b)/2",
+        "ave = (5*a + 3*b)/8.0"
+      ],
+      "flags": [
+        "-s  This flag is deprecated and will be removed in a future release. Seeding is automatic or use parameter seed.",
+        "-l  List input and output maps"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Expression to evaluate",
+          "name": "expression",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "File containing expression(s) to evaluate",
+          "name": "file",
+          "options": [],
+          "required": false,
+          "type": "str | io.StringIO"
+        },
+        {
+          "default": "0",
+          "description": "Number of threads for parallel computing",
+          "name": "nprocs",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "current",
+          "description": "The computational region that should be used.",
+          "name": "region",
+          "options": [
+            "current",
+            "intersect",
+            "union"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Seed value for the random number generator",
+          "name": "seed",
+          "options": [],
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_mapcalc(expression=None,  region=\"current\",  file=None,  seed=None,  nprocs=0,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.mapcalc.md;xml:interface-description",
+      "token_estimate": 353,
+      "tool": "r.mapcalc"
+    }
+  ],
+  "omissions": [
+    "r.mapcalc: DESCRIPTION"
+  ],
+  "tokens": 353,
+  "tool": null
+}

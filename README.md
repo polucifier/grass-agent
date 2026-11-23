@@ -401,6 +401,11 @@ Environment equivalents are `GRASS_PIPELINE`, `GRASS_NUM_CTX`, `GRASS_MANUAL_CON
 
 Distribution policy: commit `data/grass_knowledge.db` only when it is at most 50 MB. Otherwise generate it during setup and commit the build report/checksums. Pre-flight verifies `db_meta` schema, GRASS version, and provenance (`source`, `built_at`, `content_hash`, `gisbase`) in the new modes; `legacy` still accepts an old DB.
 
+GPU pilot evidence at 14B/32B (2026-11-23) is recorded in
+[`benchmarks/feature004_pilot_report.md`](benchmarks/feature004_pilot_report.md),
+with per-mode tables in `benchmarks/feature004_ablation_14b.md` and
+`benchmarks/feature004_ablation_32b.md`.
+
 ### CLI reference
 
 ```text

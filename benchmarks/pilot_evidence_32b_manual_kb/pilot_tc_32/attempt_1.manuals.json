@@ -1,0 +1,544 @@
+{
+  "cards": [
+    {
+      "alternatives": [],
+      "constraints": [
+        "To ensure that the raster elevation map is not inappropriately",
+        "Only when using integer elevation models, the aspect is biased in 0, 45,",
+        "categories. When working with floating point elevation models, no such"
+      ],
+      "examples": [
+        "g.region raster=elevation\nr.slope.aspect elevation=elevation slope=slope aspect=aspect pcurvature=pcurv tcurvature=tcurv\n\n# set nice color tables for output raster maps\nr.colors -n map=slope color=sepia\nr.colors map=aspect color=aspectcolr\nr.colors map=pcurv color=curvature\nr.colors map=tcurv color=curvature",
+        "g.region raster=elevation -p\n\n# generate integer aspect map with degrees CCW from East\nr.slope.aspect elevation=elevation aspect=myaspect precision=CELL\n\n# generate compass orientation and classify four major directions (N, E, S, W)\nr.mapcalc \"aspect_4_directions = eval( \\\\\n   compass=(450 - myaspect ) % 360, \\\\\n     if(compass >=0. && compass < 45., 1)  \\\\\n   + if(compass >=45. && compass < 135., 2) \\\\\n   + if(compass >=135. && compass < 225., 3) \\\\\n   + if(compass >=225. && compass < 315., 4) \\\\\n   + if(compass >=315., 1) \\\\\n)\"\n\n# assign text labels\nr.category aspect_4_directions separator=comma rules=- << EOF\n1,north\n2,east\n3,south\n4,west\nEOF\n\n# assign color table\nr.colors aspect_4_directions rules=- << EOF\n1 253,184,99\n2 178,171,210\n3 230,97,1\n4 94,60,153\nEOF"
+      ],
+      "flags": [
+        "-a  Do not align the current region to the raster elevation map",
+        "-e  Compute output at edges and near NULL values",
+        "-n  Default: degrees counter-clockwise from East, with flat = 0"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Name for output aspect raster map",
+          "name": "aspect",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name for output first order partial derivative dx (E-W slope) raster map",
+          "name": "dx",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name for output second order partial derivative dxx raster map",
+          "name": "dxx",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name for output second order partial derivative dxy raster map",
+          "name": "dxy",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name for output first order partial derivative dy (N-S slope) raster map",
+          "name": "dy",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name for output second order partial derivative dyy raster map",
+          "name": "dyy",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": null,
+          "description": "Name of input elevation raster map",
+          "name": "elevation",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "degrees",
+          "description": "Format for reporting the slope",
+          "name": "format",
+          "options": [
+            "degrees",
+            "percent"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "300",
+          "description": "Maximum memory to be used (in MB)",
+          "name": "memory",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "0.0",
+          "description": "Minimum slope value (in percent) for which aspect is computed",
+          "name": "min_slope",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "0",
+          "description": "Number of threads for parallel computing",
+          "name": "nprocs",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Name for output profile curvature raster map",
+          "name": "pcurvature",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "FCELL",
+          "description": "Type of output aspect and slope maps",
+          "name": "precision",
+          "options": [
+            "CELL",
+            "FCELL",
+            "DCELL"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name for output slope raster map",
+          "name": "slope",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name for output tangential curvature raster map",
+          "name": "tcurvature",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "1.0",
+          "description": "Multiplicative factor to convert elevation units to horizontal units",
+          "name": "zscale",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_slope_aspect(elevation,  slope=None,  aspect=None,  format=\"degrees\",  precision=\"FCELL\",  pcurvature=None,  tcurvature=None,  dx=None,  dy=None,  dxx=None,  dyy=None,  dxy=None,  zscale=1.0,  min_slope=0.0,  nprocs=0,  memory=300,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.slope.aspect.md;xml:interface-description",
+      "token_estimate": 1204,
+      "tool": "r.slope.aspect"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "In fact, the r.reclass program does not generate any new raster map",
+        "reclass table is stored which will be used to reclassify the",
+        "r.reclass only works on an integer* input raster map; if the input"
+      ],
+      "examples": [
+        "1 2 3   = 1    good quality\n    4 5     = 2    poor quality",
+        "1 3 5   = 1    poor quality\n    2 4 6   = 2    good quality\n    *       = NULL"
+      ],
+      "flags": [],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": null,
+          "description": "Name of raster map to be reclassified",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": null,
+          "description": "Name for output raster map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": null,
+          "description": "File containing reclass rules",
+          "name": "rules",
+          "options": [],
+          "required": true,
+          "type": "str | io.StringIO"
+        },
+        {
+          "default": "None",
+          "description": "Title for output raster map",
+          "name": "title",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_reclass(input,  output,  rules,  title=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.reclass.md;xml:interface-description",
+      "token_estimate": 275,
+      "tool": "r.reclass"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "unit parameter is set. The units miles, feet, meters* and",
+        "Feet and acre units are always reported in their common versions (i.e.",
+        "coordinate reference system's standard map unit is the US Survey foot."
+      ],
+      "examples": [
+        "v.to.db map=soils type=centroid option=cat",
+        "v.to.db map=soils type=centroid option=area columns=area_size unit=h"
+      ],
+      "flags": [
+        "-p  Print only",
+        "-h  Print header",
+        "-s  Only print SQL statements",
+        "-c  Print also totals for option length, area, or count"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": null,
+          "description": "Name of attribute column(s) to populate",
+          "name": "columns",
+          "options": [],
+          "required": true,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "plain",
+          "description": "Output format",
+          "name": "format",
+          "options": [
+            "plain",
+            "json"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Layer number or name (write to)",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of vector map",
+          "name": "map",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Value to upload",
+          "name": "option",
+          "options": [
+            "cat",
+            "area",
+            "compact",
+            "fd",
+            "perimeter",
+            "length",
+            "count",
+            "coor",
+            "start",
+            "end",
+            "sides",
+            "query",
+            "slope",
+            "sinuous",
+            "azimuth",
+            "bbox"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of attribute column used for 'query' option",
+          "name": "query_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Query layer number or name (read from)",
+          "name": "query_layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "pipe",
+          "description": "Field separator for print mode",
+          "name": "separator",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "point,line,boundary,centroid",
+          "description": "Feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "Units",
+          "name": "units",
+          "options": [
+            "miles",
+            "feet",
+            "meters",
+            "kilometers",
+            "acres",
+            "hectares",
+            "radians",
+            "degrees"
+          ],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_to_db(map,  layer=\"1\",  type=\"point,line,boundary,centroid\",  option,  columns,  units=None,  query_layer=\"1\",  query_column=None,  separator=\"pipe\",  format=\"plain\",  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.to.db.md;xml:interface-description",
+      "token_estimate": 561,
+      "tool": "v.to.db"
+    },
+    {
+      "alternatives": [],
+      "constraints": [],
+      "examples": [
+        "g.region raster=elevation -p\n# random sampling of points (note that r.random also writes vector points)\nr.random elevation raster_output=elevrand1000 n=1000\nr.to.vect input=elevrand1000 output=elevrand1000 type=point\n# univariate statistics of sample points\nv.univar elevrand1000 column=value type=point\n# compare to univariate statistics on original full raster map\nr.univar elevation",
+        "g.region raster=elevation -p\nr.watershed elev=elevation stream=elev.streams thresh=50000\nr.to.vect -s input=elev.streams output=elev_streams type=line\n# drop \"label\" column which is superfluous in this example\nv.db.dropcolumn map=elev_streams column=label\nv.db.renamecolumn map=elev_streams column=value,basin_id\n# report length per basin ID\nv.report map=elev_streams option=length units=meters sort=asc"
+      ],
+      "flags": [
+        "-s  Smooth corners of area features",
+        "-v  Use raster values as categories instead of unique sequence (CELL only)",
+        "-z  Table is not created. Currently supported only for points.",
+        "-b  Recommended for massive point conversion",
+        "-c  Default: centroids are located anywhere in areas, often close to boundaries",
+        "-t  Do not create attribute table"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "value",
+          "description": "Name of attribute column to store value",
+          "name": "column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input raster map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Output feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "area"
+          ],
+          "required": true,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_to_vect(input,  output,  type,  column=\"value\",  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.to.vect.md;xml:interface-description",
+      "token_estimate": 515,
+      "tool": "r.to.vect"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "r.import* checks the CRS metadata of the dataset to be imported against",
+        "The estimated resolution will usually be some floating point number,",
+        "(default), this floating point number will be used as target resolution."
+      ],
+      "examples": [
+        "# set computational region to e.g. 10m elevation model:\ng.region raster=elevation -p\n\n# Import with reprojection on the fly. Recommended parameters:\n# resample   Resampling method to use for reprojection - bilinear\n# extent     Output raster map extent - region: extent of current region\n# resolution Resolution of output raster map\n#  - region: current region resolution - limit to g.region setting from above\nr.import input=n35_w079_1arc_v3.tif output=srtmv3_resamp10m resample=bilinear \\\n  extent=region resolution=region title=\"SRTM V3 resampled to 10m resolution\"\n\n# beautify colors:\nr.colors srtmv3_resamp10m color=elevation",
+        "# download selected Bioclim data (2.5 arc-minutes resolution)\n# optionally tiles are available for the 30 arc-sec resolution\nwget https://geodata.ucdavis.edu/climate/worldclim/1_4/grid/cur/bio_2-5m_bil.zip\n\n# extract BIO1 from package (BIO1 = Annual Mean Temperature):\nunzip bio_2-5m_bil.zip bio1.bil bio1.hdr\n\n# prior to import, fix broken WorldClim extent using GDAL tool\ngdal_translate -a_ullr -180 90 180 -60 bio1.bil bio1_fixed.tif\n\n# set computational region to North Carolina, 4000 m target pixel resolution\ng.region -d res=4000 -ap\n\n# subset to current region and reproject on the fly to current project CRS,\n# using -n since whole-world map is imported:\nr.import input=bio1_fixed.tif output=bioclim01 resample=bilinear \\\n         extent=region resolution=region -n\n\n# temperature data are in \u00b0C * 10\nr.info bioclim01\nr.univar -e bioclim01"
+      ],
+      "flags": [
+        "-e  Estimate resolution only",
+        "-n  Do not perform region cropping optimization",
+        "-l  Force Lat/Lon maps to fit into geographic coordinates (90N,S; 180E,W)",
+        "-o  Assume that the dataset has the same coordinate reference system (CRS) as the current project"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Input band(s) to select (default is all bands)",
+          "name": "band",
+          "options": [],
+          "required": false,
+          "type": "int | list[int] | str"
+        },
+        {
+          "default": "input",
+          "description": "Output raster map extent",
+          "name": "extent",
+          "options": [
+            "input",
+            "region"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of GDAL dataset to be imported",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "300",
+          "description": "Maximum memory to be used (in MB)",
+          "name": "memory",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Name for output raster map",
+          "name": "output",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "nearest",
+          "description": "Resampling method to use for reprojection",
+          "name": "resample",
+          "options": [
+            "nearest",
+            "bilinear",
+            "bicubic",
+            "lanczos",
+            "bilinear_f",
+            "bicubic_f",
+            "lanczos_f"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "estimated",
+          "description": "Resolution of output raster map (default: estimated)",
+          "name": "resolution",
+          "options": [
+            "estimated",
+            "value",
+            "region"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Resolution of output raster map (use with option resolution=value)",
+          "name": "resolution_value",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Title for resultant raster map",
+          "name": "title",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_import(input,  band=None,  memory=300,  output=None,  resample=\"nearest\",  extent=\"input\",  resolution=\"estimated\",  resolution_value=None,  title=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.import.md;xml:interface-description",
+      "token_estimate": 1015,
+      "tool": "r.import"
+    }
+  ],
+  "omissions": [
+    "r.slope.aspect: DESCRIPTION",
+    "r.reclass: DESCRIPTION",
+    "v.to.db: DESCRIPTION",
+    "r.to.vect: DESCRIPTION",
+    "r.import: DESCRIPTION"
+  ],
+  "tokens": 3570,
+  "tool": null
+}

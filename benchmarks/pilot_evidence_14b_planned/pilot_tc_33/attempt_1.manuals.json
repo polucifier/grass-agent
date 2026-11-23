@@ -1,0 +1,223 @@
+{
+  "cards": [
+    {
+      "alternatives": [
+        "r.mapcalc \u2014 expression-based classification"
+      ],
+      "constraints": [
+        "In order to avoid unexpected results, the type of vector features should",
+        "always be specified. The default is to convert all vector features, but",
+        "if only e.g. areas should be converted use type=area rather than"
+      ],
+      "examples": [
+        "db.describe -c table=vect_map\n\nncols:3\nColumn 1: CAT\nColumn 2: SPEED\nColumn 3: WIDTH",
+        "v.to.rast input=vect_map output=raster_map attribute_column=SPEED type=line"
+      ],
+      "flags": [
+        "-d  All cells touched by the line will be set, not only those on the render path"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Name of column for 'attr' parameter (data type must be numeric)",
+          "name": "attribute_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Category values",
+          "name": "cats",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of column used as raster category labels",
+          "name": "label_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Layer number or name",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "300",
+          "description": "Maximum memory to be used (in MB)",
+          "name": "memory",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": null,
+          "description": "Name for output raster map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name of color definition column (with RRR:GGG:BBB entries)",
+          "name": "rgb_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "point,line,area",
+          "description": "Input feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid",
+            "area"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": null,
+          "description": "Source of raster values",
+          "name": "use",
+          "options": [
+            "attr",
+            "cat",
+            "value",
+            "z",
+            "dir"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Raster value (for use=value)",
+          "name": "value",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "WHERE conditions of SQL statement without 'where' keyword",
+          "name": "where",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_to_rast(input,  layer=\"1\",  type=\"point,line,area\",  cats=None,  where=None,  output,  use,  attribute_column=None,  rgb_column=None,  label_column=None,  value=1,  memory=300,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.to.rast.md;xml:interface-description",
+      "token_estimate": 591,
+      "tool": "v.to.rast"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "The flag -n calculates the respective pixel distances to the nearest",
+        "The user has the option of specifying five different metrics which",
+        "distances in meters instead of map units."
+      ],
+      "examples": [
+        "g.region raster=streams_derived -p\nr.grow.distance input=streams_derived distance=dist_from_streams\nr.colors map=dist_from_streams color=rainbow",
+        "g.region raster=sea -p\nr.grow.distance -m input=sea distance=dist_from_sea_geodetic metric=geodesic\nr.colors map=dist_from_sea_geodetic color=rainbow"
+      ],
+      "flags": [
+        "-m  Output distances in meters instead of map units",
+        "-n  Calculate distance to nearest NULL cell"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Name for distance output raster map",
+          "name": "distance",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": null,
+          "description": "Name of input raster map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "None",
+          "description": "Maximum distance threshold",
+          "name": "maximum_distance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "euclidean",
+          "description": "Metric",
+          "name": "metric",
+          "options": [
+            "euclidean",
+            "squared",
+            "maximum",
+            "manhattan",
+            "geodesic"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Minimum distance threshold",
+          "name": "minimum_distance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Name for value output raster map",
+          "name": "value",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_grow_distance(input,  distance=None,  value=None,  metric=\"euclidean\",  minimum_distance=None,  maximum_distance=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.grow.distance.md;xml:interface-description",
+      "token_estimate": 460,
+      "tool": "r.grow.distance"
+    }
+  ],
+  "omissions": [
+    "v.to.rast: DESCRIPTION",
+    "r.grow.distance: DESCRIPTION"
+  ],
+  "tokens": 1051,
+  "tool": null
+}

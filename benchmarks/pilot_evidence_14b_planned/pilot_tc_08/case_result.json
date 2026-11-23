@@ -1,0 +1,131 @@
+{
+  "attempts": [
+    {
+      "assertion_results": [
+        {
+          "check": "non_null_count",
+          "detail": "n=810 (minimum 1)",
+          "expected": 1,
+          "observed": 810,
+          "output": "pilot_viewshed",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_viewshed",
+          "tolerance": null
+        },
+        {
+          "check": "value_range",
+          "detail": "observed [0.0, 1.0], expected [0, 1]",
+          "expected": [
+            0,
+            1
+          ],
+          "observed": "0.0\u20131.0",
+          "output": "pilot_viewshed",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_viewshed",
+          "tolerance": null
+        },
+        {
+          "check": "mean",
+          "detail": "within 5.00% relative tolerance",
+          "expected": 0.0271604938271605,
+          "observed": 0.0271604938271605,
+          "output": "pilot_viewshed",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_viewshed",
+          "tolerance": 0.05
+        }
+      ],
+      "ast_sha256": "1599890c6906c1f146423c8ae6e57e3e820865cbb1f7c5fef5972b0b1049d78a",
+      "budget_tier": "initial",
+      "code_sha256": "764bdf545b512596d5f3967af6f8cdaf51dc48547beebc196786f388615b96ca",
+      "completion_tokens": 84,
+      "duplicate": false,
+      "error_excerpt": null,
+      "exit_code": 0,
+      "failing_tool": null,
+      "failure_mode": null,
+      "latency_s": 6.445978990057483,
+      "log_path": "attempt_1.log",
+      "manual_card_tokens": 618,
+      "manual_context_tokens": 3686,
+      "manual_omissions": [
+        "r.viewshed: DESCRIPTION"
+      ],
+      "new_maps": {
+        "raster": [
+          "pilot_viewshed"
+        ],
+        "vector": []
+      },
+      "num_ctx": 8192,
+      "ordinal": 1,
+      "outcome": "executed_ok",
+      "pipeline": "planned",
+      "pivot_used": false,
+      "plan_fallback": false,
+      "plan_repair_count": 0,
+      "plan_revision": 0,
+      "planned_tools": [
+        "r.viewshed"
+      ],
+      "planner_completion_tokens": 136,
+      "planner_invocations": 1,
+      "planner_prompt_tokens": 611,
+      "prompt_tokens": 1466,
+      "replan_count": 0,
+      "script_path": "attempt_1.py",
+      "semantic_evaluated": true,
+      "semantic_passed": true,
+      "shortlist_shortfall": false,
+      "signal_name": null,
+      "stage": "success",
+      "static_issues": [],
+      "static_passed": true,
+      "stderr_path": "attempt_1.stderr",
+      "stdout_path": "attempt_1.stdout",
+      "timed_out": false,
+      "tool_swaps": []
+    }
+  ],
+  "auxiliary_inputs": [],
+  "budget_ledger": {
+    "runtime_limit": 2,
+    "runtime_remaining": 2,
+    "runtime_used": 0,
+    "static_limit": 2,
+    "static_remaining": 2,
+    "static_used": 0
+  },
+  "category": "edge_case",
+  "completed_at": "2026-11-23T19:19:07+00:00",
+  "failure_mode_transitions": [
+    null
+  ],
+  "final_script": "final.py",
+  "harness_version": "gate3",
+  "no_op_count": 0,
+  "pass_at_1": true,
+  "pass_at_executed": true,
+  "pass_at_healed": true,
+  "pass_at_semantic": true,
+  "prompt": "Calculate binary viewshed visibility (1 for visible, 0 for not visible) from the elevation raster starting at viewpoint coordinate 635000,216500. Write the result to the raster map pilot_viewshed. Do not change the computational region.",
+  "resume_key": {
+    "attempt1_source": "fresh",
+    "harness": "gate3",
+    "manual_context_tokens": 3686,
+    "max_retries": 2,
+    "max_runtime_retries": 2,
+    "max_static_retries": 2,
+    "model": "qwen2.5-coder:14b",
+    "num_ctx": 8192,
+    "pipeline": "planned",
+    "timeout": 120
+  },
+  "schema_version": 1,
+  "semantic_declared": true,
+  "semantic_evaluated": true,
+  "status": "complete",
+  "tc_id": "pilot_tc_08",
+  "tier": 1
+}

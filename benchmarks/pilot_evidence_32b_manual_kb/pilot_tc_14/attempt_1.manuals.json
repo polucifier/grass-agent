@@ -1,0 +1,467 @@
+{
+  "cards": [
+    {
+      "alternatives": [],
+      "constraints": [
+        "The user does not have to run [v.build](v.build.md) on the",
+        "output vector, unless the -b flag was used. The -b* flag affects",
+        "only the output vector - topology is always built for error"
+      ],
+      "examples": [
+        "v.clean input=testmap output=cleanmap tool=snap threshold=1",
+        "v.build -e map=imported error=build_errors\nv.clean -c input=imported output=clean error=cleaning_errors tool=snap,rmdangle,rmbridge,chbridge,bpol,prune threshold=5"
+      ],
+      "flags": [
+        "-b  Do not build topology for the output vector",
+        "-c  Combine tools with recommended follow-up tools"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Name of output map where errors are written",
+          "name": "error",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "-1",
+          "description": "Layer number or name ('-1' for all layers)",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "One value for each tool; for threshold units, see each tool",
+          "name": "threshold",
+          "options": [],
+          "required": false,
+          "type": "float | list[float] | str"
+        },
+        {
+          "default": null,
+          "description": "Cleaning tool",
+          "name": "tool",
+          "options": [
+            "break",
+            "snap",
+            "rmdangle",
+            "chdangle",
+            "rmbridge",
+            "chbridge",
+            "rmdupl",
+            "rmdac",
+            "bpol",
+            "prune",
+            "rmarea",
+            "rmline",
+            "rmsa"
+          ],
+          "required": true,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "point,line,boundary,centroid,area,face,kernel",
+          "description": "Input feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid",
+            "area",
+            "face",
+            "kernel"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_clean(input,  layer=\"-1\",  type=\"point,line,boundary,centroid,area,face,kernel\",  output,  error=None,  tool,  threshold=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.clean.md;xml:interface-description",
+      "token_estimate": 499,
+      "tool": "v.clean"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "For a vector map prepared for network analysis in GRASS, nodes are",
+        "represented by the grass-internal geometry type node and arcs by the",
+        "geometry type line. If vector editing is required to modify the graph,"
+      ],
+      "examples": [
+        "v.net input=streets_wake output=streets_node operation=nodes\n# verify result\nv.category streets_node option=report",
+        "v.net input=streets_wake points=firestations out=streets_net \\\n      operation=connect threshold=500\n# verify result\nv.category streets_net option=report"
+      ],
+      "flags": [
+        "-c  For operation 'nodes'",
+        "-s  For operation 'connect'. By default, a new line from the point to the network is created."
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "1",
+          "description": "Arc layer",
+          "name": "arc_layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "line,boundary",
+          "description": "Arc type",
+          "name": "arc_type",
+          "options": [
+            "line",
+            "boundary"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "Name of input file",
+          "name": "file",
+          "options": [],
+          "required": false,
+          "type": "str | io.StringIO"
+        },
+        {
+          "default": "None",
+          "description": "Name of input vector line map (arcs)",
+          "name": "input",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "2",
+          "description": "Node layer",
+          "name": "node_layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Operation to be performed",
+          "name": "operation",
+          "options": [
+            "nodes",
+            "connect",
+            "arcs",
+            "report",
+            "nreport",
+            "turntable"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of input vector point map (nodes)",
+          "name": "points",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Threshold",
+          "name": "threshold",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "4",
+          "description": "Layer with unique categories used in turntable",
+          "name": "turn_cat_layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "3",
+          "description": "Turntable layer",
+          "name": "turn_layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_net(input=None,  points=None,  output=None,  operation,  arc_layer=\"1\",  arc_type=\"line,boundary\",  node_layer=\"2\",  threshold=None,  file=None,  turn_layer=\"3\",  turn_cat_layer=\"4\",  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.net.md;xml:interface-description",
+      "token_estimate": 546,
+      "tool": "v.net"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "Any vectors that are duplicated among the maps being patched together",
+        "tool=snap,break,rmdupl*.",
+        "[v.clean](v.clean.md) tool=snap,break,rmdupl*."
+      ],
+      "examples": [
+        "v.patch input=geology,streams out=geol_streams",
+        "g.copy vect=roads,transport\n   v.patch -a input=railroads output=transport --overwrite"
+      ],
+      "flags": [
+        "-n  Applicable when input is points without topology",
+        "-z  Applicable when input is points with z coordinate but without topology",
+        "-e  Only the table of layer 1 is currently supported",
+        "-a  Append files to existing file (overwriting existing files must be activated)",
+        "-b  Advantageous when handling a large number of points"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Name for output vector map where bounding boxes of input vector maps are written to",
+          "name": "bbox",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map(s)",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str | list[str]"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_patch(input,  output,  bbox=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.patch.md;xml:interface-description",
+      "token_estimate": 335,
+      "tool": "v.patch"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "A segment is only created for the first line found of the specified",
+        "Points are generated along the lines at the given distance(s) or",
+        "All offsets are measured in map units (see \"g.proj -p\") or percents of"
+      ],
+      "examples": [
+        "# extract lines from railroad map:\nv.extract input=railroads output=myrr cats=1\n\n# join segments into polyline and reassign category numbers\nv.build.polylines myrr out=myrr_pol\nv.category input=myrr_pol output=myrailroads option=add\n\n# zoom to an area of interest\ng.region vector=myrailroads -p\n\n# show line, category, direction (to find the beginning)\nd.mon wx0\nd.vect map=myrailroads display=shape,cat,dir lsize=12\n\n# extract line segment from 400m to 5000m from beginning of line 1\necho \"L 1 1 400 5000\" | v.segment input=myrailroads output=myrailroads_segl\nd.erase\nd.vect map=myrailroads\nd.vect map=myrailroads_segl col=green width=2\n\n# set node at 5000m from beginning of line 1\necho \"P 1 1 5000\" | v.segment input=myrailroads output=myrailroads_segp\nd.vect map=myrailroads_segp icon=basic/circle color=red fcolor=red size=5",
+        "v.segment input=myrailroads output=myrailroads_segl_side << EOF\nL 1 1 1000 2000 -500\nL 2 1 3000 4000 -500\nL 3 1 5000 6000 -500\nL 4 1 7000 8000 -500\nEOF\nd.erase\nd.vect map=myrailroads display=shape,dir\nd.vect -c map=myrailroads_segl_side width=2"
+      ],
+      "flags": [],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": null,
+          "description": "Name of input vector lines map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Layer number or name",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of file containing segment rules",
+          "name": "rules",
+          "options": [],
+          "required": false,
+          "type": "str | io.StringIO"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_segment(input,  layer=\"1\",  output,  rules=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.segment.md;xml:interface-description",
+      "token_estimate": 550,
+      "tool": "v.segment"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "Nodes and arcs can be closed using cost = -1.",
+        "If the cost columns arc_column, arc_backward_column and",
+        "node_column are not specified, the length of network segments is"
+      ],
+      "examples": [],
+      "flags": [
+        "-t  Use turntable",
+        "-g  Use geodesic calculation for longitude-latitude projects",
+        "-s  Write output as original input segments, not each path as one line."
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Arc backward direction cost column (number)",
+          "name": "arc_backward_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Arc forward/both direction(s) cost column (number)",
+          "name": "arc_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Arc layer",
+          "name": "arc_layer",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "line,boundary",
+          "description": "Arc type",
+          "name": "arc_type",
+          "options": [
+            "line",
+            "boundary"
+          ],
+          "required": true,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "1000",
+          "description": "Maximum distance to the network",
+          "name": "dmax",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Name of file containing start and end points. If not given, read from stdin",
+          "name": "file",
+          "options": [],
+          "required": false,
+          "type": "str | io.StringIO"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Node cost column (number)",
+          "name": "node_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "2",
+          "description": "Node layer",
+          "name": "node_layer",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "4",
+          "description": "Layer with unique categories used in turntable",
+          "name": "turn_cat_layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "3",
+          "description": "Layer with turntable",
+          "name": "turn_layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_net_path(input,  output,  arc_layer=\"1\",  arc_type=\"line,boundary\",  node_layer=\"2\",  file=None,  arc_column=None,  arc_backward_column=None,  node_column=None,  dmax=1000,  turn_layer=\"3\",  turn_cat_layer=\"4\",  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.net.path.md;xml:interface-description",
+      "token_estimate": 496,
+      "tool": "v.net.path"
+    }
+  ],
+  "omissions": [
+    "v.clean: DESCRIPTION",
+    "v.net: DESCRIPTION",
+    "v.patch: DESCRIPTION",
+    "v.segment: DESCRIPTION",
+    "v.net.path: DESCRIPTION"
+  ],
+  "tokens": 2425,
+  "tool": null
+}

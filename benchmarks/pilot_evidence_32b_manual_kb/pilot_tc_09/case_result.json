@@ -1,0 +1,138 @@
+{
+  "attempts": [
+    {
+      "assertion_results": [
+        {
+          "check": "non_null_count",
+          "detail": "n=810 (minimum 1)",
+          "expected": 1,
+          "observed": 810,
+          "output": "pilot_elevation_double",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_elevation_double",
+          "tolerance": null
+        },
+        {
+          "check": "value_range",
+          "detail": "observed [115.224952697754, 304.525360107422], expected [115.224952697754, 304.525360107422]",
+          "expected": [
+            115.224952697754,
+            304.525360107422
+          ],
+          "observed": "115.224952697754\u2013304.525360107422",
+          "output": "pilot_elevation_double",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_elevation_double",
+          "tolerance": null
+        },
+        {
+          "check": "mean",
+          "detail": "within 1.00% relative tolerance",
+          "expected": 220.975605585546,
+          "observed": 220.975605585546,
+          "output": "pilot_elevation_double",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_elevation_double",
+          "tolerance": 0.01
+        }
+      ],
+      "ast_sha256": "fd4c7791775dc553bee7264229d6471fecd880cf3e6ec43b2979d2ee1258946c",
+      "budget_tier": "initial",
+      "code_sha256": "0ce2782c949ab900fb068e2a8b88aabe909c06932cb83f61cc2f19a601898d48",
+      "completion_tokens": 28,
+      "duplicate": false,
+      "error_excerpt": null,
+      "exit_code": 0,
+      "failing_tool": null,
+      "failure_mode": null,
+      "latency_s": 6.431032039923593,
+      "log_path": "attempt_1.log",
+      "manual_card_tokens": 2794,
+      "manual_context_tokens": 3686,
+      "manual_omissions": [
+        "r.mapcalc: EXAMPLES",
+        "r.mapcalc: DESCRIPTION",
+        "r.import: EXAMPLES",
+        "r.import: DESCRIPTION",
+        "r.horizon: EXAMPLES",
+        "r.horizon: DESCRIPTION",
+        "r.to.rast3elev: EXAMPLES",
+        "r.to.rast3elev: DESCRIPTION",
+        "r.walk: EXAMPLES",
+        "r.walk: DESCRIPTION"
+      ],
+      "new_maps": {
+        "raster": [
+          "pilot_elevation_double"
+        ],
+        "vector": []
+      },
+      "num_ctx": 8192,
+      "ordinal": 1,
+      "outcome": "executed_ok",
+      "pipeline": "manual-kb",
+      "pivot_used": false,
+      "plan_fallback": false,
+      "plan_repair_count": 0,
+      "plan_revision": 0,
+      "planned_tools": [],
+      "planner_completion_tokens": 0,
+      "planner_invocations": 0,
+      "planner_prompt_tokens": 0,
+      "prompt_tokens": 3080,
+      "replan_count": 0,
+      "script_path": "attempt_1.py",
+      "semantic_evaluated": true,
+      "semantic_passed": true,
+      "shortlist_shortfall": false,
+      "signal_name": null,
+      "stage": "success",
+      "static_issues": [],
+      "static_passed": true,
+      "stderr_path": "attempt_1.stderr",
+      "stdout_path": "attempt_1.stdout",
+      "timed_out": false,
+      "tool_swaps": []
+    }
+  ],
+  "auxiliary_inputs": [],
+  "budget_ledger": {
+    "runtime_limit": 2,
+    "runtime_remaining": 2,
+    "runtime_used": 0,
+    "static_limit": 2,
+    "static_remaining": 2,
+    "static_used": 0
+  },
+  "category": "edge_case",
+  "completed_at": "2026-11-23T19:27:28+00:00",
+  "failure_mode_transitions": [
+    null
+  ],
+  "final_script": "final.py",
+  "harness_version": "gate3",
+  "no_op_count": 0,
+  "pass_at_1": true,
+  "pass_at_executed": true,
+  "pass_at_healed": true,
+  "pass_at_semantic": true,
+  "prompt": "Multiply the elevation raster by 2 using raster map calculation. Write the result to the raster map pilot_elevation_double. Do not change the computational region.",
+  "resume_key": {
+    "attempt1_source": "fresh",
+    "harness": "gate3",
+    "manual_context_tokens": 3686,
+    "max_retries": 2,
+    "max_runtime_retries": 2,
+    "max_static_retries": 2,
+    "model": "qwen2.5-coder:32b",
+    "num_ctx": 8192,
+    "pipeline": "manual-kb",
+    "timeout": 120
+  },
+  "schema_version": 1,
+  "semantic_declared": true,
+  "semantic_evaluated": true,
+  "status": "complete",
+  "tc_id": "pilot_tc_09",
+  "tier": 1
+}

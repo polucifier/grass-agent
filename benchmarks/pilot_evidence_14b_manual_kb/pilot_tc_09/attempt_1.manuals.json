@@ -1,0 +1,594 @@
+{
+  "cards": [
+    {
+      "alternatives": [],
+      "constraints": [
+        "it manufactures file=- (which reads from stdin), so you can continue",
+        "r.mapcalc < file",
+        "file= explicitly, as stated above."
+      ],
+      "examples": [],
+      "flags": [
+        "-s  This flag is deprecated and will be removed in a future release. Seeding is automatic or use parameter seed.",
+        "-l  List input and output maps"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Expression to evaluate",
+          "name": "expression",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "File containing expression(s) to evaluate",
+          "name": "file",
+          "options": [],
+          "required": false,
+          "type": "str | io.StringIO"
+        },
+        {
+          "default": "0",
+          "description": "Number of threads for parallel computing",
+          "name": "nprocs",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "current",
+          "description": "The computational region that should be used.",
+          "name": "region",
+          "options": [
+            "current",
+            "intersect",
+            "union"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Seed value for the random number generator",
+          "name": "seed",
+          "options": [],
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_mapcalc(expression=None,  region=\"current\",  file=None,  seed=None,  nprocs=0,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.mapcalc.md;xml:interface-description",
+      "token_estimate": 303,
+      "tool": "r.mapcalc"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "r.import* checks the CRS metadata of the dataset to be imported against",
+        "The estimated resolution will usually be some floating point number,",
+        "(default), this floating point number will be used as target resolution."
+      ],
+      "examples": [],
+      "flags": [
+        "-e  Estimate resolution only",
+        "-n  Do not perform region cropping optimization",
+        "-l  Force Lat/Lon maps to fit into geographic coordinates (90N,S; 180E,W)",
+        "-o  Assume that the dataset has the same coordinate reference system (CRS) as the current project"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Input band(s) to select (default is all bands)",
+          "name": "band",
+          "options": [],
+          "required": false,
+          "type": "int | list[int] | str"
+        },
+        {
+          "default": "input",
+          "description": "Output raster map extent",
+          "name": "extent",
+          "options": [
+            "input",
+            "region"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of GDAL dataset to be imported",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "300",
+          "description": "Maximum memory to be used (in MB)",
+          "name": "memory",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Name for output raster map",
+          "name": "output",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "nearest",
+          "description": "Resampling method to use for reprojection",
+          "name": "resample",
+          "options": [
+            "nearest",
+            "bilinear",
+            "bicubic",
+            "lanczos",
+            "bilinear_f",
+            "bicubic_f",
+            "lanczos_f"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "estimated",
+          "description": "Resolution of output raster map (default: estimated)",
+          "name": "resolution",
+          "options": [
+            "estimated",
+            "value",
+            "region"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Resolution of output raster map (use with option resolution=value)",
+          "name": "resolution_value",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Title for resultant raster map",
+          "name": "title",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_import(input,  band=None,  memory=300,  output=None,  resample=\"nearest\",  extent=\"input\",  resolution=\"estimated\",  resolution_value=None,  title=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.import.md;xml:interface-description",
+      "token_estimate": 552,
+      "tool": "r.import"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "The calculation method is based on the method used in r.sun to",
+        "calculate shadows. It starts at a very shallow angle and walks along the",
+        "and step parameters. The method takes into account the curvature of"
+      ],
+      "examples": [],
+      "flags": [
+        "-l  Include horizon distance in the plain output",
+        "-d  Write output in degrees (default is radians)",
+        "-c  Write output in compass orientation (default is CCW, East=0)"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "For horizon rasters, read from the DEM an extra buffer around the present region",
+          "name": "bufferzone",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Coordinate(s) for which you want to calculate the horizon",
+          "name": "coordinates",
+          "options": [],
+          "required": false,
+          "type": "east,north"
+        },
+        {
+          "default": "None",
+          "description": "Direction in which you want to know the horizon height",
+          "name": "direction",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "1.0",
+          "description": "Sampling distance step coefficient (0.5-1.5)",
+          "name": "distance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "For horizon rasters, read from the DEM an extra buffer eastward the present region",
+          "name": "e_buff",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name of input elevation raster map",
+          "name": "elevation",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "360.0",
+          "description": "End angle for multidirectional horizon [degrees]",
+          "name": "end",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "-",
+          "description": "Name of file for output (use output=- for stdout)",
+          "name": "file",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "plain",
+          "description": "Output format",
+          "name": "format",
+          "options": [
+            "plain",
+            "json"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "The maximum distance to consider when finding the horizon height",
+          "name": "maxdistance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "For horizon rasters, read from the DEM an extra buffer northward the present region",
+          "name": "n_buff",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "0",
+          "description": "Number of threads for parallel computing",
+          "name": "nprocs",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Name for output basename raster map(s)",
+          "name": "output",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "For horizon rasters, read from the DEM an extra buffer southward the present region",
+          "name": "s_buff",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "0.0",
+          "description": "Start angle for multidirectional horizon [degrees]",
+          "name": "start",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Angle step size for multidirectional horizon [degrees]",
+          "name": "step",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "For horizon rasters, read from the DEM an extra buffer westward the present region",
+          "name": "w_buff",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_horizon(elevation,  direction=None,  step=None,  start=0.0,  end=360.0,  bufferzone=None,  e_buff=None,  w_buff=None,  n_buff=None,  s_buff=None,  maxdistance=None,  output=None,  coordinates=None,  distance=1.0,  format=\"plain\",  file=\"-\",  nprocs=0,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.horizon.md;xml:interface-description",
+      "token_estimate": 774,
+      "tool": "r.horizon"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "The height of the 2D elevation maps will be used to verify the position",
+        "within the 3D region. If the cell value of the elevation raster maps is",
+        "located within the 3D region, the cell value of the appropriate 2D input"
+      ],
+      "examples": [],
+      "flags": [
+        "-u  Use the input map values to fill the upper cells",
+        "-l  Use the input map values to fill the lower cells",
+        "-m  Use 3D raster mask (if exists) with input map"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": null,
+          "description": "Name of input elevation raster map(s)",
+          "name": "elevation",
+          "options": [],
+          "required": true,
+          "type": "str | list[str]"
+        },
+        {
+          "default": null,
+          "description": "Name of input raster map(s)",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "The value to fill the lower cells, default is null",
+          "name": "lower",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name for output 3D raster map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "32",
+          "description": "The maximum tile size in kilo bytes. Default is 32KB.",
+          "name": "tilesize",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "The value to fill the upper cells, default is null",
+          "name": "upper",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_to_rast3elev(input,  elevation,  output,  upper=None,  lower=None,  tilesize=32,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.to.rast3elev.md;xml:interface-description",
+      "token_estimate": 353,
+      "tool": "r.to.rast3elev"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "slope value threshold, after that it becomes unfavourable. The default",
+        "slope value threshold (slope_factor) is -0.2125, corresponding to",
+        "any floating point value \u2265 0. A friction map is a required parameter; if"
+      ],
+      "examples": [],
+      "flags": [
+        "-k  Use the 'Knight's move'; slower, but more accurate",
+        "-n  Keep null values in output raster map",
+        "-r  Start with values in raster map",
+        "-i  Print info about disk space and memory requirements and exit",
+        "-b  Create bitmask encoded directions"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": null,
+          "description": "Name of input elevation raster map",
+          "name": "elevation",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": null,
+          "description": "Name of input raster map containing friction costs",
+          "name": "friction",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "1.0",
+          "description": "Lambda coefficients for combining walking energy and friction cost",
+          "name": "lambda",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "0",
+          "description": "Maximum cumulative cost",
+          "name": "max_cost",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "300",
+          "description": "Maximum memory to be used (in MB)",
+          "name": "memory",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Name for output raster map with nearest start point",
+          "name": "nearest",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Cost assigned to null cells. By default, null cells are excluded",
+          "name": "null_cost",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Name for output raster map to contain movement directions",
+          "name": "outdir",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": null,
+          "description": "Name for output raster map to contain walking costs",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "-0.2125",
+          "description": "Slope factor determines travel energy cost per height step",
+          "name": "slope_factor",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Name of input raster map solving equal costs",
+          "name": "solver",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "None",
+          "description": "Coordinates of starting point(s) (E,N)",
+          "name": "start_coordinates",
+          "options": [],
+          "required": false,
+          "type": "east,north"
+        },
+        {
+          "default": "None",
+          "description": "Name of starting vector points map",
+          "name": "start_points",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of starting raster points map",
+          "name": "start_raster",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "None",
+          "description": "Coordinates of stopping point(s) (E,N)",
+          "name": "stop_coordinates",
+          "options": [],
+          "required": false,
+          "type": "east,north"
+        },
+        {
+          "default": "None",
+          "description": "Name of stopping vector points map",
+          "name": "stop_points",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "0.72,6.0,1.9998,-1.9998",
+          "description": "Coefficients for walking energy formula parameters a,b,c,d",
+          "name": "walk_coeff",
+          "options": [],
+          "required": false,
+          "type": "a,b,c,d"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_walk(elevation,  friction,  output,  solver=None,  nearest=None,  outdir=None,  start_points=None,  stop_points=None,  start_raster=None,  start_coordinates=None,  stop_coordinates=None,  max_cost=0,  null_cost=None,  memory=300,  walk_coeff=\"0.72,6.0,1.9998,-1.9998\",  lambda=1.0,  slope_factor=-0.2125,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.walk.md;xml:interface-description",
+      "token_estimate": 812,
+      "tool": "r.walk"
+    }
+  ],
+  "omissions": [
+    "r.mapcalc: EXAMPLES",
+    "r.mapcalc: DESCRIPTION",
+    "r.import: EXAMPLES",
+    "r.import: DESCRIPTION",
+    "r.horizon: EXAMPLES",
+    "r.horizon: DESCRIPTION",
+    "r.to.rast3elev: EXAMPLES",
+    "r.to.rast3elev: DESCRIPTION",
+    "r.walk: EXAMPLES",
+    "r.walk: DESCRIPTION"
+  ],
+  "tokens": 2794,
+  "tool": null
+}

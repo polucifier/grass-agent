@@ -1,0 +1,73 @@
+{
+  "fallback": false,
+  "pipeline": "planned",
+  "plan": {
+    "assumptions": [],
+    "plan_repair_count": 1,
+    "planner_invocations": 2,
+    "replan_count": 0,
+    "revision": 1,
+    "steps": [
+      {
+        "constraints": [
+          "tool=rm_dupl"
+        ],
+        "id": 1,
+        "inputs": [
+          "streets"
+        ],
+        "intent": "Remove duplicate line segments",
+        "output_types": [
+          "vector"
+        ],
+        "outputs": [
+          "streets_clean"
+        ],
+        "tool": "v.clean"
+      },
+      {
+        "constraints": [
+          "tool=chop",
+          "threshold=1"
+        ],
+        "id": 2,
+        "inputs": [
+          "streets_clean"
+        ],
+        "intent": "Snap nodes with a 1-meter threshold",
+        "output_types": [
+          "vector"
+        ],
+        "outputs": [
+          "pilot_roads_clean"
+        ],
+        "tool": "v.clean"
+      }
+    ]
+  },
+  "plan_repair_count": 1,
+  "planner_completion_tokens": 378,
+  "planner_invocations": 2,
+  "planner_prompt_tokens": 1376,
+  "replan_count": 0,
+  "revision": 1,
+  "shortlist": [
+    "v.clean",
+    "v.net",
+    "v.patch",
+    "v.segment",
+    "v.net.path",
+    "v.net.flow",
+    "v.edit",
+    "v.extract",
+    "v.net.centrality",
+    "v.to.points",
+    "v.select",
+    "v.split"
+  ],
+  "shortlist_shortfall": false,
+  "validation": {
+    "errors": [],
+    "ok": true
+  }
+}

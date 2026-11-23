@@ -1,0 +1,134 @@
+{
+  "attempts": [
+    {
+      "assertion_results": [
+        {
+          "check": "feature_count",
+          "detail": "feature_count=1830 (minimum 1)",
+          "expected": 1,
+          "observed": 1830,
+          "output": "pilot_geology_dissolved",
+          "passed": true,
+          "query": "v.info -t map=pilot_geology_dissolved",
+          "tolerance": null
+        },
+        {
+          "check": "geometry_type",
+          "detail": "geometry=area, expected area",
+          "expected": "area",
+          "observed": "area",
+          "output": "pilot_geology_dissolved",
+          "passed": true,
+          "query": "v.info -t map=pilot_geology_dissolved",
+          "tolerance": null
+        },
+        {
+          "check": "required_columns",
+          "detail": "all required columns present",
+          "expected": [
+            "cat",
+            "GEO_NAME"
+          ],
+          "observed": [
+            "cat",
+            "GEO_NAME"
+          ],
+          "output": "pilot_geology_dissolved",
+          "passed": true,
+          "query": "v.info -c map=pilot_geology_dissolved",
+          "tolerance": null
+        }
+      ],
+      "ast_sha256": "41d7eaf57b7955f88187196593d899204972cd76dacc9af179676f8ff97d8d0a",
+      "budget_tier": "initial",
+      "code_sha256": "df8e13342fa1f979933aa3a78f576f033b72be3fc57fa48a47bc67526d43de6c",
+      "completion_tokens": 41,
+      "duplicate": false,
+      "error_excerpt": null,
+      "exit_code": 0,
+      "failing_tool": null,
+      "failure_mode": null,
+      "latency_s": 6.533264347119257,
+      "log_path": "attempt_1.log",
+      "manual_card_tokens": 412,
+      "manual_context_tokens": 3686,
+      "manual_omissions": [
+        "v.dissolve: DESCRIPTION"
+      ],
+      "new_maps": {
+        "raster": [],
+        "vector": [
+          "pilot_geology_dissolved"
+        ]
+      },
+      "num_ctx": 8192,
+      "ordinal": 1,
+      "outcome": "executed_ok",
+      "pipeline": "planned",
+      "pivot_used": false,
+      "plan_fallback": false,
+      "plan_repair_count": 0,
+      "plan_revision": 0,
+      "planned_tools": [
+        "v.dissolve"
+      ],
+      "planner_completion_tokens": 126,
+      "planner_invocations": 1,
+      "planner_prompt_tokens": 569,
+      "prompt_tokens": 1217,
+      "replan_count": 0,
+      "script_path": "attempt_1.py",
+      "semantic_evaluated": true,
+      "semantic_passed": true,
+      "shortlist_shortfall": false,
+      "signal_name": null,
+      "stage": "success",
+      "static_issues": [],
+      "static_passed": true,
+      "stderr_path": "attempt_1.stderr",
+      "stdout_path": "attempt_1.stdout",
+      "timed_out": false,
+      "tool_swaps": []
+    }
+  ],
+  "auxiliary_inputs": [],
+  "budget_ledger": {
+    "runtime_limit": 2,
+    "runtime_remaining": 2,
+    "runtime_used": 0,
+    "static_limit": 2,
+    "static_remaining": 2,
+    "static_used": 0
+  },
+  "category": "single_tool",
+  "completed_at": "2026-11-23T19:20:08+00:00",
+  "failure_mode_transitions": [
+    null
+  ],
+  "final_script": "final.py",
+  "harness_version": "gate3",
+  "no_op_count": 0,
+  "pass_at_1": true,
+  "pass_at_executed": true,
+  "pass_at_healed": true,
+  "pass_at_semantic": true,
+  "prompt": "Dissolve adjacent geology polygons that share the same GEO_NAME attribute. Write the dissolved areas to the vector map pilot_geology_dissolved. Do not change the computational region.",
+  "resume_key": {
+    "attempt1_source": "fresh",
+    "harness": "gate3",
+    "manual_context_tokens": 3686,
+    "max_retries": 2,
+    "max_runtime_retries": 2,
+    "max_static_retries": 2,
+    "model": "qwen2.5-coder:14b",
+    "num_ctx": 8192,
+    "pipeline": "planned",
+    "timeout": 120
+  },
+  "schema_version": 1,
+  "semantic_declared": true,
+  "semantic_evaluated": true,
+  "status": "complete",
+  "tc_id": "pilot_tc_18",
+  "tier": 2
+}

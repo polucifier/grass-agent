@@ -1,0 +1,453 @@
+{
+  "cards": [
+    {
+      "alternatives": [],
+      "constraints": [
+        "GRASS defines a vector area as a composite entity consisting of a set of",
+        "closed boundaries and a centroid. The centroids must contain a category",
+        "to v.reclass before."
+      ],
+      "examples": [
+        "v.dissolve input=undissolved output=dissolved",
+        "g.copy vect=soils_general,mysoils_general\nv.dissolve mysoils_general output=mysoils_general_families column=GSL_NAME"
+      ],
+      "flags": [],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Backend for attribute aggregation",
+          "name": "aggregate_backend",
+          "options": [
+            "sql",
+            "univar"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Names of attribute columns to get aggregate statistics for",
+          "name": "aggregate_columns",
+          "options": [],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "Aggregate statistics method (e.g., sum)",
+          "name": "aggregate_methods",
+          "options": [],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "Name of attribute column used to dissolve features",
+          "name": "column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Layer number or name.",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "New attribute column names for aggregate statistics results",
+          "name": "result_columns",
+          "options": [],
+          "required": false,
+          "type": "str | list[str]"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_dissolve(input,  layer=\"1\",  column=None,  output,  aggregate_columns=None,  aggregate_methods=None,  result_columns=None,  aggregate_backend=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.dissolve.md;xml:interface-description",
+      "token_estimate": 412,
+      "tool": "v.dissolve"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "unit parameter is set. The units miles, feet, meters* and",
+        "Feet and acre units are always reported in their common versions (i.e.",
+        "coordinate reference system's standard map unit is the US Survey foot."
+      ],
+      "examples": [
+        "v.to.db map=soils type=centroid option=cat",
+        "v.to.db map=soils type=centroid option=area columns=area_size unit=h"
+      ],
+      "flags": [
+        "-p  Print only",
+        "-h  Print header",
+        "-s  Only print SQL statements",
+        "-c  Print also totals for option length, area, or count"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": null,
+          "description": "Name of attribute column(s) to populate",
+          "name": "columns",
+          "options": [],
+          "required": true,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "plain",
+          "description": "Output format",
+          "name": "format",
+          "options": [
+            "plain",
+            "json"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Layer number or name (write to)",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of vector map",
+          "name": "map",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Value to upload",
+          "name": "option",
+          "options": [
+            "cat",
+            "area",
+            "compact",
+            "fd",
+            "perimeter",
+            "length",
+            "count",
+            "coor",
+            "start",
+            "end",
+            "sides",
+            "query",
+            "slope",
+            "sinuous",
+            "azimuth",
+            "bbox"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of attribute column used for 'query' option",
+          "name": "query_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Query layer number or name (read from)",
+          "name": "query_layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "pipe",
+          "description": "Field separator for print mode",
+          "name": "separator",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "point,line,boundary,centroid",
+          "description": "Feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "Units",
+          "name": "units",
+          "options": [
+            "miles",
+            "feet",
+            "meters",
+            "kilometers",
+            "acres",
+            "hectares",
+            "radians",
+            "degrees"
+          ],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_to_db(map,  layer=\"1\",  type=\"point,line,boundary,centroid\",  option,  columns,  units=None,  query_layer=\"1\",  query_column=None,  separator=\"pipe\",  format=\"plain\",  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.to.db.md;xml:interface-description",
+      "token_estimate": 561,
+      "tool": "v.to.db"
+    },
+    {
+      "alternatives": [],
+      "constraints": [],
+      "examples": [
+        "g.region raster=elevation -p\n# random sampling of points (note that r.random also writes vector points)\nr.random elevation raster_output=elevrand1000 n=1000\nr.to.vect input=elevrand1000 output=elevrand1000 type=point\n# univariate statistics of sample points\nv.univar elevrand1000 column=value type=point\n# compare to univariate statistics on original full raster map\nr.univar elevation",
+        "g.region raster=elevation -p\nr.watershed elev=elevation stream=elev.streams thresh=50000\nr.to.vect -s input=elev.streams output=elev_streams type=line\n# drop \"label\" column which is superfluous in this example\nv.db.dropcolumn map=elev_streams column=label\nv.db.renamecolumn map=elev_streams column=value,basin_id\n# report length per basin ID\nv.report map=elev_streams option=length units=meters sort=asc"
+      ],
+      "flags": [
+        "-s  Smooth corners of area features",
+        "-v  Use raster values as categories instead of unique sequence (CELL only)",
+        "-z  Table is not created. Currently supported only for points.",
+        "-b  Recommended for massive point conversion",
+        "-c  Default: centroids are located anywhere in areas, often close to boundaries",
+        "-t  Do not create attribute table"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "value",
+          "description": "Name of attribute column to store value",
+          "name": "column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input raster map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Output feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "area"
+          ],
+          "required": true,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_to_vect(input,  output,  type,  column=\"value\",  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.to.vect.md;xml:interface-description",
+      "token_estimate": 515,
+      "tool": "r.to.vect"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "Grid points created with the type=point option will be placed at the",
+        "center* of each grid cell, like centroids with the default",
+        "type=area option."
+      ],
+      "examples": [
+        "# set the region:\ng.region n=90 s=-90 w=-180 e=180 res=10 -p\nprojection: 3 (Latitude-Longitude)\nzone:       0\ndatum:      wgs84\nellipsoid:  wgs84\nnorth:      90N\nsouth:      90S\nwest:       180W\neast:       180E\nnsres:      10\newres:      10\nrows:       18\ncols:       36\ncells:      648\n\n# create 10 degree size grid:\nv.mkgrid map=grid_10deg\n\n# create 20 degree size grid:\nv.mkgrid map=grid_20deg box=20,20",
+        "v.mkgrid map=coro_grid grid=4,3 position=coor coordinates=2716500,6447000 box=20000,20000"
+      ],
+      "flags": [
+        "-h  Create hexagons (default: rectangles)",
+        "-a  Allow asymmetric hexagons",
+        "-d  Applies only to lines for rectangles"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "0",
+          "description": "Angle of rotation (in degrees counter-clockwise)",
+          "name": "angle",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Width and height of boxes in grid",
+          "name": "box",
+          "options": [],
+          "required": false,
+          "type": "width,height"
+        },
+        {
+          "default": "0",
+          "description": "Number of vertex points per grid cell",
+          "name": "breaks",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Lower left easting and northing coordinates of map",
+          "name": "coordinates",
+          "options": [],
+          "required": false,
+          "type": "east,north"
+        },
+        {
+          "default": "None",
+          "description": "Number of rows and columns in grid",
+          "name": "grid",
+          "options": [],
+          "required": false,
+          "type": "rows,columns"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "map",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "region",
+          "description": "Where to place the grid",
+          "name": "position",
+          "options": [
+            "region",
+            "coor"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "area",
+          "description": "Output feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "area"
+          ],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_mkgrid(map,  grid=None,  position=\"region\",  coordinates=None,  box=None,  angle=0,  breaks=0,  type=\"area\",  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.mkgrid.md;xml:interface-description",
+      "token_estimate": 533,
+      "tool": "v.mkgrid"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "Any vectors that are duplicated among the maps being patched together",
+        "tool=snap,break,rmdupl*.",
+        "[v.clean](v.clean.md) tool=snap,break,rmdupl*."
+      ],
+      "examples": [
+        "v.patch input=geology,streams out=geol_streams",
+        "g.copy vect=roads,transport\n   v.patch -a input=railroads output=transport --overwrite"
+      ],
+      "flags": [
+        "-n  Applicable when input is points without topology",
+        "-z  Applicable when input is points with z coordinate but without topology",
+        "-e  Only the table of layer 1 is currently supported",
+        "-a  Append files to existing file (overwriting existing files must be activated)",
+        "-b  Advantageous when handling a large number of points"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Name for output vector map where bounding boxes of input vector maps are written to",
+          "name": "bbox",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map(s)",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str | list[str]"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_patch(input,  output,  bbox=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.patch.md;xml:interface-description",
+      "token_estimate": 335,
+      "tool": "v.patch"
+    }
+  ],
+  "omissions": [
+    "v.dissolve: DESCRIPTION",
+    "v.to.db: DESCRIPTION",
+    "r.to.vect: DESCRIPTION",
+    "v.mkgrid: DESCRIPTION",
+    "v.patch: DESCRIPTION"
+  ],
+  "tokens": 2356,
+  "tool": null
+}

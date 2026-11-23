@@ -1,0 +1,141 @@
+{
+  "attempts": [
+    {
+      "assertion_results": [
+        {
+          "check": "feature_count",
+          "detail": "feature_count=354 (minimum 1)",
+          "expected": 1,
+          "observed": 354,
+          "output": "pilot_roads_clean",
+          "passed": true,
+          "query": "v.info -t map=pilot_roads_clean",
+          "tolerance": null
+        },
+        {
+          "check": "geometry_type",
+          "detail": "geometry=line, expected line",
+          "expected": "line",
+          "observed": "line",
+          "output": "pilot_roads_clean",
+          "passed": true,
+          "query": "v.info -t map=pilot_roads_clean",
+          "tolerance": null
+        },
+        {
+          "check": "required_columns",
+          "detail": "all required columns present",
+          "expected": [
+            "cat",
+            "ROAD_NAME"
+          ],
+          "observed": [
+            "cat",
+            "MAJORRDS_",
+            "ROAD_NAME",
+            "MULTILANE",
+            "PROPYEAR",
+            "OBJECTID",
+            "SHAPE_LEN"
+          ],
+          "output": "pilot_roads_clean",
+          "passed": true,
+          "query": "v.info -c map=pilot_roads_clean",
+          "tolerance": null
+        }
+      ],
+      "ast_sha256": "f4377dff96381f1865aeee61900e3cfebf08807ac17f613dcae8076b4aac7a01",
+      "budget_tier": "initial",
+      "code_sha256": "fe6fef2dc12f688e390f32e328076e9e7316faeeb7895bddd201d340138a02cf",
+      "completion_tokens": 62,
+      "duplicate": false,
+      "error_excerpt": null,
+      "exit_code": 0,
+      "failing_tool": null,
+      "failure_mode": null,
+      "latency_s": 11.509467893047258,
+      "log_path": "attempt_1.log",
+      "manual_card_tokens": 529,
+      "manual_context_tokens": 3686,
+      "manual_omissions": [
+        "v.clean: DESCRIPTION"
+      ],
+      "new_maps": {
+        "raster": [],
+        "vector": [
+          "pilot_roads_clean",
+          "roadsmajor_clean1"
+        ]
+      },
+      "num_ctx": 8192,
+      "ordinal": 1,
+      "outcome": "executed_ok",
+      "pipeline": "planned",
+      "pivot_used": false,
+      "plan_fallback": false,
+      "plan_repair_count": 0,
+      "plan_revision": 0,
+      "planned_tools": [
+        "v.clean",
+        "v.clean"
+      ],
+      "planner_completion_tokens": 165,
+      "planner_invocations": 1,
+      "planner_prompt_tokens": 551,
+      "prompt_tokens": 1394,
+      "replan_count": 0,
+      "script_path": "attempt_1.py",
+      "semantic_evaluated": true,
+      "semantic_passed": true,
+      "shortlist_shortfall": false,
+      "signal_name": null,
+      "stage": "success",
+      "static_issues": [],
+      "static_passed": true,
+      "stderr_path": "attempt_1.stderr",
+      "stdout_path": "attempt_1.stdout",
+      "timed_out": false,
+      "tool_swaps": []
+    }
+  ],
+  "auxiliary_inputs": [],
+  "budget_ledger": {
+    "runtime_limit": 2,
+    "runtime_remaining": 2,
+    "runtime_used": 0,
+    "static_limit": 2,
+    "static_remaining": 2,
+    "static_used": 0
+  },
+  "category": "single_tool",
+  "completed_at": "2026-11-23T19:40:24+00:00",
+  "failure_mode_transitions": [
+    null
+  ],
+  "final_script": "final.py",
+  "harness_version": "gate3",
+  "no_op_count": 0,
+  "pass_at_1": true,
+  "pass_at_executed": true,
+  "pass_at_healed": true,
+  "pass_at_semantic": true,
+  "prompt": "Clean the road network vector by removing duplicate line segments and snapping nodes with a 1-meter threshold. Write the cleaned roads to the vector map pilot_roads_clean. Do not change the computational region.",
+  "resume_key": {
+    "attempt1_source": "fresh",
+    "harness": "gate3",
+    "manual_context_tokens": 3686,
+    "max_retries": 2,
+    "max_runtime_retries": 2,
+    "max_static_retries": 2,
+    "model": "qwen2.5-coder:32b",
+    "num_ctx": 8192,
+    "pipeline": "planned",
+    "timeout": 120
+  },
+  "schema_version": 1,
+  "semantic_declared": true,
+  "semantic_evaluated": true,
+  "status": "complete",
+  "tc_id": "pilot_tc_14",
+  "tier": 2
+}

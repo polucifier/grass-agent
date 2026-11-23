@@ -1,0 +1,116 @@
+{
+  "cards": [
+    {
+      "alternatives": [],
+      "constraints": [
+        "By default the elevations are not adjusted for the curvature of the",
+        "By default the observer is assumed to have height 1.75 map units above",
+        "observer_elevation. The value entered is in the same units as the"
+      ],
+      "examples": [
+        "g.region raster=elev_lid792_1m -p\nr.viewshed input=elev_lid792_1m output=elev_lid792_1m_viewshed coordinates=638728,220609 observer_elevation=5.0",
+        "g.region raster=elevation.10m\nr.viewshed input=elevation.10m output=viewshed coordinates=598869,4916642 memory=800"
+      ],
+      "flags": [
+        "-c  Consider the curvature of the earth (current ellipsoid)",
+        "-r  Consider the effect of atmospheric refraction",
+        "-b  Output format is invisible = 0, visible = 1",
+        "-e  Output format is invisible = NULL, else current elev - viewpoint_elev"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": null,
+          "description": "Coordinates of viewing position",
+          "name": "coordinates",
+          "options": [],
+          "required": true,
+          "type": "east,north"
+        },
+        {
+          "default": "None",
+          "description": "Minimum and maximum horizontal angle limiting viewshed (0 is East, counterclockwise)",
+          "name": "direction_range",
+          "options": [],
+          "required": false,
+          "type": "min,max"
+        },
+        {
+          "default": "None",
+          "description": "Directory to hold temporary files (they can be large)",
+          "name": "directory",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input elevation raster map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "-1",
+          "description": "Maximum visibility radius. By default infinity (-1)",
+          "name": "max_distance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "500",
+          "description": "Amount of memory to use in MB",
+          "name": "memory",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "1.75",
+          "description": "Viewing elevation above the ground",
+          "name": "observer_elevation",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name for output raster map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "0.14286",
+          "description": "Refraction coefficient",
+          "name": "refraction_coeff",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "0.0",
+          "description": "Offset for target elevation above the ground",
+          "name": "target_elevation",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_viewshed(input,  output,  coordinates,  observer_elevation=1.75,  target_elevation=0.0,  max_distance=-1,  direction_range=None,  refraction_coeff=0.14286,  memory=500,  directory=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.viewshed.md;xml:interface-description",
+      "token_estimate": 618,
+      "tool": "r.viewshed"
+    }
+  ],
+  "omissions": [
+    "r.viewshed: DESCRIPTION"
+  ],
+  "tokens": 618,
+  "tool": null
+}

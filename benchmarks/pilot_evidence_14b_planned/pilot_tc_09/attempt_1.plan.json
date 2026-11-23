@@ -1,0 +1,53 @@
+{
+  "fallback": false,
+  "pipeline": "planned",
+  "plan": {
+    "assumptions": [],
+    "plan_repair_count": 0,
+    "planner_invocations": 1,
+    "replan_count": 0,
+    "revision": 0,
+    "steps": [
+      {
+        "constraints": [],
+        "id": 1,
+        "inputs": [
+          "elevation"
+        ],
+        "intent": "Multiply the elevation raster by 2",
+        "output_types": [
+          "raster"
+        ],
+        "outputs": [
+          "pilot_elevation_double"
+        ],
+        "tool": "r.mapcalc"
+      }
+    ]
+  },
+  "plan_repair_count": 0,
+  "planner_completion_tokens": 83,
+  "planner_invocations": 1,
+  "planner_prompt_tokens": 612,
+  "replan_count": 0,
+  "revision": 0,
+  "shortlist": [
+    "r.mapcalc",
+    "r.import",
+    "r.horizon",
+    "r.patch",
+    "r.to.rast3elev",
+    "r.walk",
+    "r.relief",
+    "r.flow",
+    "r.surf.area",
+    "r.buildvrt",
+    "r.region",
+    "r.plane"
+  ],
+  "shortlist_shortfall": false,
+  "validation": {
+    "errors": [],
+    "ok": true
+  }
+}

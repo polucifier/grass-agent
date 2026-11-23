@@ -1,0 +1,30 @@
+{
+  "fallback": true,
+  "pipeline": "planned",
+  "plan": null,
+  "plan_repair_count": 1,
+  "planner_completion_tokens": 721,
+  "planner_invocations": 2,
+  "planner_prompt_tokens": 1626,
+  "replan_count": 0,
+  "revision": 0,
+  "shortlist": [
+    "r.slope.aspect",
+    "r.reclass",
+    "v.to.db",
+    "r.to.vect",
+    "r.import",
+    "v.to.rast",
+    "v.rast.stats",
+    "v.extrude",
+    "r.to.rast3elev",
+    "v.to.rast3",
+    "r.contour",
+    "r.geomorphon"
+  ],
+  "shortlist_shortfall": false,
+  "validation": {
+    "errors": [],
+    "ok": false
+  }
+}

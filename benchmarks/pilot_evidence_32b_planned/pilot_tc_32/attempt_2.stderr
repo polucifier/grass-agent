@@ -1,0 +1,40 @@
+Traceback (most recent call last):
+  File "/grass-agent/benchmarks/pilot_evidence_32b_planned/pilot_tc_32/attempt_2.py", line 5, in <module>
+    tools.r_reclass(input="steep_areas", output="steep_areas_reclassified", rules="-\n1 = 1\n* = NULL\n")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/grass85/etc/python/grass/tools/support.py", line 188, in wrapper
+    return self._run_function(tool_name, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/grass85/etc/python/grass/tools/session_tools.py", line 415, in run
+    result = self._run_cmd(
+        args,
+    ...<3 lines>...
+        **popen_options,
+    )
+  File "/usr/lib/grass85/etc/python/grass/tools/session_tools.py", line 505, in _run_cmd
+    result = self.call_cmd(
+        command,
+    ...<2 lines>...
+        **popen_options,
+    )
+  File "/usr/lib/grass85/etc/python/grass/tools/session_tools.py", line 591, in call_cmd
+    return gs.handle_errors(
+           ~~~~~~~~~~~~~~~~^
+        returncode,
+        ^^^^^^^^^^^
+    ...<6 lines>...
+        env=popen_options["env"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/lib/grass85/etc/python/grass/script/core.py", line 470, in handle_errors
+    raise exception(module, code, returncode=returncode, errors=stderr)
+grass.tools.session_tools.ToolError: Run `r.reclass input=steep_areas output=steep_areas_reclassified rules=-
+1 = 1
+* = NULL
+` ended with an error (return code 1):
+ERROR: Cannot open rules file <-
+       1 = 1
+       * = NULL
+       >
+

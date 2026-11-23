@@ -1,0 +1,512 @@
+{
+  "cards": [
+    {
+      "alternatives": [],
+      "constraints": [
+        "r.contour* will either step through incremental contours or produce",
+        "contours from a list of levels, not both. If both a list of levels and a",
+        "step are specified, the list will be produced and the step will be"
+      ],
+      "examples": [
+        "r.contour input=elevation.dem output=elevation_dem_contours \\\n          minlevel=1000 maxlevel=2000 step=100 cut=200",
+        "g.region raster=elevation\nr.contour in=elevation out=contours levels=60,90,120,150 --o\nd.mon wx0\nd.rast elevation_shade\nd.vect contours color=red"
+      ],
+      "flags": [
+        "-t  Do not create attribute table"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "2",
+          "description": "Minimum number of points for a contour line (0 -> no limit)",
+          "name": "cut",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": null,
+          "description": "Name of input raster map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "None",
+          "description": "List of contour levels",
+          "name": "levels",
+          "options": [],
+          "required": false,
+          "type": "float | list[float] | str"
+        },
+        {
+          "default": "None",
+          "description": "Maximum contour level",
+          "name": "maxlevel",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Minimum contour level",
+          "name": "minlevel",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Increment between contour levels",
+          "name": "step",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_contour(input,  output,  step=None,  levels=None,  minlevel=None,  maxlevel=None,  cut=2,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.contour.md;xml:interface-description",
+      "token_estimate": 391,
+      "tool": "r.contour"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "To ensure that the raster elevation map is not inappropriately",
+        "Only when using integer elevation models, the aspect is biased in 0, 45,",
+        "categories. When working with floating point elevation models, no such"
+      ],
+      "examples": [
+        "g.region raster=elevation\nr.slope.aspect elevation=elevation slope=slope aspect=aspect pcurvature=pcurv tcurvature=tcurv\n\n# set nice color tables for output raster maps\nr.colors -n map=slope color=sepia\nr.colors map=aspect color=aspectcolr\nr.colors map=pcurv color=curvature\nr.colors map=tcurv color=curvature",
+        "g.region raster=elevation -p\n\n# generate integer aspect map with degrees CCW from East\nr.slope.aspect elevation=elevation aspect=myaspect precision=CELL\n\n# generate compass orientation and classify four major directions (N, E, S, W)\nr.mapcalc \"aspect_4_directions = eval( \\\\\n   compass=(450 - myaspect ) % 360, \\\\\n     if(compass >=0. && compass < 45., 1)  \\\\\n   + if(compass >=45. && compass < 135., 2) \\\\\n   + if(compass >=135. && compass < 225., 3) \\\\\n   + if(compass >=225. && compass < 315., 4) \\\\\n   + if(compass >=315., 1) \\\\\n)\"\n\n# assign text labels\nr.category aspect_4_directions separator=comma rules=- << EOF\n1,north\n2,east\n3,south\n4,west\nEOF\n\n# assign color table\nr.colors aspect_4_directions rules=- << EOF\n1 253,184,99\n2 178,171,210\n3 230,97,1\n4 94,60,153\nEOF"
+      ],
+      "flags": [
+        "-a  Do not align the current region to the raster elevation map",
+        "-e  Compute output at edges and near NULL values",
+        "-n  Default: degrees counter-clockwise from East, with flat = 0"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Name for output aspect raster map",
+          "name": "aspect",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name for output first order partial derivative dx (E-W slope) raster map",
+          "name": "dx",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name for output second order partial derivative dxx raster map",
+          "name": "dxx",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name for output second order partial derivative dxy raster map",
+          "name": "dxy",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name for output first order partial derivative dy (N-S slope) raster map",
+          "name": "dy",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name for output second order partial derivative dyy raster map",
+          "name": "dyy",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": null,
+          "description": "Name of input elevation raster map",
+          "name": "elevation",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "degrees",
+          "description": "Format for reporting the slope",
+          "name": "format",
+          "options": [
+            "degrees",
+            "percent"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "300",
+          "description": "Maximum memory to be used (in MB)",
+          "name": "memory",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "0.0",
+          "description": "Minimum slope value (in percent) for which aspect is computed",
+          "name": "min_slope",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "0",
+          "description": "Number of threads for parallel computing",
+          "name": "nprocs",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Name for output profile curvature raster map",
+          "name": "pcurvature",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "FCELL",
+          "description": "Type of output aspect and slope maps",
+          "name": "precision",
+          "options": [
+            "CELL",
+            "FCELL",
+            "DCELL"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name for output slope raster map",
+          "name": "slope",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name for output tangential curvature raster map",
+          "name": "tcurvature",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "1.0",
+          "description": "Multiplicative factor to convert elevation units to horizontal units",
+          "name": "zscale",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_slope_aspect(elevation,  slope=None,  aspect=None,  format=\"degrees\",  precision=\"FCELL\",  pcurvature=None,  tcurvature=None,  dx=None,  dy=None,  dxx=None,  dyy=None,  dxy=None,  zscale=1.0,  min_slope=0.0,  nprocs=0,  memory=300,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.slope.aspect.md;xml:interface-description",
+      "token_estimate": 1204,
+      "tool": "r.slope.aspect"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "Aspect used for input must follow the same rules as aspect computed in",
+        "For best results, use input elevation maps with high precision units",
+        "upslope contributing area per unit contour width. This area is a measure"
+      ],
+      "examples": [],
+      "flags": [
+        "-u  Compute upslope flowlines instead of default downhill flowlines",
+        "-3  3D lengths instead of 2D",
+        "-m  Use less memory, at a performance penalty"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Name of input aspect raster map",
+          "name": "aspect",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "None",
+          "description": "Name of input barrier raster map",
+          "name": "barrier",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "None",
+          "description": "Maximum number of segments per flowline",
+          "name": "bound",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": null,
+          "description": "Name of input elevation raster map",
+          "name": "elevation",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "None",
+          "description": "Name for output flow accumulation raster map",
+          "name": "flowaccumulation",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name for output flow path length raster map",
+          "name": "flowlength",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name for output flow line vector map",
+          "name": "flowline",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Number of cells between flowlines",
+          "name": "skip",
+          "options": [],
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_flow(elevation,  aspect=None,  barrier=None,  skip=None,  bound=None,  flowline=None,  flowlength=None,  flowaccumulation=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.flow.md;xml:interface-description",
+      "token_estimate": 430,
+      "tool": "r.flow"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "r.surf.contour* works well under the following circumstances: 1) the",
+        "contour lines extend to the edge of the current region, 2) the",
+        "program is run at the same resolution as that of the input map, 3) there"
+      ],
+      "examples": [],
+      "flags": [],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": null,
+          "description": "Name of input raster map containing contours",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": null,
+          "description": "Name for output raster map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_surf_contour(input,  output,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.surf.contour.md;xml:interface-description",
+      "token_estimate": 189,
+      "tool": "r.surf.contour"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "v.extrude* extrudes vector features which means that points are",
+        "converted to vertical lines. Lines and area boundaries are extruded to a",
+        "set of faces, each segment defines one face. Area centroids are written"
+      ],
+      "examples": [
+        "v.extrude input=houses output=houses3D height=5 type=area",
+        "v.extrude input=houses output=houses3D elevation=dem height_column=height type=area"
+      ],
+      "flags": [
+        "-t  Trace elevation"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Category values",
+          "name": "cats",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Elevation raster map for height extraction",
+          "name": "elevation",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "None",
+          "description": "Fixed height for 3D vector features",
+          "name": "height",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Name of attribute column with feature height",
+          "name": "height_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "-1",
+          "description": "Layer number or name ('-1' for all layers)",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "nearest",
+          "description": "Sampling interpolation method",
+          "name": "method",
+          "options": [
+            "nearest",
+            "bilinear",
+            "bicubic"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Height for sampled raster NULL values",
+          "name": "null_value",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1.0",
+          "description": "Scale factor sampled raster values",
+          "name": "scale",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "point,line,area",
+          "description": "Input feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "area"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "WHERE conditions of SQL statement without 'where' keyword",
+          "name": "where",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "0",
+          "description": "Shifting value for z coordinates",
+          "name": "zshift",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_extrude(input,  layer=\"-1\",  cats=None,  where=None,  type=\"point,line,area\",  output,  zshift=0,  height=None,  height_column=None,  elevation=None,  method=\"nearest\",  scale=1.0,  null_value=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.extrude.md;xml:interface-description",
+      "token_estimate": 552,
+      "tool": "v.extrude"
+    }
+  ],
+  "omissions": [
+    "r.contour: DESCRIPTION",
+    "r.slope.aspect: DESCRIPTION",
+    "r.flow: DESCRIPTION",
+    "r.surf.contour: DESCRIPTION",
+    "v.extrude: DESCRIPTION"
+  ],
+  "tokens": 2767,
+  "tool": null
+}

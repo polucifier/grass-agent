@@ -1,0 +1,30 @@
+{
+  "fallback": true,
+  "pipeline": "planned",
+  "plan": null,
+  "plan_repair_count": 1,
+  "planner_completion_tokens": 501,
+  "planner_invocations": 2,
+  "planner_prompt_tokens": 1418,
+  "replan_count": 0,
+  "revision": 0,
+  "shortlist": [
+    "r.buffer",
+    "v.to.rast",
+    "v.to.db",
+    "d.vect",
+    "r.import",
+    "v.to.rast3",
+    "r.to.vect",
+    "r.region",
+    "r.flow",
+    "v.drape",
+    "r.grow.distance",
+    "v.rast.stats"
+  ],
+  "shortlist_shortfall": false,
+  "validation": {
+    "errors": [],
+    "ok": false
+  }
+}

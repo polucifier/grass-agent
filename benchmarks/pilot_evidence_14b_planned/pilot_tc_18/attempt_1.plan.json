@@ -1,0 +1,56 @@
+{
+  "fallback": false,
+  "pipeline": "planned",
+  "plan": {
+    "assumptions": [
+      "The 'geology' vector map contains the GEO_NAME attribute for dissolving.",
+      "The computational region is not changed as per the task requirement."
+    ],
+    "plan_repair_count": 0,
+    "planner_invocations": 1,
+    "replan_count": 0,
+    "revision": 0,
+    "steps": [
+      {
+        "constraints": [],
+        "id": 1,
+        "inputs": [
+          "geology"
+        ],
+        "intent": "Dissolve adjacent geology polygons that share the same GEO_NAME attribute",
+        "output_types": [
+          "vector"
+        ],
+        "outputs": [
+          "pilot_geology_dissolved"
+        ],
+        "tool": "v.dissolve"
+      }
+    ]
+  },
+  "plan_repair_count": 0,
+  "planner_completion_tokens": 126,
+  "planner_invocations": 1,
+  "planner_prompt_tokens": 569,
+  "replan_count": 0,
+  "revision": 0,
+  "shortlist": [
+    "v.dissolve",
+    "v.to.db",
+    "r.to.vect",
+    "r.import",
+    "v.mkgrid",
+    "v.patch",
+    "v.select",
+    "v.in.region",
+    "v.db.join",
+    "v.extract",
+    "v.decimate",
+    "v.neighbors"
+  ],
+  "shortlist_shortfall": false,
+  "validation": {
+    "errors": [],
+    "ok": true
+  }
+}

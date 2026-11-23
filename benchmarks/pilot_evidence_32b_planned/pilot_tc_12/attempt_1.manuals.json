@@ -1,0 +1,90 @@
+{
+  "cards": [
+    {
+      "alternatives": [],
+      "constraints": [
+        "To visually improve the result of shade maps from low resolution",
+        "elevation models, use [r.resamp.interp](r.resamp.interp.md) with",
+        "bilinear or bicubic method to resample the DEM at higher resolution."
+      ],
+      "examples": [
+        "g.region raster=elevation -p\nr.relief input=elevation output=elevation_shade",
+        "r.shade shade=elevation_shade color=elevation output=elevation_shaded"
+      ],
+      "flags": [],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "30",
+          "description": "Altitude of the sun in degrees above the horizon",
+          "name": "altitude",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "270",
+          "description": "Azimuth of the sun in degrees to the east of north",
+          "name": "azimuth",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name of input raster (typically elevation) map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": null,
+          "description": "Name for output shaded relief map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "1",
+          "description": "Scale factor for converting meters to elevation units",
+          "name": "scale",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Elevation units (overrides scale factor)",
+          "name": "units",
+          "options": [
+            "intl",
+            "survey"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Factor for exaggerating relief",
+          "name": "zscale",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_relief(input,  output,  altitude=30,  azimuth=270,  zscale=1,  scale=1,  units=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.relief.md;xml:interface-description",
+      "token_estimate": 391,
+      "tool": "r.relief"
+    }
+  ],
+  "omissions": [
+    "r.relief: DESCRIPTION"
+  ],
+  "tokens": 391,
+  "tool": null
+}

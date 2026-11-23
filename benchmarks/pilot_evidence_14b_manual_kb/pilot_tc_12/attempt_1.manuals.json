@@ -1,0 +1,728 @@
+{
+  "cards": [
+    {
+      "alternatives": [],
+      "constraints": [
+        "To visually improve the result of shade maps from low resolution",
+        "elevation models, use [r.resamp.interp](r.resamp.interp.md) with",
+        "bilinear or bicubic method to resample the DEM at higher resolution."
+      ],
+      "examples": [],
+      "flags": [],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "30",
+          "description": "Altitude of the sun in degrees above the horizon",
+          "name": "altitude",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "270",
+          "description": "Azimuth of the sun in degrees to the east of north",
+          "name": "azimuth",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name of input raster (typically elevation) map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": null,
+          "description": "Name for output shaded relief map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "1",
+          "description": "Scale factor for converting meters to elevation units",
+          "name": "scale",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Elevation units (overrides scale factor)",
+          "name": "units",
+          "options": [
+            "intl",
+            "survey"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Factor for exaggerating relief",
+          "name": "zscale",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_relief(input,  output,  altitude=30,  azimuth=270,  zscale=1,  scale=1,  units=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.relief.md;xml:interface-description",
+      "token_estimate": 347,
+      "tool": "r.relief"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "r.import* checks the CRS metadata of the dataset to be imported against",
+        "The estimated resolution will usually be some floating point number,",
+        "(default), this floating point number will be used as target resolution."
+      ],
+      "examples": [],
+      "flags": [
+        "-e  Estimate resolution only",
+        "-n  Do not perform region cropping optimization",
+        "-l  Force Lat/Lon maps to fit into geographic coordinates (90N,S; 180E,W)",
+        "-o  Assume that the dataset has the same coordinate reference system (CRS) as the current project"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Input band(s) to select (default is all bands)",
+          "name": "band",
+          "options": [],
+          "required": false,
+          "type": "int | list[int] | str"
+        },
+        {
+          "default": "input",
+          "description": "Output raster map extent",
+          "name": "extent",
+          "options": [
+            "input",
+            "region"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of GDAL dataset to be imported",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "300",
+          "description": "Maximum memory to be used (in MB)",
+          "name": "memory",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Name for output raster map",
+          "name": "output",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "nearest",
+          "description": "Resampling method to use for reprojection",
+          "name": "resample",
+          "options": [
+            "nearest",
+            "bilinear",
+            "bicubic",
+            "lanczos",
+            "bilinear_f",
+            "bicubic_f",
+            "lanczos_f"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "estimated",
+          "description": "Resolution of output raster map (default: estimated)",
+          "name": "resolution",
+          "options": [
+            "estimated",
+            "value",
+            "region"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Resolution of output raster map (use with option resolution=value)",
+          "name": "resolution_value",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Title for resultant raster map",
+          "name": "title",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_import(input,  band=None,  memory=300,  output=None,  resample=\"nearest\",  extent=\"input\",  resolution=\"estimated\",  resolution_value=None,  title=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.import.md;xml:interface-description",
+      "token_estimate": 552,
+      "tool": "r.import"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "Solar energy is an important input parameter in different models",
+        "concerning energy industry, landscape, vegetation, evapotranspiration,",
+        "snowmelt or remote sensing. Solar rays incidence angle maps can be"
+      ],
+      "examples": [],
+      "flags": [
+        "-p  Do not incorporate the shadowing effect of terrain",
+        "-m  Use the low-memory version of the program"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Name of the ground albedo coefficient input raster map [-]",
+          "name": "albedo",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "0.2",
+          "description": "A single value of the ground albedo coefficient [-]",
+          "name": "albedo_value",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Name of the input aspect map (terrain aspect or azimuth of the solar panel) [decimal degrees]",
+          "name": "aspect",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "270",
+          "description": "A single value of the orientation (aspect), 270 is south",
+          "name": "aspect_value",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Output beam irradiance [W.m-2] (mode 1) or irradiation raster map [Wh.m-2.day-1] (mode 2)",
+          "name": "beam_rad",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Civil time zone value, if none, the time will be local solar time",
+          "name": "civil_time",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Name of real-sky beam radiation coefficient (thick cloud) input raster map [0-1]",
+          "name": "coeff_bh",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "None",
+          "description": "Name of real-sky diffuse radiation coefficient (haze) input raster map [0-1]",
+          "name": "coeff_dh",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": null,
+          "description": "No. of day of the year (1-365)",
+          "name": "day",
+          "options": [],
+          "required": true,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Declination value (overriding the internally computed value) [radians]",
+          "name": "declination",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Output diffuse irradiance [W.m-2] (mode 1) or irradiation raster map [Wh.m-2.day-1] (mode 2)",
+          "name": "diff_rad",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "1.0",
+          "description": "Sampling distance step coefficient (0.5-1.5)",
+          "name": "distance_step",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name of the input elevation raster map [meters]",
+          "name": "elevation",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "None",
+          "description": "Output global (total) irradiance/irradiation [W.m-2] (mode 1) or irradiance/irradiation raster map [Wh.m-2.day-1] (mode 2)",
+          "name": "glob_rad",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "The horizon information input map basename",
+          "name": "horizon_basename",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "None",
+          "description": "Angle step size for multidirectional horizon [degrees]",
+          "name": "horizon_step",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Output incidence angle raster map (mode 1 only)",
+          "name": "incidout",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Output insolation time raster map [h] (mode 2 only)",
+          "name": "insol_time",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name of input raster map containing latitudes [decimal degrees]",
+          "name": "lat",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "None",
+          "description": "Name of the Linke atmospheric turbidity coefficient input raster map [-]",
+          "name": "linke",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "3.0",
+          "description": "A single value of the Linke atmospheric turbidity coefficient [-]",
+          "name": "linke_value",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Name of input raster map containing longitudes [decimal degrees]",
+          "name": "long",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "1",
+          "description": "Read the input files in this number of chunks",
+          "name": "npartitions",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "1",
+          "description": "Number of threads which will be used for parallel computing",
+          "name": "nprocs",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Output ground reflected irradiance [W.m-2] (mode 1) or irradiation raster map [Wh.m-2.day-1] (mode 2)",
+          "name": "refl_rad",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name of the input slope raster map (terrain slope or solar panel inclination) [decimal degrees]",
+          "name": "slope",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "0.0",
+          "description": "A single value of inclination (slope)",
+          "name": "slope_value",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "1367",
+          "description": "Solar constant [W/m^2]",
+          "name": "solar_constant",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "0.5",
+          "description": "Time step when computing all-day radiation sums [decimal hours]",
+          "name": "step",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Local (solar) time (to be set for mode 1 only) [decimal hours]",
+          "name": "time",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_sun(elevation,  aspect=None,  aspect_value=270,  slope=None,  slope_value=0.0,  linke=None,  linke_value=3.0,  albedo=None,  albedo_value=0.2,  lat=None,  long=None,  coeff_bh=None,  coeff_dh=None,  horizon_basename=None,  horizon_step=None,  incidout=None,  beam_rad=None,  diff_rad=None,  refl_rad=None,  glob_rad=None,  insol_time=None,  day,  step=0.5,  declination=None,  solar_constant=1367,  time=None,  nprocs=1,  distance_step=1.0,  npartitions=1,  civil_time=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.sun.md;xml:interface-description",
+      "token_estimate": 1382,
+      "tool": "r.sun"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "To consider also cast shadow effects of the terrain, r.sun has to be"
+      ],
+      "examples": [],
+      "flags": [
+        "-t  Time is local sidereal time, not Greenwich standard time",
+        "-s  Do not use SOLPOS algorithm of NREL"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Output raster map with solar azimuth angle",
+          "name": "azimuth",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": null,
+          "description": "Day",
+          "name": "day",
+          "options": [],
+          "required": true,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Output raster map with solar elevation angle",
+          "name": "elevation",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "12",
+          "description": "Hour",
+          "name": "hour",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "0",
+          "description": "Minutes",
+          "name": "minute",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Month",
+          "name": "month",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "0",
+          "description": "Seconds",
+          "name": "second",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Output raster map with sunshine hours",
+          "name": "sunhour",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": null,
+          "description": "Year",
+          "name": "year",
+          "options": [],
+          "required": true,
+          "type": "int"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_sunhours(elevation=None,  azimuth=None,  sunhour=None,  year,  month=None,  day,  hour=12,  minute=0,  second=0,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.sunhours.md;xml:interface-description",
+      "token_estimate": 341,
+      "tool": "r.sunhours"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "The calculation method is based on the method used in r.sun to",
+        "calculate shadows. It starts at a very shallow angle and walks along the",
+        "and step parameters. The method takes into account the curvature of"
+      ],
+      "examples": [],
+      "flags": [
+        "-l  Include horizon distance in the plain output",
+        "-d  Write output in degrees (default is radians)",
+        "-c  Write output in compass orientation (default is CCW, East=0)"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "For horizon rasters, read from the DEM an extra buffer around the present region",
+          "name": "bufferzone",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Coordinate(s) for which you want to calculate the horizon",
+          "name": "coordinates",
+          "options": [],
+          "required": false,
+          "type": "east,north"
+        },
+        {
+          "default": "None",
+          "description": "Direction in which you want to know the horizon height",
+          "name": "direction",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "1.0",
+          "description": "Sampling distance step coefficient (0.5-1.5)",
+          "name": "distance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "For horizon rasters, read from the DEM an extra buffer eastward the present region",
+          "name": "e_buff",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name of input elevation raster map",
+          "name": "elevation",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "360.0",
+          "description": "End angle for multidirectional horizon [degrees]",
+          "name": "end",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "-",
+          "description": "Name of file for output (use output=- for stdout)",
+          "name": "file",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "plain",
+          "description": "Output format",
+          "name": "format",
+          "options": [
+            "plain",
+            "json"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "The maximum distance to consider when finding the horizon height",
+          "name": "maxdistance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "For horizon rasters, read from the DEM an extra buffer northward the present region",
+          "name": "n_buff",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "0",
+          "description": "Number of threads for parallel computing",
+          "name": "nprocs",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Name for output basename raster map(s)",
+          "name": "output",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "For horizon rasters, read from the DEM an extra buffer southward the present region",
+          "name": "s_buff",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "0.0",
+          "description": "Start angle for multidirectional horizon [degrees]",
+          "name": "start",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Angle step size for multidirectional horizon [degrees]",
+          "name": "step",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "For horizon rasters, read from the DEM an extra buffer westward the present region",
+          "name": "w_buff",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_horizon(elevation,  direction=None,  step=None,  start=0.0,  end=360.0,  bufferzone=None,  e_buff=None,  w_buff=None,  n_buff=None,  s_buff=None,  maxdistance=None,  output=None,  coordinates=None,  distance=1.0,  format=\"plain\",  file=\"-\",  nprocs=0,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.horizon.md;xml:interface-description",
+      "token_estimate": 774,
+      "tool": "r.horizon"
+    }
+  ],
+  "omissions": [
+    "r.relief: EXAMPLES",
+    "r.relief: DESCRIPTION",
+    "r.import: EXAMPLES",
+    "r.import: DESCRIPTION",
+    "r.sun: EXAMPLES",
+    "r.sun: DESCRIPTION",
+    "r.sunhours: EXAMPLES",
+    "r.sunhours: DESCRIPTION",
+    "r.horizon: EXAMPLES",
+    "r.horizon: DESCRIPTION"
+  ],
+  "tokens": 3396,
+  "tool": null
+}

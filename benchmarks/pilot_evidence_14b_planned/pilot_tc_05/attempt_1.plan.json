@@ -1,0 +1,70 @@
+{
+  "fallback": false,
+  "pipeline": "planned",
+  "plan": {
+    "assumptions": [],
+    "plan_repair_count": 0,
+    "planner_invocations": 1,
+    "replan_count": 0,
+    "revision": 0,
+    "steps": [
+      {
+        "constraints": [],
+        "id": 1,
+        "inputs": [
+          "elevation"
+        ],
+        "intent": "Compute slope from the elevation raster",
+        "output_types": [
+          "raster"
+        ],
+        "outputs": [
+          "pilot_slope"
+        ],
+        "tool": "r.slope.aspect"
+      },
+      {
+        "constraints": [
+          "interval=10"
+        ],
+        "id": 2,
+        "inputs": [
+          "elevation"
+        ],
+        "intent": "Generate 10-meter contour lines from the elevation raster",
+        "output_types": [
+          "vector"
+        ],
+        "outputs": [
+          "pilot_contours"
+        ],
+        "tool": "r.contour"
+      }
+    ]
+  },
+  "plan_repair_count": 0,
+  "planner_completion_tokens": 154,
+  "planner_invocations": 1,
+  "planner_prompt_tokens": 622,
+  "replan_count": 0,
+  "revision": 0,
+  "shortlist": [
+    "r.contour",
+    "r.slope.aspect",
+    "r.import",
+    "r.flow",
+    "r.surf.contour",
+    "v.extrude",
+    "r.walk",
+    "v.rast.stats",
+    "r.relief",
+    "r.horizon",
+    "r.fill.dir",
+    "v.drape"
+  ],
+  "shortlist_shortfall": false,
+  "validation": {
+    "errors": [],
+    "ok": true
+  }
+}

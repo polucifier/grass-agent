@@ -1,0 +1,576 @@
+{
+  "cards": [
+    {
+      "alternatives": [],
+      "constraints": [
+        "Internal buffers for areas can be generated with negative distance",
+        "values (\"inward buffer\" or \"negative buffer\" or \"shrinking\").",
+        "v.buffer* fusions the geometries of buffers by default. Categories and"
+      ],
+      "examples": [
+        "v.buffer input=roadsmajor output=roadsmajor_buffer type=line distance=100",
+        "v.buffer input=hospitals output=hospitals_circled type=point distance=2000"
+      ],
+      "flags": [
+        "-s  Make outside corners straight",
+        "-c  Do not make caps at the ends of polylines",
+        "-t  Transfer categories and attributes"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "0",
+          "description": "Angle of major axis in degrees",
+          "name": "angle",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Category values",
+          "name": "cats",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of column to use for buffer distances",
+          "name": "column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Buffer distance along major axis in map units",
+          "name": "distance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "-1",
+          "description": "Layer number or name ('-1' for all layers)",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Buffer distance along minor axis in map units",
+          "name": "minordistance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1.0",
+          "description": "Scaling factor for attribute column values",
+          "name": "scale",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Maximum distance between theoretical arc and polygon segments as multiple of buffer (default 0.01)",
+          "name": "tolerance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "point,line,area",
+          "description": "Input feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid",
+            "area"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "WHERE conditions of SQL statement without 'where' keyword",
+          "name": "where",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_buffer(input,  layer=\"-1\",  cats=None,  where=None,  type=\"point,line,area\",  output,  distance=None,  minordistance=None,  angle=0,  column=None,  scale=1.0,  tolerance=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.buffer.md;xml:interface-description",
+      "token_estimate": 567,
+      "tool": "v.buffer"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "unit parameter is set. The units miles, feet, meters* and",
+        "Feet and acre units are always reported in their common versions (i.e.",
+        "coordinate reference system's standard map unit is the US Survey foot."
+      ],
+      "examples": [
+        "v.to.db map=soils type=centroid option=cat",
+        "v.to.db map=soils type=centroid option=area columns=area_size unit=h"
+      ],
+      "flags": [
+        "-p  Print only",
+        "-h  Print header",
+        "-s  Only print SQL statements",
+        "-c  Print also totals for option length, area, or count"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": null,
+          "description": "Name of attribute column(s) to populate",
+          "name": "columns",
+          "options": [],
+          "required": true,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "plain",
+          "description": "Output format",
+          "name": "format",
+          "options": [
+            "plain",
+            "json"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Layer number or name (write to)",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of vector map",
+          "name": "map",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Value to upload",
+          "name": "option",
+          "options": [
+            "cat",
+            "area",
+            "compact",
+            "fd",
+            "perimeter",
+            "length",
+            "count",
+            "coor",
+            "start",
+            "end",
+            "sides",
+            "query",
+            "slope",
+            "sinuous",
+            "azimuth",
+            "bbox"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of attribute column used for 'query' option",
+          "name": "query_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Query layer number or name (read from)",
+          "name": "query_layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "pipe",
+          "description": "Field separator for print mode",
+          "name": "separator",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "point,line,boundary,centroid",
+          "description": "Feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "Units",
+          "name": "units",
+          "options": [
+            "miles",
+            "feet",
+            "meters",
+            "kilometers",
+            "acres",
+            "hectares",
+            "radians",
+            "degrees"
+          ],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_to_db(map,  layer=\"1\",  type=\"point,line,boundary,centroid\",  option,  columns,  units=None,  query_layer=\"1\",  query_column=None,  separator=\"pipe\",  format=\"plain\",  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.to.db.md;xml:interface-description",
+      "token_estimate": 561,
+      "tool": "v.to.db"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "The dmax parameter is the maximum limit but not an exact distance.",
+        "To place points with exact distance from the beginning of the vector",
+        "line the user should use [v.segment](v.segment.md)."
+      ],
+      "examples": [
+        "# The North Carolina data are metric.\n# 200m distance for points (maximum limit but not an exact distance)\nv.to.points input=railroads output=railroads_points dmax=200\n\n# verify the two layers in the resulting map\nv.category input=railroads_points option=report\n\n# vector info\nv.info map=railroads_points",
+        "v.to.points input=railroads output=railroads_nodes use=node"
+      ],
+      "flags": [
+        "-i  Interpolate points between line vertices (only for use=vertex)",
+        "-p  Use dmax as percentage of line length",
+        "-r  Start from the end node",
+        "-t  Do not create attribute table"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "100",
+          "description": "Maximum distance between points in map units or percentage with -p",
+          "name": "dmax",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Line layer number or name",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "point,line,boundary,centroid,face",
+          "description": "Input feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid",
+            "area",
+            "face",
+            "kernel"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "Use line nodes (start/end) or vertices only",
+          "name": "use",
+          "options": [
+            "node",
+            "start",
+            "end",
+            "vertex"
+          ],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_to_points(input,  layer=\"1\",  type=\"point,line,boundary,centroid,face\",  output,  use=None,  dmax=100,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.to.points.md;xml:interface-description",
+      "token_estimate": 502,
+      "tool": "v.to.points"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "The two sets of nodes are called sources and sink and v.net.flow",
+        "finds the maximum flow from the former to the latter ones. Edge",
+        "capacities can be specified by arc_column for forward direction and"
+      ],
+      "examples": [
+        "v.net.flow input=roads output=roads_flow cut=roads_cut arc_column=SPEED \\\n           source_where=\"type=factory\" sink_where=\"type=store\"",
+        "v.net.flow input=network output=flow cut=cut arc_column=ones \\\n           source_cats=1-10 sink_cats=100-100"
+      ],
+      "flags": [],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Arc backward direction cost column (number)",
+          "name": "arc_backward_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Arc forward/both direction(s) cost column (number)",
+          "name": "arc_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Arc layer",
+          "name": "arc_layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map containing a minimum cut",
+          "name": "cut",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Node cost column (number)",
+          "name": "node_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "2",
+          "description": "Node layer",
+          "name": "node_layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Sink category values",
+          "name": "sink_cats",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Sink WHERE conditions of SQL statement without 'where' keyword",
+          "name": "sink_where",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Source category values",
+          "name": "source_cats",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Source WHERE conditions of SQL statement without 'where' keyword",
+          "name": "source_where",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_net_flow(input,  arc_layer=\"1\",  node_layer=\"2\",  output,  cut,  arc_column=None,  arc_backward_column=None,  node_column=None,  source_cats=None,  source_where=None,  sink_cats=None,  sink_where=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.net.flow.md;xml:interface-description",
+      "token_estimate": 512,
+      "tool": "v.net.flow"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "Usage of -b flag will overrule the side parameter."
+      ],
+      "examples": [],
+      "flags": [
+        "-r  Make outside corners round",
+        "-b  Create buffer-like parallel lines"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "0",
+          "description": "Angle of major axis in degrees",
+          "name": "angle",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Offset along major axis in map units",
+          "name": "distance",
+          "options": [],
+          "required": true,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "-1",
+          "description": "Layer number or name ('-1' for all layers)",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Offset along minor axis in map units",
+          "name": "minordistance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "right",
+          "description": "Side",
+          "name": "side",
+          "options": [
+            "left",
+            "right",
+            "both"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Tolerance of arc polylines in map units",
+          "name": "tolerance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_parallel(input,  layer=\"-1\",  output,  distance,  minordistance=None,  angle=0,  side=\"right\",  tolerance=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.parallel.md;xml:interface-description",
+      "token_estimate": 300,
+      "tool": "v.parallel"
+    }
+  ],
+  "omissions": [
+    "v.buffer: DESCRIPTION",
+    "v.to.db: DESCRIPTION",
+    "v.to.points: DESCRIPTION",
+    "v.net.flow: DESCRIPTION",
+    "v.parallel: DESCRIPTION"
+  ],
+  "tokens": 2442,
+  "tool": null
+}

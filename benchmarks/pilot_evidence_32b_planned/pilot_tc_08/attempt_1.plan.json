@@ -1,0 +1,57 @@
+{
+  "fallback": false,
+  "pipeline": "planned",
+  "plan": {
+    "assumptions": [],
+    "plan_repair_count": 0,
+    "planner_invocations": 1,
+    "replan_count": 0,
+    "revision": 0,
+    "steps": [
+      {
+        "constraints": [
+          "coordinates=635000,216500",
+          "memory=300",
+          "output=binary"
+        ],
+        "id": 1,
+        "inputs": [
+          "elevation"
+        ],
+        "intent": "Calculate binary viewshed visibility",
+        "output_types": [
+          "raster"
+        ],
+        "outputs": [
+          "pilot_viewshed"
+        ],
+        "tool": "r.viewshed"
+      }
+    ]
+  },
+  "plan_repair_count": 0,
+  "planner_completion_tokens": 108,
+  "planner_invocations": 1,
+  "planner_prompt_tokens": 611,
+  "replan_count": 0,
+  "revision": 0,
+  "shortlist": [
+    "r.viewshed",
+    "v.rast.stats",
+    "r.horizon",
+    "v.extrude",
+    "v.net.visibility",
+    "r.surf.area",
+    "v.drape",
+    "v.vect.stats",
+    "r.out.pov",
+    "r.flow",
+    "v.what.rast",
+    "r.geomorphon"
+  ],
+  "shortlist_shortfall": false,
+  "validation": {
+    "errors": [],
+    "ok": true
+  }
+}

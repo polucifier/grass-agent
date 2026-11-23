@@ -1,0 +1,734 @@
+{
+  "cards": [
+    {
+      "alternatives": [],
+      "constraints": [
+        "If a nearest feature does not have a category, the attribute column is",
+        "updated to NULL.",
+        "The upload column(s) must already exist. Create one with"
+      ],
+      "examples": [],
+      "flags": [
+        "-p  First column is always category of 'from' feature called from_cat",
+        "-a  Output may be written to stdout using the '-p' flag or uploaded to a new table created by the 'table' option; multiple 'upload' options may be used.",
+        "-s"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Column name(s) where values specified by 'upload' option will be uploaded",
+          "name": "column",
+          "options": [],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "-1",
+          "description": "Maximum distance or -1 for no limit",
+          "name": "dmax",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "-1",
+          "description": "Minimum distance or -1 for no limit",
+          "name": "dmin",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "plain",
+          "description": "Output format",
+          "name": "format",
+          "options": [
+            "plain",
+            "json"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of existing vector map (from)",
+          "name": "from",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Layer number or name (from)",
+          "name": "from_layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "point,line,area",
+          "description": "Feature type (from)",
+          "name": "from_type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid",
+            "area"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "Name for output vector map containing lines connecting nearest elements",
+          "name": "output",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "pipe",
+          "description": "Field separator for printing output to stdout",
+          "name": "separator",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name for new attribute table",
+          "name": "table",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of existing vector map (to)",
+          "name": "to",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Column name of nearest feature (used with upload=to_attr)",
+          "name": "to_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Layer number or name (to)",
+          "name": "to_layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "point,line,area",
+          "description": "Feature type (to)",
+          "name": "to_type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid",
+            "area"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": null,
+          "description": "Values describing the relation between two nearest features",
+          "name": "upload",
+          "options": [
+            "cat",
+            "dist",
+            "to_x",
+            "to_y",
+            "to_along",
+            "to_angle",
+            "to_attr"
+          ],
+          "required": true,
+          "type": "str | list[str]"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_distance(from,  from_layer=\"1\",  from_type=\"point,line,area\",  to,  to_layer=\"1\",  to_type=\"point,line,area\",  output=None,  dmax=-1,  dmin=-1,  upload,  column=None,  to_column=None,  table=None,  separator=\"pipe\",  format=\"plain\",  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.distance.md;xml:interface-description",
+      "token_estimate": 691,
+      "tool": "v.distance"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "vector data. The module does not require input data with topology,",
+        "therefore both level1 (no topology) and level2 (with topology) vector",
+        "increase counterclockwise. Curvatures are positive for convex and"
+      ],
+      "examples": [],
+      "flags": [
+        "-c  Perform cross-validation procedure without raster approximation",
+        "-t  Use scale dependent tension",
+        "-d  Output partial derivatives instead of topographic parameters"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Name for output aspect raster map",
+          "name": "aspect",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name for output cross-validation errors vector point map",
+          "name": "cvdev",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name for output deviations vector point map",
+          "name": "deviations",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Maximum distance between points on isoline (to insert additional points)",
+          "name": "dmax",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Minimum distance between points (to remove almost identical points). Default value is half of the smaller resolution of the current region",
+          "name": "dmin",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Name for output surface elevation raster map",
+          "name": "elevation",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Layer number or name",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of raster map used as mask",
+          "name": "mask",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "None",
+          "description": "Name for output mean curvature raster map",
+          "name": "mcurvature",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "300",
+          "description": "Minimum number of points for approximation in a segment (>segmax)",
+          "name": "npmin",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "1",
+          "description": "Number of threads for parallel computing",
+          "name": "nprocs",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Name for output vector map showing overlapping windows",
+          "name": "overwin",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name for output profile curvature raster map",
+          "name": "pcurvature",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Anisotropy scaling factor",
+          "name": "scalex",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "40",
+          "description": "Maximum number of points in a segment",
+          "name": "segmax",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Name for output slope raster map",
+          "name": "slope",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Smoothing parameter",
+          "name": "smooth",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Name of the attribute column with smoothing parameters",
+          "name": "smooth_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name for output tangential curvature raster map",
+          "name": "tcurvature",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "40.",
+          "description": "Tension parameter",
+          "name": "tension",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Anisotropy angle (in degrees counterclockwise from East)",
+          "name": "theta",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Name for output vector map showing quadtree segmentation",
+          "name": "treeseg",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "WHERE conditions of SQL statement without 'where' keyword",
+          "name": "where",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of the attribute column with values to be used for approximation",
+          "name": "zcolumn",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "1.0",
+          "description": "Conversion factor for values used for approximation",
+          "name": "zscale",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_surf_rst(input,  layer=\"1\",  zcolumn=None,  where=None,  elevation=None,  slope=None,  aspect=None,  pcurvature=None,  tcurvature=None,  mcurvature=None,  deviations=None,  cvdev=None,  treeseg=None,  overwin=None,  nprocs=1,  mask=None,  tension=40.,  smooth=None,  smooth_column=None,  segmax=40,  npmin=300,  dmin=None,  dmax=None,  zscale=1.0,  theta=None,  scalex=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.surf.rst.md;xml:interface-description",
+      "token_estimate": 1050,
+      "tool": "v.surf.rst"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "The flag -n calculates the respective pixel distances to the nearest",
+        "The user has the option of specifying five different metrics which",
+        "distances in meters instead of map units."
+      ],
+      "examples": [],
+      "flags": [
+        "-m  Output distances in meters instead of map units",
+        "-n  Calculate distance to nearest NULL cell"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Name for distance output raster map",
+          "name": "distance",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": null,
+          "description": "Name of input raster map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "None",
+          "description": "Maximum distance threshold",
+          "name": "maximum_distance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "euclidean",
+          "description": "Metric",
+          "name": "metric",
+          "options": [
+            "euclidean",
+            "squared",
+            "maximum",
+            "manhattan",
+            "geodesic"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Minimum distance threshold",
+          "name": "minimum_distance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Name for value output raster map",
+          "name": "value",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_grow_distance(input,  distance=None,  value=None,  metric=\"euclidean\",  minimum_distance=None,  maximum_distance=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.grow.distance.md;xml:interface-description",
+      "token_estimate": 369,
+      "tool": "r.grow.distance"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "r.import* checks the CRS metadata of the dataset to be imported against",
+        "The estimated resolution will usually be some floating point number,",
+        "(default), this floating point number will be used as target resolution."
+      ],
+      "examples": [],
+      "flags": [
+        "-e  Estimate resolution only",
+        "-n  Do not perform region cropping optimization",
+        "-l  Force Lat/Lon maps to fit into geographic coordinates (90N,S; 180E,W)",
+        "-o  Assume that the dataset has the same coordinate reference system (CRS) as the current project"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Input band(s) to select (default is all bands)",
+          "name": "band",
+          "options": [],
+          "required": false,
+          "type": "int | list[int] | str"
+        },
+        {
+          "default": "input",
+          "description": "Output raster map extent",
+          "name": "extent",
+          "options": [
+            "input",
+            "region"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of GDAL dataset to be imported",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "300",
+          "description": "Maximum memory to be used (in MB)",
+          "name": "memory",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Name for output raster map",
+          "name": "output",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "nearest",
+          "description": "Resampling method to use for reprojection",
+          "name": "resample",
+          "options": [
+            "nearest",
+            "bilinear",
+            "bicubic",
+            "lanczos",
+            "bilinear_f",
+            "bicubic_f",
+            "lanczos_f"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "estimated",
+          "description": "Resolution of output raster map (default: estimated)",
+          "name": "resolution",
+          "options": [
+            "estimated",
+            "value",
+            "region"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Resolution of output raster map (use with option resolution=value)",
+          "name": "resolution_value",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Title for resultant raster map",
+          "name": "title",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_import(input,  band=None,  memory=300,  output=None,  resample=\"nearest\",  extent=\"input\",  resolution=\"estimated\",  resolution_value=None,  title=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.import.md;xml:interface-description",
+      "token_estimate": 552,
+      "tool": "r.import"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "In order to avoid unexpected results, the type of vector features should",
+        "always be specified. The default is to convert all vector features, but",
+        "if only e.g. areas should be converted use type=area rather than"
+      ],
+      "examples": [],
+      "flags": [
+        "-d  All cells touched by the line will be set, not only those on the render path"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Name of column for 'attr' parameter (data type must be numeric)",
+          "name": "attribute_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Category values",
+          "name": "cats",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of column used as raster category labels",
+          "name": "label_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Layer number or name",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "300",
+          "description": "Maximum memory to be used (in MB)",
+          "name": "memory",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": null,
+          "description": "Name for output raster map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name of color definition column (with RRR:GGG:BBB entries)",
+          "name": "rgb_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "point,line,area",
+          "description": "Input feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid",
+            "area"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": null,
+          "description": "Source of raster values",
+          "name": "use",
+          "options": [
+            "attr",
+            "cat",
+            "value",
+            "z",
+            "dir"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Raster value (for use=value)",
+          "name": "value",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "WHERE conditions of SQL statement without 'where' keyword",
+          "name": "where",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_to_rast(input,  layer=\"1\",  type=\"point,line,area\",  cats=None,  where=None,  output,  use,  attribute_column=None,  rgb_column=None,  label_column=None,  value=1,  memory=300,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.to.rast.md;xml:interface-description",
+      "token_estimate": 523,
+      "tool": "v.to.rast"
+    }
+  ],
+  "omissions": [
+    "v.distance: EXAMPLES",
+    "v.distance: DESCRIPTION",
+    "v.surf.rst: DESCRIPTION",
+    "r.grow.distance: EXAMPLES",
+    "r.grow.distance: DESCRIPTION",
+    "r.import: EXAMPLES",
+    "r.import: DESCRIPTION",
+    "v.to.rast: EXAMPLES",
+    "v.to.rast: DESCRIPTION"
+  ],
+  "tokens": 3185,
+  "tool": null
+}

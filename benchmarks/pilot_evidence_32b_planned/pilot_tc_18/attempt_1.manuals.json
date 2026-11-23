@@ -1,0 +1,98 @@
+{
+  "cards": [
+    {
+      "alternatives": [],
+      "constraints": [
+        "GRASS defines a vector area as a composite entity consisting of a set of",
+        "closed boundaries and a centroid. The centroids must contain a category",
+        "to v.reclass before."
+      ],
+      "examples": [
+        "v.dissolve input=undissolved output=dissolved",
+        "g.copy vect=soils_general,mysoils_general\nv.dissolve mysoils_general output=mysoils_general_families column=GSL_NAME"
+      ],
+      "flags": [],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Backend for attribute aggregation",
+          "name": "aggregate_backend",
+          "options": [
+            "sql",
+            "univar"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Names of attribute columns to get aggregate statistics for",
+          "name": "aggregate_columns",
+          "options": [],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "Aggregate statistics method (e.g., sum)",
+          "name": "aggregate_methods",
+          "options": [],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "Name of attribute column used to dissolve features",
+          "name": "column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Layer number or name.",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "New attribute column names for aggregate statistics results",
+          "name": "result_columns",
+          "options": [],
+          "required": false,
+          "type": "str | list[str]"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_dissolve(input,  layer=\"1\",  column=None,  output,  aggregate_columns=None,  aggregate_methods=None,  result_columns=None,  aggregate_backend=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.dissolve.md;xml:interface-description",
+      "token_estimate": 412,
+      "tool": "v.dissolve"
+    }
+  ],
+  "omissions": [
+    "v.dissolve: DESCRIPTION"
+  ],
+  "tokens": 412,
+  "tool": null
+}

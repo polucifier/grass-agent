@@ -1,0 +1,68 @@
+{
+  "fallback": false,
+  "pipeline": "planned",
+  "plan": {
+    "assumptions": [],
+    "plan_repair_count": 0,
+    "planner_invocations": 1,
+    "replan_count": 0,
+    "revision": 0,
+    "steps": [
+      {
+        "constraints": [],
+        "id": 1,
+        "inputs": [
+          "hospitals"
+        ],
+        "intent": "Convert the hospitals vector points into a raster map",
+        "output_types": [
+          "raster"
+        ],
+        "outputs": [
+          "pilot_hospitals_raster"
+        ],
+        "tool": "v.to.rast"
+      },
+      {
+        "constraints": [],
+        "id": 2,
+        "inputs": [
+          "pilot_hospitals_raster"
+        ],
+        "intent": "Calculate the minimum Euclidean distance from each cell to the nearest hospital",
+        "output_types": [
+          "raster"
+        ],
+        "outputs": [
+          "pilot_distance"
+        ],
+        "tool": "r.grow.distance"
+      }
+    ]
+  },
+  "plan_repair_count": 0,
+  "planner_completion_tokens": 165,
+  "planner_invocations": 1,
+  "planner_prompt_tokens": 662,
+  "replan_count": 0,
+  "revision": 0,
+  "shortlist": [
+    "v.distance",
+    "v.surf.rst",
+    "r.grow.distance",
+    "r.import",
+    "v.to.rast",
+    "v.rast.stats",
+    "r.walk",
+    "v.neighbors",
+    "v.to.rast3",
+    "v.net.distance",
+    "r.distance",
+    "v.what.rast"
+  ],
+  "shortlist_shortfall": false,
+  "validation": {
+    "errors": [],
+    "ok": true
+  }
+}

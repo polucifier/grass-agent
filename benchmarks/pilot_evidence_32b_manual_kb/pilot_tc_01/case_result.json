@@ -1,0 +1,120 @@
+{
+  "attempts": [
+    {
+      "assertion_results": [
+        {
+          "check": "feature_count",
+          "detail": "feature_count=251 (minimum 1)",
+          "expected": 1,
+          "observed": 251,
+          "output": "pilot_streams_buffer",
+          "passed": true,
+          "query": "v.info -t map=pilot_streams_buffer",
+          "tolerance": null
+        },
+        {
+          "check": "geometry_type",
+          "detail": "geometry=area, expected area",
+          "expected": "area",
+          "observed": "area",
+          "output": "pilot_streams_buffer",
+          "passed": true,
+          "query": "v.info -t map=pilot_streams_buffer",
+          "tolerance": null
+        }
+      ],
+      "ast_sha256": "db3e8b4556a5e58503303d25a6bf006d60f2a340764518c82d29d5e4f9c9e078",
+      "budget_tier": "initial",
+      "code_sha256": "52e7395b44f94c581b130ab6ed08d30f70726da4db44d0296c920cad8b995936",
+      "completion_tokens": 35,
+      "duplicate": false,
+      "error_excerpt": null,
+      "exit_code": 0,
+      "failing_tool": null,
+      "failure_mode": null,
+      "latency_s": 165.29598647193052,
+      "log_path": "attempt_1.log",
+      "manual_card_tokens": 2442,
+      "manual_context_tokens": 3686,
+      "manual_omissions": [
+        "v.buffer: DESCRIPTION",
+        "v.to.db: DESCRIPTION",
+        "v.to.points: DESCRIPTION",
+        "v.net.flow: DESCRIPTION",
+        "v.parallel: DESCRIPTION"
+      ],
+      "new_maps": {
+        "raster": [],
+        "vector": [
+          "pilot_streams_buffer"
+        ]
+      },
+      "num_ctx": 8192,
+      "ordinal": 1,
+      "outcome": "executed_ok",
+      "pipeline": "manual-kb",
+      "pivot_used": false,
+      "plan_fallback": false,
+      "plan_repair_count": 0,
+      "plan_revision": 0,
+      "planned_tools": [],
+      "planner_completion_tokens": 0,
+      "planner_invocations": 0,
+      "planner_prompt_tokens": 0,
+      "prompt_tokens": 2818,
+      "replan_count": 0,
+      "script_path": "attempt_1.py",
+      "semantic_evaluated": true,
+      "semantic_passed": true,
+      "shortlist_shortfall": false,
+      "signal_name": null,
+      "stage": "success",
+      "static_issues": [],
+      "static_passed": true,
+      "stderr_path": "attempt_1.stderr",
+      "stdout_path": "attempt_1.stdout",
+      "timed_out": false,
+      "tool_swaps": []
+    }
+  ],
+  "auxiliary_inputs": [],
+  "budget_ledger": {
+    "runtime_limit": 2,
+    "runtime_remaining": 2,
+    "runtime_used": 0,
+    "static_limit": 2,
+    "static_remaining": 2,
+    "static_used": 0
+  },
+  "category": "single_tool",
+  "completed_at": "2026-11-23T19:24:49+00:00",
+  "failure_mode_transitions": [
+    null
+  ],
+  "final_script": "final.py",
+  "harness_version": "gate3",
+  "no_op_count": 0,
+  "pass_at_1": true,
+  "pass_at_executed": true,
+  "pass_at_healed": true,
+  "pass_at_semantic": true,
+  "prompt": "Create a 200-meter buffer around the stream network lines. Write the buffered areas to the vector map pilot_streams_buffer. Do not change the computational region.",
+  "resume_key": {
+    "attempt1_source": "fresh",
+    "harness": "gate3",
+    "manual_context_tokens": 3686,
+    "max_retries": 2,
+    "max_runtime_retries": 2,
+    "max_static_retries": 2,
+    "model": "qwen2.5-coder:32b",
+    "num_ctx": 8192,
+    "pipeline": "manual-kb",
+    "timeout": 120
+  },
+  "schema_version": 1,
+  "semantic_declared": true,
+  "semantic_evaluated": true,
+  "status": "complete",
+  "tc_id": "pilot_tc_01",
+  "tier": 1
+}

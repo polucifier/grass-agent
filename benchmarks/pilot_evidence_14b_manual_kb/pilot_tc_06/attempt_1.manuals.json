@@ -1,0 +1,818 @@
+{
+  "cards": [
+    {
+      "alternatives": [],
+      "constraints": [
+        "lower bound. Buffer distances can be specified using one of five units",
+        "with the units parameter.",
+        "should run (for example) [r.reclass](r.reclass.md) prior to"
+      ],
+      "examples": [],
+      "flags": [
+        "-z  Ignore zero (0) data cells instead of NULL cells"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": null,
+          "description": "Distance zone(s)",
+          "name": "distances",
+          "options": [],
+          "required": true,
+          "type": "float | list[float] | str"
+        },
+        {
+          "default": null,
+          "description": "Name of input raster map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": null,
+          "description": "Name for output raster map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "meters",
+          "description": "Units of distance",
+          "name": "units",
+          "options": [
+            "meters",
+            "kilometers",
+            "feet",
+            "miles",
+            "nautmiles"
+          ],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_buffer(input,  output,  distances,  units=\"meters\",  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.buffer.md;xml:interface-description",
+      "token_estimate": 258,
+      "tool": "r.buffer"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "In order to avoid unexpected results, the type of vector features should",
+        "always be specified. The default is to convert all vector features, but",
+        "if only e.g. areas should be converted use type=area rather than"
+      ],
+      "examples": [],
+      "flags": [
+        "-d  All cells touched by the line will be set, not only those on the render path"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Name of column for 'attr' parameter (data type must be numeric)",
+          "name": "attribute_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Category values",
+          "name": "cats",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of column used as raster category labels",
+          "name": "label_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Layer number or name",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "300",
+          "description": "Maximum memory to be used (in MB)",
+          "name": "memory",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": null,
+          "description": "Name for output raster map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "Name of color definition column (with RRR:GGG:BBB entries)",
+          "name": "rgb_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "point,line,area",
+          "description": "Input feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid",
+            "area"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": null,
+          "description": "Source of raster values",
+          "name": "use",
+          "options": [
+            "attr",
+            "cat",
+            "value",
+            "z",
+            "dir"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Raster value (for use=value)",
+          "name": "value",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "WHERE conditions of SQL statement without 'where' keyword",
+          "name": "where",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_to_rast(input,  layer=\"1\",  type=\"point,line,area\",  cats=None,  where=None,  output,  use,  attribute_column=None,  rgb_column=None,  label_column=None,  value=1,  memory=300,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.to.rast.md;xml:interface-description",
+      "token_estimate": 523,
+      "tool": "v.to.rast"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "unit parameter is set. The units miles, feet, meters* and",
+        "Feet and acre units are always reported in their common versions (i.e.",
+        "coordinate reference system's standard map unit is the US Survey foot."
+      ],
+      "examples": [],
+      "flags": [
+        "-p  Print only",
+        "-h  Print header",
+        "-s  Only print SQL statements",
+        "-c  Print also totals for option length, area, or count"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": null,
+          "description": "Name of attribute column(s) to populate",
+          "name": "columns",
+          "options": [],
+          "required": true,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "plain",
+          "description": "Output format",
+          "name": "format",
+          "options": [
+            "plain",
+            "json"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Layer number or name (write to)",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of vector map",
+          "name": "map",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Value to upload",
+          "name": "option",
+          "options": [
+            "cat",
+            "area",
+            "compact",
+            "fd",
+            "perimeter",
+            "length",
+            "count",
+            "coor",
+            "start",
+            "end",
+            "sides",
+            "query",
+            "slope",
+            "sinuous",
+            "azimuth",
+            "bbox"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of attribute column used for 'query' option",
+          "name": "query_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Query layer number or name (read from)",
+          "name": "query_layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "pipe",
+          "description": "Field separator for print mode",
+          "name": "separator",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "point,line,boundary,centroid",
+          "description": "Feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "Units",
+          "name": "units",
+          "options": [
+            "miles",
+            "feet",
+            "meters",
+            "kilometers",
+            "acres",
+            "hectares",
+            "radians",
+            "degrees"
+          ],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_to_db(map,  layer=\"1\",  type=\"point,line,boundary,centroid\",  option,  columns,  units=None,  query_layer=\"1\",  query_column=None,  separator=\"pipe\",  format=\"plain\",  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.to.db.md;xml:interface-description",
+      "token_estimate": 527,
+      "tool": "v.to.db"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "d.vect* can simply be used typing d.vect map=vector_map. There are a",
+        "large variety of optional parameters which allow the user to specify",
+        "vector type, colors, data fields, SQL queries, label size and"
+      ],
+      "examples": [],
+      "flags": [
+        "-c  Random colors according to category number (or layer number if 'layer=-1' is given)",
+        "-i  Use values from 'cats' option as feature id",
+        "-r  This makes circle areas proportionate to the size_column values instead of circle radius",
+        "-s"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Name of column to be displayed as a label",
+          "name": "attribute_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Category values",
+          "name": "cats",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "0:29:57",
+          "description": "Feature color",
+          "name": "color",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "shape",
+          "description": "Display",
+          "name": "display",
+          "options": [
+            "shape",
+            "cat",
+            "topo",
+            "vert",
+            "dir",
+            "zcoor"
+          ],
+          "required": true,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "Text encoding",
+          "name": "encoding",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "0:103:204",
+          "description": "Area fill color",
+          "name": "fill_color",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Font name",
+          "name": "font",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "basic/x",
+          "description": "Point and centroid symbol",
+          "name": "icon",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "legend/area",
+          "description": "Area/boundary symbol for legend",
+          "name": "icon_area",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "legend/line",
+          "description": "Line symbol for legend",
+          "name": "icon_line",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "none",
+          "description": "Label border color",
+          "name": "label_bcolor",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "none",
+          "description": "Label background color",
+          "name": "label_bgcolor",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "red",
+          "description": "Label color",
+          "name": "label_color",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Layer number for labels (default: the given layer number)",
+          "name": "label_layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "8",
+          "description": "Label size (pixels)",
+          "name": "label_size",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "1",
+          "description": "Layer number or name ('-1' for all layers)",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Label to display after symbol in vector legend",
+          "name": "legend_label",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of vector map",
+          "name": "map",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Maximum region size (average from height and width) when map is displayed",
+          "name": "maxreg",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Minimum region size (average from height and width) when map is displayed",
+          "name": "minreg",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Colorize features according to color definition column",
+          "name": "rgb_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of numeric column containing symbol rotation angle",
+          "name": "rotation_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "5",
+          "description": "Symbol size",
+          "name": "size",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Name of numeric column containing symbol size",
+          "name": "size_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "point,line,area,face",
+          "description": "Input feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid",
+            "area",
+            "face"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "WHERE conditions of SQL statement without 'where' keyword",
+          "name": "where",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "0",
+          "description": "Line width",
+          "name": "width",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Name of numeric column containing line width",
+          "name": "width_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "1",
+          "description": "Scale factor for width_column",
+          "name": "width_scale",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "left",
+          "description": "Label horizontal justification",
+          "name": "xref",
+          "options": [
+            "left",
+            "center",
+            "right"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "center",
+          "description": "Label vertical justification",
+          "name": "yref",
+          "options": [
+            "top",
+            "center",
+            "bottom"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Colorize point or area features according to z-coordinate",
+          "name": "zcolor",
+          "options": [
+            "aspect",
+            "aspectcolr",
+            "bcyr",
+            "bgyr",
+            "blues",
+            "byg",
+            "byr",
+            "celsius",
+            "corine",
+            "curvature",
+            "differences",
+            "elevation",
+            "etopo2",
+            "evi",
+            "fahrenheit",
+            "forest_cover",
+            "gdd",
+            "grass",
+            "greens",
+            "grey",
+            "grey.eq",
+            "grey.log",
+            "grey1.0",
+            "grey255",
+            "gyr",
+            "haxby",
+            "inferno",
+            "kelvin",
+            "magma",
+            "ndvi",
+            "ndwi",
+            "nlcd",
+            "oranges",
+            "plasma",
+            "population",
+            "population_dens",
+            "precipitation",
+            "precipitation_daily",
+            "precipitation_monthly",
+            "rainbow",
+            "ramp",
+            "random",
+            "reds",
+            "roygbiv",
+            "rstcurv",
+            "ryb",
+            "ryg",
+            "sepia",
+            "slope",
+            "soilmoisture",
+            "srtm",
+            "srtm_percent",
+            "srtm_plus",
+            "terrain",
+            "viridis",
+            "water",
+            "wave"
+          ],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.d_vect(map,  layer=\"1\",  display=\"shape\",  type=\"point,line,area,face\",  cats=None,  where=None,  color=\"0:29:57\",  fill_color=\"0:103:204\",  rgb_column=None,  zcolor=None,  width=0,  width_column=None,  width_scale=1,  icon=\"basic/x\",  size=5,  size_column=None,  rotation_column=None,  icon_area=\"legend/area\",  icon_line=\"legend/line\",  legend_label=None,  label_layer=\"1\",  attribute_column=None,  label_color=\"red\",  label_bgcolor=\"none\",  label_bcolor=\"none\",  label_size=8,  font=None,  encoding=None,  xref=\"left\",  yref=\"center\",  minreg=None,  maxreg=None,  flags=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/d.vect.md;xml:interface-description",
+      "token_estimate": 1333,
+      "tool": "d.vect"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "r.import* checks the CRS metadata of the dataset to be imported against",
+        "The estimated resolution will usually be some floating point number,",
+        "(default), this floating point number will be used as target resolution."
+      ],
+      "examples": [],
+      "flags": [
+        "-e  Estimate resolution only",
+        "-n  Do not perform region cropping optimization",
+        "-l  Force Lat/Lon maps to fit into geographic coordinates (90N,S; 180E,W)",
+        "-o  Assume that the dataset has the same coordinate reference system (CRS) as the current project"
+      ],
+      "omissions": [
+        "EXAMPLES",
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Input band(s) to select (default is all bands)",
+          "name": "band",
+          "options": [],
+          "required": false,
+          "type": "int | list[int] | str"
+        },
+        {
+          "default": "input",
+          "description": "Output raster map extent",
+          "name": "extent",
+          "options": [
+            "input",
+            "region"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of GDAL dataset to be imported",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "300",
+          "description": "Maximum memory to be used (in MB)",
+          "name": "memory",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Name for output raster map",
+          "name": "output",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "nearest",
+          "description": "Resampling method to use for reprojection",
+          "name": "resample",
+          "options": [
+            "nearest",
+            "bilinear",
+            "bicubic",
+            "lanczos",
+            "bilinear_f",
+            "bicubic_f",
+            "lanczos_f"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "estimated",
+          "description": "Resolution of output raster map (default: estimated)",
+          "name": "resolution",
+          "options": [
+            "estimated",
+            "value",
+            "region"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Resolution of output raster map (use with option resolution=value)",
+          "name": "resolution_value",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Title for resultant raster map",
+          "name": "title",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_import(input,  band=None,  memory=300,  output=None,  resample=\"nearest\",  extent=\"input\",  resolution=\"estimated\",  resolution_value=None,  title=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.import.md;xml:interface-description",
+      "token_estimate": 552,
+      "tool": "r.import"
+    }
+  ],
+  "omissions": [
+    "r.buffer: DESCRIPTION",
+    "v.to.rast: EXAMPLES",
+    "v.to.rast: DESCRIPTION",
+    "v.to.db: EXAMPLES",
+    "v.to.db: DESCRIPTION",
+    "d.vect: EXAMPLES",
+    "d.vect: DESCRIPTION",
+    "r.import: EXAMPLES",
+    "r.import: DESCRIPTION"
+  ],
+  "tokens": 3194,
+  "tool": null
+}

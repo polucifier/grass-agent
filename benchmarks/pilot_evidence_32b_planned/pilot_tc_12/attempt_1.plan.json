@@ -1,0 +1,56 @@
+{
+  "fallback": false,
+  "pipeline": "planned",
+  "plan": {
+    "assumptions": [],
+    "plan_repair_count": 0,
+    "planner_invocations": 1,
+    "replan_count": 0,
+    "revision": 0,
+    "steps": [
+      {
+        "constraints": [
+          "sun_azimuth=315",
+          "sun_altitude=45"
+        ],
+        "id": 1,
+        "inputs": [
+          "elevation"
+        ],
+        "intent": "Create shaded relief map from elevation raster",
+        "output_types": [
+          "raster"
+        ],
+        "outputs": [
+          "pilot_relief"
+        ],
+        "tool": "r.relief"
+      }
+    ]
+  },
+  "plan_repair_count": 0,
+  "planner_completion_tokens": 98,
+  "planner_invocations": 1,
+  "planner_prompt_tokens": 672,
+  "replan_count": 0,
+  "revision": 0,
+  "shortlist": [
+    "r.relief",
+    "r.import",
+    "r.sun",
+    "r.sunhours",
+    "r.horizon",
+    "r.shade",
+    "r.resamp.rst",
+    "r.his",
+    "r.flow",
+    "r.plane",
+    "r.fill.dir",
+    "r.walk"
+  ],
+  "shortlist_shortfall": false,
+  "validation": {
+    "errors": [],
+    "ok": true
+  }
+}

@@ -1,0 +1,584 @@
+{
+  "cards": [
+    {
+      "alternatives": [],
+      "constraints": [
+        "By default the elevations are not adjusted for the curvature of the",
+        "By default the observer is assumed to have height 1.75 map units above",
+        "observer_elevation. The value entered is in the same units as the"
+      ],
+      "examples": [
+        "g.region raster=elev_lid792_1m -p\nr.viewshed input=elev_lid792_1m output=elev_lid792_1m_viewshed coordinates=638728,220609 observer_elevation=5.0",
+        "g.region raster=elevation.10m\nr.viewshed input=elevation.10m output=viewshed coordinates=598869,4916642 memory=800"
+      ],
+      "flags": [
+        "-c  Consider the curvature of the earth (current ellipsoid)",
+        "-r  Consider the effect of atmospheric refraction",
+        "-b  Output format is invisible = 0, visible = 1",
+        "-e  Output format is invisible = NULL, else current elev - viewpoint_elev"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": null,
+          "description": "Coordinates of viewing position",
+          "name": "coordinates",
+          "options": [],
+          "required": true,
+          "type": "east,north"
+        },
+        {
+          "default": "None",
+          "description": "Minimum and maximum horizontal angle limiting viewshed (0 is East, counterclockwise)",
+          "name": "direction_range",
+          "options": [],
+          "required": false,
+          "type": "min,max"
+        },
+        {
+          "default": "None",
+          "description": "Directory to hold temporary files (they can be large)",
+          "name": "directory",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input elevation raster map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "-1",
+          "description": "Maximum visibility radius. By default infinity (-1)",
+          "name": "max_distance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "500",
+          "description": "Amount of memory to use in MB",
+          "name": "memory",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "1.75",
+          "description": "Viewing elevation above the ground",
+          "name": "observer_elevation",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name for output raster map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "0.14286",
+          "description": "Refraction coefficient",
+          "name": "refraction_coeff",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "0.0",
+          "description": "Offset for target elevation above the ground",
+          "name": "target_elevation",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_viewshed(input,  output,  coordinates,  observer_elevation=1.75,  target_elevation=0.0,  max_distance=-1,  direction_range=None,  refraction_coeff=0.14286,  memory=500,  directory=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.viewshed.md;xml:interface-description",
+      "token_estimate": 618,
+      "tool": "r.viewshed"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "v.rast.stats* is only meaningful for lines or polygons.",
+        "The module may take a long time to run if the raster region contains a",
+        "large number of cells. In this case the --verbose flag may be used"
+      ],
+      "examples": [
+        "g.copy vect=zipcodes_wake,myzipcodes_wake\n# set computational region to DEM:\ng.region raster=elevation -p\n# calculate selected DEM statistics, upload to vector map table:\nv.rast.stats myzipcodes_wake raster=elevation \\\n  column_prefix=elev method=minimum,maximum,average,range,stddev,percentile \\\n  percentile=95\n# verify results:\nv.info -c myzipcodes_wake\nv.db.select myzipcodes_wake\nv.univar myzipcodes_wake column=elev_range type=centroid"
+      ],
+      "flags": [
+        "-c  Continue if upload column(s) already exist",
+        "-d  All cells touched by the line will be set, not only those on the render path"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": null,
+          "description": "Column prefix for new attribute columns",
+          "name": "column_prefix",
+          "options": [],
+          "required": true,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "1",
+          "description": "Layer number or name",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of vector map",
+          "name": "map",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "number,null_cells,minimum,maximum,range,average,stddev,variance,coeff_var,sum,first_quartile,median,third_quartile,percentile",
+          "description": "The methods to use",
+          "name": "method",
+          "options": [
+            "number",
+            "null_cells",
+            "minimum",
+            "maximum",
+            "range",
+            "average",
+            "stddev",
+            "variance",
+            "coeff_var",
+            "sum",
+            "first_quartile",
+            "median",
+            "third_quartile",
+            "percentile"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "90",
+          "description": "Percentile to calculate",
+          "name": "percentile",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": null,
+          "description": "Name of input raster map to calculate statistics from",
+          "name": "raster",
+          "options": [],
+          "required": true,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "point,line,boundary,centroid,area",
+          "description": "Input feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid",
+            "area"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "WHERE conditions of SQL statement without 'where' keyword",
+          "name": "where",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_rast_stats(map,  layer=\"1\",  type=\"point,line,boundary,centroid,area\",  where=None,  raster,  column_prefix,  method=\"number,null_cells,minimum,maximum,range,average,stddev,variance,coeff_var,sum,first_quartile,median,third_quartile,percentile\",  percentile=90,  flags=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.rast.stats.md;xml:interface-description",
+      "token_estimate": 681,
+      "tool": "v.rast.stats"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "The calculation method is based on the method used in r.sun to",
+        "calculate shadows. It starts at a very shallow angle and walks along the",
+        "and step parameters. The method takes into account the curvature of"
+      ],
+      "examples": [
+        "g.region raster=elevation -p\nr.horizon elevation=elevation direction=215 step=0 bufferzone=200 \\\n    coordinates=638871.6,223384.4 maxdistance=5000",
+        "r.horizon elevation=elevation direction=90 step=5 bufferzone=200 \\\n    coordinates=638871.6,223384.4 maxdistance=5000 file=horizon.csv"
+      ],
+      "flags": [
+        "-l  Include horizon distance in the plain output",
+        "-d  Write output in degrees (default is radians)",
+        "-c  Write output in compass orientation (default is CCW, East=0)"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "For horizon rasters, read from the DEM an extra buffer around the present region",
+          "name": "bufferzone",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Coordinate(s) for which you want to calculate the horizon",
+          "name": "coordinates",
+          "options": [],
+          "required": false,
+          "type": "east,north"
+        },
+        {
+          "default": "None",
+          "description": "Direction in which you want to know the horizon height",
+          "name": "direction",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "1.0",
+          "description": "Sampling distance step coefficient (0.5-1.5)",
+          "name": "distance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "For horizon rasters, read from the DEM an extra buffer eastward the present region",
+          "name": "e_buff",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name of input elevation raster map",
+          "name": "elevation",
+          "options": [],
+          "required": true,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "360.0",
+          "description": "End angle for multidirectional horizon [degrees]",
+          "name": "end",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "-",
+          "description": "Name of file for output (use output=- for stdout)",
+          "name": "file",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "plain",
+          "description": "Output format",
+          "name": "format",
+          "options": [
+            "plain",
+            "json"
+          ],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "The maximum distance to consider when finding the horizon height",
+          "name": "maxdistance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "For horizon rasters, read from the DEM an extra buffer northward the present region",
+          "name": "n_buff",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "0",
+          "description": "Number of threads for parallel computing",
+          "name": "nprocs",
+          "options": [],
+          "required": false,
+          "type": "int"
+        },
+        {
+          "default": "None",
+          "description": "Name for output basename raster map(s)",
+          "name": "output",
+          "options": [],
+          "required": false,
+          "type": "str | type(np.ndarray) | type(np.array) | type(gs.array.array)"
+        },
+        {
+          "default": "None",
+          "description": "For horizon rasters, read from the DEM an extra buffer southward the present region",
+          "name": "s_buff",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "0.0",
+          "description": "Start angle for multidirectional horizon [degrees]",
+          "name": "start",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Angle step size for multidirectional horizon [degrees]",
+          "name": "step",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "For horizon rasters, read from the DEM an extra buffer westward the present region",
+          "name": "w_buff",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.r_horizon(elevation,  direction=None,  step=None,  start=0.0,  end=360.0,  bufferzone=None,  e_buff=None,  w_buff=None,  n_buff=None,  s_buff=None,  maxdistance=None,  output=None,  coordinates=None,  distance=1.0,  format=\"plain\",  file=\"-\",  nprocs=0,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/r.horizon.md;xml:interface-description",
+      "token_estimate": 861,
+      "tool": "r.horizon"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "v.extrude* extrudes vector features which means that points are",
+        "converted to vertical lines. Lines and area boundaries are extruded to a",
+        "set of faces, each segment defines one face. Area centroids are written"
+      ],
+      "examples": [
+        "v.extrude input=houses output=houses3D height=5 type=area",
+        "v.extrude input=houses output=houses3D elevation=dem height_column=height type=area"
+      ],
+      "flags": [
+        "-t  Trace elevation"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Category values",
+          "name": "cats",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Elevation raster map for height extraction",
+          "name": "elevation",
+          "options": [],
+          "required": false,
+          "type": "str | np.ndarray"
+        },
+        {
+          "default": "None",
+          "description": "Fixed height for 3D vector features",
+          "name": "height",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Name of attribute column with feature height",
+          "name": "height_column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "-1",
+          "description": "Layer number or name ('-1' for all layers)",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "nearest",
+          "description": "Sampling interpolation method",
+          "name": "method",
+          "options": [
+            "nearest",
+            "bilinear",
+            "bicubic"
+          ],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Height for sampled raster NULL values",
+          "name": "null_value",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1.0",
+          "description": "Scale factor sampled raster values",
+          "name": "scale",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "point,line,area",
+          "description": "Input feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "area"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "WHERE conditions of SQL statement without 'where' keyword",
+          "name": "where",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "0",
+          "description": "Shifting value for z coordinates",
+          "name": "zshift",
+          "options": [],
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_extrude(input,  layer=\"-1\",  cats=None,  where=None,  type=\"point,line,area\",  output,  zshift=0,  height=None,  height_column=None,  elevation=None,  method=\"nearest\",  scale=1.0,  null_value=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.extrude.md;xml:interface-description",
+      "token_estimate": 552,
+      "tool": "v.extrude"
+    },
+    {
+      "alternatives": [],
+      "constraints": [
+        "If you compute a shortest path after computing the visibility graph you",
+        "will notice that this path might go through a vertex of a line. If this",
+        "is not what you wanted you might need to process the map in"
+      ],
+      "examples": [
+        "v.extract input=zipcodes_wake output=areas_7_11_25 cats=7,11,25\ng.region vector=zipcodes_wake\nd.mon wx0\nd.vect areas_7_11_25\nv.net.visibility input=areas_7_11_25 output=graph\nd.vect graph\nd.vect areas_7_11_25 color=red type=boundary",
+        "v.buffer input=lines output=buffered_lines buffer=1\nv.net.visibility input=buffered_lines output=graph\nd.vect graph\nd.vect lines col=red"
+      ],
+      "flags": [],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Coordinates",
+          "name": "coordinates",
+          "options": [],
+          "required": false,
+          "type": "east,north"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of input vector map containing visible points",
+          "name": "visibility",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_net_visibility(input,  output,  coordinates=None,  visibility=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.net.visibility.md;xml:interface-description",
+      "token_estimate": 336,
+      "tool": "v.net.visibility"
+    }
+  ],
+  "omissions": [
+    "r.viewshed: DESCRIPTION",
+    "v.rast.stats: DESCRIPTION",
+    "r.horizon: DESCRIPTION",
+    "v.extrude: DESCRIPTION",
+    "v.net.visibility: DESCRIPTION"
+  ],
+  "tokens": 3048,
+  "tool": null
+}

@@ -1,0 +1,139 @@
+{
+  "cards": [
+    {
+      "alternatives": [
+        "r.buffer \u2014 raster buffer"
+      ],
+      "constraints": [
+        "Internal buffers for areas can be generated with negative distance",
+        "values (\"inward buffer\" or \"negative buffer\" or \"shrinking\").",
+        "v.buffer* fusions the geometries of buffers by default. Categories and"
+      ],
+      "examples": [
+        "v.buffer input=roadsmajor output=roadsmajor_buffer type=line distance=100",
+        "v.buffer input=hospitals output=hospitals_circled type=point distance=2000"
+      ],
+      "flags": [
+        "-s  Make outside corners straight",
+        "-c  Do not make caps at the ends of polylines",
+        "-t  Transfer categories and attributes"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "0",
+          "description": "Angle of major axis in degrees",
+          "name": "angle",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Category values",
+          "name": "cats",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Name of column to use for buffer distances",
+          "name": "column",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Buffer distance along major axis in map units",
+          "name": "distance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "-1",
+          "description": "Layer number or name ('-1' for all layers)",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "Buffer distance along minor axis in map units",
+          "name": "minordistance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "1.0",
+          "description": "Scaling factor for attribute column values",
+          "name": "scale",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "None",
+          "description": "Maximum distance between theoretical arc and polygon segments as multiple of buffer (default 0.01)",
+          "name": "tolerance",
+          "options": [],
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": "point,line,area",
+          "description": "Input feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid",
+            "area"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "None",
+          "description": "WHERE conditions of SQL statement without 'where' keyword",
+          "name": "where",
+          "options": [],
+          "required": false,
+          "type": "str"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_buffer(input,  layer=\"-1\",  cats=None,  where=None,  type=\"point,line,area\",  output,  distance=None,  minordistance=None,  angle=0,  column=None,  scale=1.0,  tolerance=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.buffer.md;xml:interface-description",
+      "token_estimate": 579,
+      "tool": "v.buffer"
+    }
+  ],
+  "omissions": [
+    "v.buffer: DESCRIPTION"
+  ],
+  "tokens": 579,
+  "tool": null
+}

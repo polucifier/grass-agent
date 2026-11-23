@@ -1,0 +1,115 @@
+{
+  "cards": [
+    {
+      "alternatives": [
+        "v.edit \u2014 interactive-style vector edits",
+        "v.generalize \u2014 geometry generalization"
+      ],
+      "constraints": [
+        "The user does not have to run [v.build](v.build.md) on the",
+        "output vector, unless the -b flag was used. The -b* flag affects",
+        "only the output vector - topology is always built for error"
+      ],
+      "examples": [
+        "v.clean input=testmap output=cleanmap tool=snap threshold=1",
+        "v.build -e map=imported error=build_errors\nv.clean -c input=imported output=clean error=cleaning_errors tool=snap,rmdangle,rmbridge,chbridge,bpol,prune threshold=5"
+      ],
+      "flags": [
+        "-b  Do not build topology for the output vector",
+        "-c  Combine tools with recommended follow-up tools"
+      ],
+      "omissions": [
+        "DESCRIPTION"
+      ],
+      "parameters": [
+        {
+          "default": "None",
+          "description": "Name of output map where errors are written",
+          "name": "error",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name of input vector map",
+          "name": "input",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "-1",
+          "description": "Layer number or name ('-1' for all layers)",
+          "name": "layer",
+          "options": [],
+          "required": false,
+          "type": "str"
+        },
+        {
+          "default": null,
+          "description": "Name for output vector map",
+          "name": "output",
+          "options": [],
+          "required": true,
+          "type": "str"
+        },
+        {
+          "default": "None",
+          "description": "One value for each tool; for threshold units, see each tool",
+          "name": "threshold",
+          "options": [],
+          "required": false,
+          "type": "float | list[float] | str"
+        },
+        {
+          "default": null,
+          "description": "Cleaning tool",
+          "name": "tool",
+          "options": [
+            "break",
+            "snap",
+            "rmdangle",
+            "chdangle",
+            "rmbridge",
+            "chbridge",
+            "rmdupl",
+            "rmdac",
+            "bpol",
+            "prune",
+            "rmarea",
+            "rmline",
+            "rmsa"
+          ],
+          "required": true,
+          "type": "str | list[str]"
+        },
+        {
+          "default": "point,line,boundary,centroid,area,face,kernel",
+          "description": "Input feature type",
+          "name": "type",
+          "options": [
+            "point",
+            "line",
+            "boundary",
+            "centroid",
+            "area",
+            "face",
+            "kernel"
+          ],
+          "required": false,
+          "type": "str | list[str]"
+        }
+      ],
+      "signature": "grass.tools.Tools.v_clean(input,  layer=\"-1\",  type=\"point,line,boundary,centroid,area,face,kernel\",  output,  error=None,  tool,  threshold=None,  flags=None,  overwrite=None,  verbose=None,  quiet=None,  superquiet=None)",
+      "source": "markdown:/usr/lib/grass85/docs/mkdocs/source/v.clean.md;xml:interface-description",
+      "token_estimate": 529,
+      "tool": "v.clean"
+    }
+  ],
+  "omissions": [
+    "v.clean: DESCRIPTION"
+  ],
+  "tokens": 529,
+  "tool": null
+}

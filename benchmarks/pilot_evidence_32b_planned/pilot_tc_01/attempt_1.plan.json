@@ -1,0 +1,55 @@
+{
+  "fallback": false,
+  "pipeline": "planned",
+  "plan": {
+    "assumptions": [],
+    "plan_repair_count": 0,
+    "planner_invocations": 1,
+    "replan_count": 0,
+    "revision": 0,
+    "steps": [
+      {
+        "constraints": [
+          "buffer=200"
+        ],
+        "id": 1,
+        "inputs": [
+          "streams"
+        ],
+        "intent": "Create a 200-meter buffer around the stream network lines",
+        "output_types": [
+          "vector"
+        ],
+        "outputs": [
+          "pilot_streams_buffer"
+        ],
+        "tool": "v.buffer"
+      }
+    ]
+  },
+  "plan_repair_count": 0,
+  "planner_completion_tokens": 91,
+  "planner_invocations": 1,
+  "planner_prompt_tokens": 550,
+  "replan_count": 0,
+  "revision": 0,
+  "shortlist": [
+    "v.buffer",
+    "v.to.db",
+    "v.to.points",
+    "v.net.flow",
+    "v.parallel",
+    "v.net.path",
+    "v.voronoi",
+    "v.patch",
+    "v.segment",
+    "v.decimate",
+    "v.net.distance",
+    "v.mkgrid"
+  ],
+  "shortlist_shortfall": false,
+  "validation": {
+    "errors": [],
+    "ok": true
+  }
+}

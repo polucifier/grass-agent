@@ -1,0 +1,144 @@
+{
+  "attempts": [
+    {
+      "assertion_results": [
+        {
+          "check": "non_null_count",
+          "detail": "n=157 (minimum 1)",
+          "expected": 1,
+          "observed": 157,
+          "output": "pilot_hospitals_raster",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_hospitals_raster",
+          "tolerance": null
+        },
+        {
+          "check": "non_null_count",
+          "detail": "n=1010600 (minimum 1)",
+          "expected": 1,
+          "observed": 1010600,
+          "output": "pilot_distance",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_distance",
+          "tolerance": null
+        },
+        {
+          "check": "value_range",
+          "detail": "observed [0.0, 161505.417865779], expected [0.0, 161505.417865779]",
+          "expected": [
+            0.0,
+            161505.417865779
+          ],
+          "observed": "0.0\u2013161505.417865779",
+          "output": "pilot_distance",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_distance",
+          "tolerance": null
+        },
+        {
+          "check": "mean",
+          "detail": "within 1.00% relative tolerance",
+          "expected": 40470.4763760589,
+          "observed": 40470.4763760589,
+          "output": "pilot_distance",
+          "passed": true,
+          "query": "r.univar -g -r map=pilot_distance",
+          "tolerance": 0.01
+        }
+      ],
+      "ast_sha256": "d9b9ace59727fa8c67cd8aef2f990d5a083d279914b5b4df5245f8c5acdb8112",
+      "budget_tier": "initial",
+      "code_sha256": "6bf8fffdab4bff21a68df9b37856a684a88ea1c713ef16aeb5f79c2590931b53",
+      "completion_tokens": 70,
+      "duplicate": false,
+      "error_excerpt": null,
+      "exit_code": 0,
+      "failing_tool": null,
+      "failure_mode": null,
+      "latency_s": 13.389764513121918,
+      "log_path": "attempt_1.log",
+      "manual_card_tokens": 1051,
+      "manual_context_tokens": 3686,
+      "manual_omissions": [
+        "v.to.rast: DESCRIPTION",
+        "r.grow.distance: DESCRIPTION"
+      ],
+      "new_maps": {
+        "raster": [
+          "pilot_distance",
+          "pilot_hospitals_raster"
+        ],
+        "vector": []
+      },
+      "num_ctx": 8192,
+      "ordinal": 1,
+      "outcome": "executed_ok",
+      "pipeline": "planned",
+      "pivot_used": false,
+      "plan_fallback": false,
+      "plan_repair_count": 0,
+      "plan_revision": 0,
+      "planned_tools": [
+        "v.to.rast",
+        "r.grow.distance"
+      ],
+      "planner_completion_tokens": 164,
+      "planner_invocations": 1,
+      "planner_prompt_tokens": 662,
+      "prompt_tokens": 1827,
+      "replan_count": 0,
+      "script_path": "attempt_1.py",
+      "semantic_evaluated": true,
+      "semantic_passed": true,
+      "shortlist_shortfall": false,
+      "signal_name": null,
+      "stage": "success",
+      "static_issues": [],
+      "static_passed": true,
+      "stderr_path": "attempt_1.stderr",
+      "stdout_path": "attempt_1.stdout",
+      "timed_out": false,
+      "tool_swaps": []
+    }
+  ],
+  "auxiliary_inputs": [],
+  "budget_ledger": {
+    "runtime_limit": 2,
+    "runtime_remaining": 2,
+    "runtime_used": 0,
+    "static_limit": 2,
+    "static_remaining": 2,
+    "static_used": 0
+  },
+  "category": "multi_step",
+  "completed_at": "2026-11-23T19:42:48+00:00",
+  "failure_mode_transitions": [
+    null
+  ],
+  "final_script": "final.py",
+  "harness_version": "gate3",
+  "no_op_count": 0,
+  "pass_at_1": true,
+  "pass_at_executed": true,
+  "pass_at_healed": true,
+  "pass_at_semantic": true,
+  "prompt": "Convert the hospitals vector points into a raster map and calculate the minimum Euclidean distance from each cell to the nearest hospital. Write the hospitals raster to the raster map pilot_hospitals_raster and the distance surface to the raster map pilot_distance. Do not change the computational region.",
+  "resume_key": {
+    "attempt1_source": "fresh",
+    "harness": "gate3",
+    "manual_context_tokens": 3686,
+    "max_retries": 2,
+    "max_runtime_retries": 2,
+    "max_static_retries": 2,
+    "model": "qwen2.5-coder:32b",
+    "num_ctx": 8192,
+    "pipeline": "planned",
+    "timeout": 120
+  },
+  "schema_version": 1,
+  "semantic_declared": true,
+  "semantic_evaluated": true,
+  "status": "complete",
+  "tc_id": "pilot_tc_33",
+  "tier": 2
+}
